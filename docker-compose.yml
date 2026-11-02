@@ -1,0 +1,65 @@
+# Plotboek Generator with its PostgreSQL database. Settings come from .env (see .env.example).
+#
+#   cp .env.example .env    # then fill it in
+#   docker compose up -d
+#
+# For development, `docker compose up -d postgres` starts only the database.
+
+services:
+  postgres:
+    image: postgres:18
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-plotboek}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}
+      POSTGRES_DB: ${POSTGRES_DB:-plotboek}
+    volumes:
+      # From PostgreSQL 18 the image keeps its cluster in a version subdirectory of this path.
+      - postgres_data:/var/lib/postgresql
+    ports:
+      # Bound to this machine only, for development tools.
+      - "127.0.0.1:${POSTGRES_PORT:-5432}:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-plotboek} -d ${POSTGRES_DB:-plotboek}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  webapp:
+    image: ghcr.io/gemberkoekje/plotboek-generator:${PLOTBOEK_VERSION:-latest}
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      - "${WEBAPP_PORT:-8080}:8080"
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ConnectionStrings__Postgres: "Host=postgres;Port=5432;Database=${POSTGRES_DB:-plotboek};Username=${POSTGRES_USER:-plotboek};Password=${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}"
+      Hosting__PathBase: ${PATH_BASE:-}
+      Authentication__Oidc__Providers__0__Scheme: ${OIDC_SCHEME:?Set OIDC_SCHEME in .env}
+      Authentication__Oidc__Providers__0__DisplayName: ${OIDC_DISPLAY_NAME:-}
+      Authentication__Oidc__Providers__0__Authority: ${OIDC_AUTHORITY:?Set OIDC_AUTHORITY in .env}
+      Authentication__Oidc__Providers__0__ClientId: ${OIDC_CLIENT_ID:?Set OIDC_CLIENT_ID in .env}
+      Authentication__Oidc__Providers__0__ClientSecret: ${OIDC_CLIENT_SECRET:-}
+      Authentication__Oidc__Providers__0__RoleClaim: ${OIDC_ROLE_CLAIM:-}
+      Authentication__Admins: ${ADMIN_EMAILS:-}
+      Authentication__Roles__Admin: ${ROLE_ADMIN:-}
+      Authentication__Roles__User: ${ROLE_USER:-}
+      Authentication__Roles__NPC: ${ROLE_NPC:-}
+      Branding__Name: ${BRANDING_NAME:-}
+      Branding__ThemeColor: ${BRANDING_THEME_COLOR:-}
+      Gemini__ApiKey: ${GEMINI_API_KEY:-}
+      Authentication__Google__ClientId: ${GOOGLE_CLIENT_ID:-}
+      Authentication__Google__ClientSecret: ${GOOGLE_CLIENT_SECRET:-}
+      GoogleDrive__RefreshToken: ${GOOGLE_DRIVE_REFRESH_TOKEN:-}
+      GoogleDrive__SyncApiKey: ${GOOGLE_DRIVE_SYNC_API_KEY:-}
+      # Keeps sign-ins valid across restarts. Add DataProtection__CertificatePath to encrypt the
+      # keys at rest.
+      DataProtection__KeyPath: /keys
+    volumes:
+      - dataprotection_keys:/keys
+
+volumes:
+  postgres_data:
+  dataprotection_keys:

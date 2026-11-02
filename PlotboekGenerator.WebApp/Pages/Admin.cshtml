@@ -1,0 +1,624 @@
+@page
+@model AdminModel
+@{
+    var isUsers = string.Equals(Model.Section, "users", StringComparison.OrdinalIgnoreCase);
+    var isDomains = string.Equals(Model.Section, "domains", StringComparison.OrdinalIgnoreCase);
+    var isMeetings = string.Equals(Model.Section, "meetings", StringComparison.OrdinalIgnoreCase);
+    var isNamen = string.Equals(Model.Section, "namen", StringComparison.OrdinalIgnoreCase);
+    var isWerelden = string.Equals(Model.Section, "werelden", StringComparison.OrdinalIgnoreCase);
+    var isStandaardNpcs = string.Equals(Model.Section, "standaardnpcs", StringComparison.OrdinalIgnoreCase);
+    var isQuestLocaties = string.Equals(Model.Section, "questlocaties", StringComparison.OrdinalIgnoreCase);
+    var isStarttijden = string.Equals(Model.Section, "starttijden", StringComparison.OrdinalIgnoreCase);
+    var isVerwijderd = string.Equals(Model.Section, "verwijderd", StringComparison.OrdinalIgnoreCase);
+    var isGoogleDrive = string.Equals(Model.Section, "googledrive", StringComparison.OrdinalIgnoreCase);
+    ViewData["Title"] = Model.Section?.ToLowerInvariant() switch
+    {
+        "googledrive" => "Admin - Google Drive",
+        "verwijderd" => "Admin - Verwijderde Paginas",
+        "werelden" => "Admin - Werelden Management",
+        "standaardnpcs" => "Admin - Standaard-NPC's",
+        "questlocaties" => "Admin - Questlocaties",
+        "starttijden" => "Admin - Starttijden & blokken",
+        "namen" => "Admin - Namen Management",
+        "meetings" => "Admin - Meeting Management",
+        "domains" => "Admin - Domain Management",
+        _ => "Admin - User Management",
+    };
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <h1 class="display-4 text-center mb-4">
+                <i class="fas fa-cogs"></i> Admin
+            </h1>
+        </div>
+    </div>
+
+    @if (!string.IsNullOrEmpty(Model.SuccessMessage))
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            @Model.SuccessMessage
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            @Model.ErrorMessage
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    <div class="row">
+        <!-- Left side: Navigation Menu -->
+        <div class="col-md-3 col-lg-2 mb-4">
+            <div class="list-group">
+                <a href="@Url.Page("/Admin", new { Section = "users" })"
+                   class="list-group-item list-group-item-action @(isUsers ? "active" : "")">
+                    <i class="fas fa-users-cog me-2"></i>User Management
+                </a>
+                <a href="@Url.Page("/Admin", new { Section = "domains" })"
+                   class="list-group-item list-group-item-action @(isDomains ? "active" : "")">
+                    <i class="fas fa-globe me-2"></i>Domain Management
+                </a>
+                <a href="@Url.Page("/Admin", new { Section = "meetings" })"
+                   class="list-group-item list-group-item-action @(isMeetings ? "active" : "")">
+                    <i class="fas fa-calendar-alt me-2"></i>Meeting Management
+                </a>
+                <a href="@Url.Page("/Admin", new { Section = "namen" })"
+                   class="list-group-item list-group-item-action @(isNamen ? "active" : "")">
+                    <i class="fas fa-user-tag me-2"></i>Namen Management
+                </a>
+                <a href="@Url.Page("/Admin", new { Section = "werelden" })"
+                   class="list-group-item list-group-item-action @(isWerelden ? "active" : "")">
+                    <i class="fas fa-globe-americas me-2"></i>Werelden Management
+                </a>
+                <a href="@Url.Page("/Admin", new { Section = "standaardnpcs" })"
+                   class="list-group-item list-group-item-action @(isStandaardNpcs ? "active" : "")">
+                    <i class="fas fa-bookmark me-2"></i>Standaard-NPC's
+                </a>
+                <a href="@Url.Page("/Admin", new { Section = "questlocaties" })"
+                   class="list-group-item list-group-item-action @(isQuestLocaties ? "active" : "")">
+                    <i class="fas fa-map-location-dot me-2"></i>Questlocaties
+                </a>
+                <a href="@Url.Page("/Admin", new { Section = "starttijden" })"
+                   class="list-group-item list-group-item-action @(isStarttijden ? "active" : "")">
+                    <i class="fas fa-clock me-2"></i>Starttijden &amp; blokken
+                </a>
+                <a href="@Url.Page("/Admin", new { Section = "verwijderd" })"
+                   class="list-group-item list-group-item-action @(isVerwijderd ? "active" : "")">
+                    <i class="fas fa-trash-restore me-2"></i>Verwijderde Paginas
+                </a>
+                <a href="@Url.Page("/Admin", new { Section = "googledrive" })"
+                   class="list-group-item list-group-item-action @(isGoogleDrive ? "active" : "")">
+                    <i class="fab fa-google-drive me-2"></i>Google Drive
+                </a>
+            </div>
+        </div>
+
+        <!-- Right side: Content -->
+        <div class="col-md-9 col-lg-10">
+            @if (isGoogleDrive)
+            {
+                <partial name="Admin/_GoogleDriveManagement" model="Model" />
+            }
+            else if (isVerwijderd)
+            {
+                <partial name="Admin/_VerwijderdePaginaManagement" model="Model" />
+            }
+            else if (isWerelden)
+            {
+                <partial name="Admin/_WereldenManagement" model="Model" />
+            }
+            else if (isStandaardNpcs)
+            {
+                <partial name="Admin/_StandaardNpcManagement" model="Model" />
+            }
+            else if (isQuestLocaties)
+            {
+                <partial name="Admin/_QuestLocatieManagement" model="Model" />
+            }
+            else if (isStarttijden)
+            {
+                <partial name="Admin/_StarttijdManagement" model="Model" />
+            }
+            else if (isNamen)
+            {
+                <partial name="Admin/_NamenManagement" model="Model" />
+            }
+            else if (isMeetings)
+            {
+                <partial name="Admin/_MeetingManagement" model="Model" />
+            }
+            else if (isDomains)
+            {
+                <partial name="Admin/_DomainManagement" model="Model" />
+            }
+            else
+            {
+                <partial name="Admin/_UserManagement" model="Model" />
+            }
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function getProviderBadgeClass(provider) {
+            if (provider === 'Google') {
+                return 'text-bg-danger';
+            }
+            return 'text-bg-primary';
+        }
+
+        function openEditModalFromButton(button) {
+            const userId = button.getAttribute('data-user-id');
+            const userName = button.getAttribute('data-user-name');
+            const currentRole = button.getAttribute('data-user-role');
+            const providerRole = button.getAttribute('data-user-provider-role');
+            const currentDomainId = button.getAttribute('data-user-domain-id');
+            const externalLoginsJson = button.getAttribute('data-external-logins');
+
+            let externalLogins = [];
+            try {
+                externalLogins = JSON.parse(externalLoginsJson || '[]');
+            } catch (e) {
+                console.error('Failed to parse external logins:', e);
+            }
+
+            const providerRoleField = document.getElementById('editUserProviderRole');
+            if (providerRoleField) {
+                providerRoleField.value = providerRole || '— none —';
+            }
+
+            openEditModal(userId, userName, currentRole, currentDomainId, externalLogins);
+        }
+
+        function openEditModal(userId, userName, currentRole, currentDomainId, externalLogins) {
+            document.getElementById('editUserId').value = userId;
+            document.getElementById('editUserName').value = userName;
+            document.getElementById('editUserRole').value = currentRole || '';
+            document.getElementById('editUserPrimaryDomainId').value = currentDomainId || '';
+            document.getElementById('editFormAction').value = 'save';
+            document.getElementById('loginIdToUnlink').value = '';
+
+            // Render external logins
+            const loginsList = document.getElementById('loginsList');
+            const noLoginsMessage = document.getElementById('noLoginsMessage');
+
+            loginsList.innerHTML = '';
+
+            if (externalLogins && externalLogins.length > 0) {
+                noLoginsMessage.style.display = 'none';
+                externalLogins.forEach(login => {
+                    const badgeClass = getProviderBadgeClass(login.Provider);
+                    const row = document.createElement('div');
+                    row.className = 'd-flex align-items-center justify-content-between p-2 mb-2 bg-body-tertiary rounded border';
+                    row.innerHTML = `
+                        <div class="d-flex align-items-center">
+                            <span class="badge ${badgeClass} me-3">${login.Provider}</span>
+                            <span class="text-body">${login.Email}</span>
+                        </div>
+                        ${externalLogins.length > 1 ? `
+                            <button type="button" class="btn btn-sm btn-outline-danger"
+                                    onclick="unlinkLogin('${login.Id}')">
+                                Unlink
+                            </button>
+                        ` : '<span class="text-muted small">(Primary login)</span>'}
+                    `;
+                    loginsList.appendChild(row);
+                });
+            } else {
+                noLoginsMessage.style.display = 'block';
+            }
+        }
+
+        function unlinkLogin(loginId) {
+            if (confirm('Are you sure you want to unlink this external login?')) {
+                document.getElementById('editFormAction').value = 'unlinkLogin';
+                document.getElementById('loginIdToUnlink').value = loginId;
+                document.getElementById('editUserForm').submit();
+            }
+        }
+
+        // Domain Management Functions
+        function editDomain(id, shorthand, description) {
+            document.getElementById('editDomainId').value = id;
+            document.getElementById('editDomainShorthand').value = shorthand;
+            document.getElementById('editDomainDescription').value = description;
+            document.getElementById('saveDomainBtn').innerHTML = '<i class="fas fa-save"></i> Wijzigingen Opslaan';
+            document.getElementById('cancelEditDomainBtn').style.display = 'inline-block';
+        }
+
+        function cancelEditDomain() {
+            document.getElementById('editDomainId').value = '';
+            document.getElementById('editDomainShorthand').value = '';
+            document.getElementById('editDomainDescription').value = '';
+            document.getElementById('saveDomainBtn').innerHTML = '<i class="fas fa-plus"></i> Domein Toevoegen';
+            document.getElementById('cancelEditDomainBtn').style.display = 'none';
+        }
+
+        // Meeting Management Functions
+        function editMeeting(id, tijd, naam, dagType) {
+            document.getElementById('editMeetingId').value = id;
+            document.getElementById('editMeetingTijd').value = tijd;
+            document.getElementById('editMeetingNaam').value = naam;
+            document.getElementById('editMeetingDagType').value = dagType;
+            document.getElementById('saveMeetingBtn').innerHTML = '<i class="fas fa-save"></i> Wijzigingen Opslaan';
+            document.getElementById('cancelEditMeetingBtn').style.display = 'inline-block';
+        }
+
+        function cancelEditMeeting() {
+            document.getElementById('editMeetingId').value = '';
+            document.getElementById('editMeetingTijd').value = '';
+            document.getElementById('editMeetingNaam').value = '';
+            document.getElementById('editMeetingDagType').value = '0';
+            document.getElementById('saveMeetingBtn').innerHTML = '<i class="fas fa-plus"></i> Meeting Toevoegen';
+            document.getElementById('cancelEditMeetingBtn').style.display = 'none';
+        }
+
+        // Character Name Management Functions
+        function editCharacterName(id, naam) {
+            document.getElementById('editCharacterNameId').value = id;
+            document.getElementById('editCharacterNameNaam').value = naam;
+            document.getElementById('saveCharacterNameBtn').innerHTML = '<i class="fas fa-save"></i> Wijzigingen Opslaan';
+            document.getElementById('cancelEditCharacterNameBtn').style.display = 'inline-block';
+        }
+
+        function cancelEditCharacterName() {
+            document.getElementById('editCharacterNameId').value = '';
+            document.getElementById('editCharacterNameNaam').value = '';
+            document.getElementById('saveCharacterNameBtn').innerHTML = '<i class="fas fa-plus"></i> Naam Toevoegen';
+            document.getElementById('cancelEditCharacterNameBtn').style.display = 'none';
+        }
+
+        // World Name Management Functions
+        function editWorldName(id, naam) {
+            document.getElementById('editWorldNameId').value = id;
+            document.getElementById('editWorldNameNaam').value = naam;
+            document.getElementById('saveWorldNameBtn').innerHTML = '<i class="fas fa-save"></i> Wijzigingen Opslaan';
+            document.getElementById('cancelEditWorldNameBtn').style.display = 'inline-block';
+        }
+
+        function cancelEditWorldName() {
+            document.getElementById('editWorldNameId').value = '';
+            document.getElementById('editWorldNameNaam').value = '';
+            document.getElementById('saveWorldNameBtn').innerHTML = '<i class="fas fa-plus"></i> Wereld Toevoegen';
+            document.getElementById('cancelEditWorldNameBtn').style.display = 'none';
+        }
+
+        // Questlocatie Management Functions
+        // The id is derived from the name on creation and is read-only afterwards: stored plots
+        // reference it, so renaming must keep the key.
+        function editQuestLocatieCategorie(button) {
+            document.getElementById('editQuestLocatieCategorieId').value = button.dataset.categorieId;
+            document.getElementById('editQuestLocatieCategorieNaam').value = button.dataset.categorieNaam;
+            document.getElementById('editQuestLocatieCategorieNotitie').value = button.dataset.categorieNotitie || '';
+            document.getElementById('editQuestLocatieCategorieErnst').value = button.dataset.categorieErnst;
+            document.getElementById('editQuestLocatieCategorieOrder').value = button.dataset.categorieOrder;
+            document.getElementById('saveQuestLocatieCategorieBtn').innerHTML = '<i class="fas fa-save"></i> Wijzigingen Opslaan';
+            document.getElementById('cancelEditQuestLocatieCategorieBtn').style.display = 'inline-block';
+            document.getElementById('questLocatieCategorieIdHint').textContent = 'Sleutel: ' + button.dataset.categorieId + ' (wijzigt niet)';
+        }
+
+        function cancelEditQuestLocatieCategorie() {
+            document.getElementById('editQuestLocatieCategorieId').value = '';
+            document.getElementById('editQuestLocatieCategorieNaam').value = '';
+            document.getElementById('editQuestLocatieCategorieNotitie').value = '';
+            document.getElementById('editQuestLocatieCategorieOrder').value = '0';
+            document.getElementById('saveQuestLocatieCategorieBtn').innerHTML = '<i class="fas fa-plus"></i> Categorie Toevoegen';
+            document.getElementById('cancelEditQuestLocatieCategorieBtn').style.display = 'none';
+            document.getElementById('questLocatieCategorieIdHint').textContent = '';
+        }
+
+        function editQuestLocatie(button) {
+            document.getElementById('editQuestLocatieId').value = button.dataset.locatieId;
+            document.getElementById('editQuestLocatieNaam').value = button.dataset.locatieNaam;
+            document.getElementById('editQuestLocatieCategorie').value = button.dataset.locatieCategorie;
+            document.getElementById('editQuestLocatieNotitie').value = button.dataset.locatieNotitie || '';
+            document.getElementById('editQuestLocatieOrder').value = button.dataset.locatieOrder;
+            document.getElementById('editQuestLocatieIsActief').checked = button.dataset.locatieActief === 'true';
+
+            const overlap = (button.dataset.locatieOverlap || '').split(',').filter(id => id.length > 0);
+            const overlapSelect = document.getElementById('editQuestLocatieConflicteertMet');
+            Array.from(overlapSelect.options).forEach(option => {
+                option.selected = overlap.includes(option.value);
+                // A location cannot overlap with itself.
+                option.disabled = option.value === button.dataset.locatieId;
+            });
+
+            document.getElementById('saveQuestLocatieBtn').innerHTML = '<i class="fas fa-save"></i> Wijzigingen Opslaan';
+            document.getElementById('cancelEditQuestLocatieBtn').style.display = 'inline-block';
+            document.getElementById('questLocatieIdHint').textContent = 'Sleutel: ' + button.dataset.locatieId + ' (wijzigt niet)';
+        }
+
+        function cancelEditQuestLocatie() {
+            document.getElementById('editQuestLocatieId').value = '';
+            document.getElementById('editQuestLocatieNaam').value = '';
+            document.getElementById('editQuestLocatieCategorie').value = '';
+            document.getElementById('editQuestLocatieNotitie').value = '';
+            document.getElementById('editQuestLocatieOrder').value = '0';
+            document.getElementById('editQuestLocatieIsActief').checked = true;
+
+            const overlapSelect = document.getElementById('editQuestLocatieConflicteertMet');
+            Array.from(overlapSelect.options).forEach(option => {
+                option.selected = false;
+                option.disabled = false;
+            });
+
+            document.getElementById('saveQuestLocatieBtn').innerHTML = '<i class="fas fa-plus"></i> Questlocatie Toevoegen';
+            document.getElementById('cancelEditQuestLocatieBtn').style.display = 'none';
+            document.getElementById('questLocatieIdHint').textContent = '';
+        }
+
+        // Standaard-NPC Management Functions
+        // The values come from data-* attributes, so quotes in a costume description can't break the call.
+        function editStandaardNpc(button) {
+            document.getElementById('editStandaardNpcId').value = button.dataset.npcId;
+            document.getElementById('editStandaardNpcRol').value = button.dataset.npcRol;
+            document.getElementById('editStandaardNpcKledingEnSchmink').value = button.dataset.npcKleding || '';
+            document.getElementById('editStandaardNpcCastingInstructie').value = button.dataset.npcCasting || '';
+            document.getElementById('saveStandaardNpcBtn').innerHTML = '<i class="fas fa-save"></i> Wijzigingen Opslaan';
+            document.getElementById('cancelEditStandaardNpcBtn').style.display = 'inline-block';
+            document.getElementById('editStandaardNpcRol').focus();
+        }
+
+        function cancelEditStandaardNpc() {
+            document.getElementById('editStandaardNpcId').value = '';
+            document.getElementById('editStandaardNpcRol').value = '';
+            document.getElementById('editStandaardNpcKledingEnSchmink').value = '';
+            document.getElementById('editStandaardNpcCastingInstructie').value = '';
+            document.getElementById('saveStandaardNpcBtn').innerHTML = '<i class="fas fa-plus"></i> Standaard-NPC Toevoegen';
+            document.getElementById('cancelEditStandaardNpcBtn').style.display = 'none';
+        }
+
+        // Starttijd Management Functions
+        // The key is derived from the time in the name on creation and is read-only afterwards: stored
+        // plots reference it, so renaming must keep the key.
+        function editStarttijd(button) {
+            document.getElementById('editStarttijdId').value = button.dataset.starttijdId;
+            document.getElementById('editStarttijdNaam').value = button.dataset.starttijdNaam;
+            document.getElementById('editStarttijdEersteDag').checked = button.dataset.starttijdEersteDag === 'true';
+            document.getElementById('editStarttijdMiddelDagen').checked = button.dataset.starttijdMiddelDagen === 'true';
+            document.getElementById('editStarttijdLaatsteDag').checked = button.dataset.starttijdLaatsteDag === 'true';
+            document.getElementById('editStarttijdBlokVensterEersteDag').value = button.dataset.starttijdVensterEersteDag || '';
+            document.getElementById('editStarttijdBlokVensterMiddelDagen').value = button.dataset.starttijdVensterMiddelDagen || '';
+            document.getElementById('editStarttijdBlokVensterLaatsteDag').value = button.dataset.starttijdVensterLaatsteDag || '';
+            document.getElementById('saveStarttijdBtn').innerHTML = '<i class="fas fa-save"></i> Wijzigingen Opslaan';
+            document.getElementById('cancelEditStarttijdBtn').style.display = 'inline-block';
+            document.getElementById('starttijdIdHint').textContent = 'Sleutel: ' + button.dataset.starttijdId + ' (wijzigt niet)';
+        }
+
+        function cancelEditStarttijd() {
+            document.getElementById('editStarttijdId').value = '';
+            document.getElementById('editStarttijdNaam').value = '';
+            document.getElementById('editStarttijdEersteDag').checked = false;
+            document.getElementById('editStarttijdMiddelDagen').checked = false;
+            document.getElementById('editStarttijdLaatsteDag').checked = false;
+            document.getElementById('editStarttijdBlokVensterEersteDag').value = '';
+            document.getElementById('editStarttijdBlokVensterMiddelDagen').value = '';
+            document.getElementById('editStarttijdBlokVensterLaatsteDag').value = '';
+            document.getElementById('saveStarttijdBtn').innerHTML = '<i class="fas fa-plus"></i> Starttijd Toevoegen';
+            document.getElementById('cancelEditStarttijdBtn').style.display = 'none';
+            document.getElementById('starttijdIdHint').textContent = '';
+        }
+
+        // Simple drag-and-drop reordering
+        let originalOrder = [];
+        let isDragging = false;
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const tbody = document.getElementById('domainsTbody');
+            if (!tbody) return;
+
+            // Store original order
+            originalOrder = Array.from(tbody.querySelectorAll('tr')).map(row => ({
+                id: row.dataset.domainId,
+                order: parseInt(row.dataset.domainOrder)
+            }));
+
+            // Enable drag and drop
+            tbody.querySelectorAll('tr').forEach(row => {
+                row.draggable = true;
+
+                row.addEventListener('dragstart', function(e) {
+                    isDragging = true;
+                    row.classList.add('dragging');
+                    e.dataTransfer.effectAllowed = 'move';
+                });
+
+                row.addEventListener('dragend', function() {
+                    isDragging = false;
+                    row.classList.remove('dragging');
+                    updateOrderDisplay();
+                    checkOrderChanged();
+                });
+
+                row.addEventListener('dragover', function(e) {
+                    e.preventDefault();
+                    const draggingRow = tbody.querySelector('.dragging');
+                    if (draggingRow && draggingRow !== row) {
+                        const rect = row.getBoundingClientRect();
+                        const midY = rect.top + rect.height / 2;
+                        if (e.clientY < midY) {
+                            tbody.insertBefore(draggingRow, row);
+                        } else {
+                            tbody.insertBefore(draggingRow, row.nextSibling);
+                        }
+                    }
+                });
+            });
+        });
+
+        function updateOrderDisplay() {
+            const tbody = document.getElementById('domainsTbody');
+            if (!tbody) return;
+
+            let order = 1;
+            tbody.querySelectorAll('tr').forEach(row => {
+                row.querySelector('.order-display').textContent = order;
+                row.dataset.domainOrder = order;
+                order++;
+            });
+        }
+
+        function checkOrderChanged() {
+            const tbody = document.getElementById('domainsTbody');
+            if (!tbody) return;
+
+            const currentOrder = Array.from(tbody.querySelectorAll('tr')).map((row, index) => ({
+                id: row.dataset.domainId,
+                order: index + 1
+            }));
+
+            const hasChanged = currentOrder.some((item, index) =>
+                originalOrder[index]?.id !== item.id
+            );
+
+            const reorderForm = document.getElementById('reorderForm');
+            if (hasChanged) {
+                document.getElementById('domainReorderData').value = JSON.stringify(currentOrder.map(item => ({
+                    Id: item.id,
+                    Order: item.order
+                })));
+                reorderForm.style.display = 'block';
+            } else {
+                reorderForm.style.display = 'none';
+            }
+        }
+
+        function cancelReorder() {
+            const tbody = document.getElementById('domainsTbody');
+            if (!tbody) return;
+
+            // Restore original order
+            originalOrder.sort((a, b) => a.order - b.order);
+            originalOrder.forEach(item => {
+                const row = tbody.querySelector(`tr[data-domain-id="${item.id}"]`);
+                if (row) {
+                    tbody.appendChild(row);
+                }
+            });
+
+            updateOrderDisplay();
+            document.getElementById('reorderForm').style.display = 'none';
+        }
+
+        // Meeting drag-and-drop reordering
+        let meetingOriginalOrders = {};
+
+        document.addEventListener('DOMContentLoaded', function() {
+            ['EersteDag', 'Tussendag', 'LaatseDag'].forEach(dagType => {
+                const tbody = document.getElementById('meetingsTbody_' + dagType);
+                if (!tbody) return;
+
+                meetingOriginalOrders[dagType] = Array.from(tbody.querySelectorAll('tr')).map(row => ({
+                    id: row.dataset.meetingId,
+                    order: parseInt(row.dataset.meetingOrder)
+                }));
+
+                tbody.querySelectorAll('tr').forEach(row => {
+                    row.draggable = true;
+
+                    row.addEventListener('dragstart', function(e) {
+                        row.classList.add('meeting-dragging');
+                        e.dataTransfer.effectAllowed = 'move';
+                    });
+
+                    row.addEventListener('dragend', function() {
+                        row.classList.remove('meeting-dragging');
+                        updateMeetingOrderDisplay(dagType);
+                        checkMeetingOrderChanged(dagType);
+                    });
+
+                    row.addEventListener('dragover', function(e) {
+                        e.preventDefault();
+                        const draggingRow = tbody.querySelector('.meeting-dragging');
+                        if (draggingRow && draggingRow !== row) {
+                            const rect = row.getBoundingClientRect();
+                            const midY = rect.top + rect.height / 2;
+                            if (e.clientY < midY) {
+                                tbody.insertBefore(draggingRow, row);
+                            } else {
+                                tbody.insertBefore(draggingRow, row.nextSibling);
+                            }
+                        }
+                    });
+                });
+            });
+        });
+
+        function updateMeetingOrderDisplay(dagType) {
+            const tbody = document.getElementById('meetingsTbody_' + dagType);
+            if (!tbody) return;
+
+            let order = 1;
+            tbody.querySelectorAll('tr').forEach(row => {
+                row.querySelector('.meeting-order-display').textContent = order;
+                row.dataset.meetingOrder = order;
+                order++;
+            });
+        }
+
+        function checkMeetingOrderChanged(dagType) {
+            const tbody = document.getElementById('meetingsTbody_' + dagType);
+            if (!tbody) return;
+
+            const currentOrder = Array.from(tbody.querySelectorAll('tr')).map((row, index) => ({
+                id: row.dataset.meetingId,
+                order: index + 1
+            }));
+
+            const orig = meetingOriginalOrders[dagType] || [];
+            const hasChanged = currentOrder.some((item, index) =>
+                orig[index]?.id !== item.id
+            );
+
+            const reorderForm = document.getElementById('meetingReorderForm_' + dagType);
+            if (hasChanged) {
+                document.getElementById('meetingReorderData_' + dagType).value = JSON.stringify(currentOrder.map(item => ({
+                    Id: item.id,
+                    Order: item.order
+                })));
+                reorderForm.style.display = 'block';
+            } else {
+                reorderForm.style.display = 'none';
+            }
+        }
+
+        function cancelMeetingReorder(dagType) {
+            const tbody = document.getElementById('meetingsTbody_' + dagType);
+            if (!tbody) return;
+
+            const orig = meetingOriginalOrders[dagType] || [];
+            orig.sort((a, b) => a.order - b.order);
+            orig.forEach(item => {
+                const row = tbody.querySelector(`tr[data-meeting-id="${item.id}"]`);
+                if (row) {
+                    tbody.appendChild(row);
+                }
+            });
+
+            updateMeetingOrderDisplay(dagType);
+            document.getElementById('meetingReorderForm_' + dagType).style.display = 'none';
+        }
+    </script>
+    <style>
+        .dragging {
+            opacity: 0.5;
+            background-color: var(--bs-secondary-bg);
+        }
+        .meeting-dragging {
+            opacity: 0.5;
+            background-color: var(--bs-secondary-bg);
+        }
+        #domainsTbody tr {
+            transition: background-color 0.2s;
+        }
+        #domainsTbody tr:hover {
+            background-color: var(--bs-tertiary-bg);
+        }
+    </style>
+}

@@ -1,0 +1,276 @@
+/* Plotboek's own components. Every colour is a Bootstrap variable or a --pb-* token (site.css), so each
+   rule holds in light and dark mode without a dark copy. */
+
+.drag-handle {
+    cursor: grab;
+    opacity: 0.5;
+}
+.drag-handle:hover {
+    opacity: 1;
+}
+.list-group-item[draggable="true"] {
+    cursor: grab;
+}
+.list-group-item[draggable="true"]:active {
+    cursor: grabbing;
+}
+.list-group-item.dragging {
+    opacity: 0.5;
+    background-color: var(--bs-secondary-bg);
+}
+.pagina-dropzone {
+    min-height: 40px;
+    transition: all 0.2s ease;
+    border: 2px dashed transparent;
+    border-radius: var(--bs-border-radius);
+}
+.pagina-dropzone.drop-active {
+    border-color: var(--bs-border-color);
+}
+/* The drop target in the accent colour. */
+.pagina-dropzone.drop-hover {
+    border-color: var(--pb-accent);
+    background-color: color-mix(in srgb, var(--pb-accent) 8%, transparent);
+}
+
+/* Collapsible detail sections */
+.detail-section {
+    border: var(--bs-border-width) solid var(--bs-border-color);
+    border-radius: var(--bs-border-radius);
+    margin-bottom: 0.75rem;
+}
+.detail-section-header {
+    cursor: pointer;
+    padding: 0.5rem 0.75rem;
+    background-color: var(--bs-tertiary-bg);
+    border-radius: var(--bs-border-radius);
+    transition: background-color 0.15s;
+    user-select: none;
+}
+.detail-section-header:hover {
+    background-color: var(--bs-secondary-bg);
+}
+.detail-section-label {
+    font-weight: 600;
+    font-size: 0.85rem;
+    color: var(--bs-secondary-color);
+}
+.detail-section-summary {
+    font-size: 0.95rem;
+}
+.detail-section-header[aria-expanded="true"] .detail-section-summary {
+    display: none;
+}
+.detail-section-header[aria-expanded="true"] {
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+}
+.detail-section-chevron {
+    transition: transform 0.2s;
+    color: var(--bs-secondary-color);
+    font-size: 0.75rem;
+}
+.detail-section-header[aria-expanded="true"] .detail-section-chevron {
+    transform: rotate(180deg);
+}
+.detail-section-body {
+    padding: 0.75rem;
+    border-top: var(--bs-border-width) solid var(--bs-border-color);
+}
+
+/* Feedback cards. The text is plain (no Quill), so the line breaks the user typed have to be
+   preserved here rather than in the markup. */
+.feedback-kaart {
+    background-color: var(--bs-tertiary-bg);
+}
+.feedback-kaart-open {
+    border-left: 3px solid var(--pb-danger-text) !important;
+}
+.feedback-tekst {
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+}
+.feedback-reactie {
+    border-left: 3px solid var(--bs-border-color);
+}
+.feedback-reden {
+    max-width: 20rem;
+}
+.feedback-afgehandeld > summary {
+    cursor: pointer;
+    color: var(--bs-secondary-color);
+}
+
+/* Bijlage rows collapse their (tall) rich-text editor so a long list of bijlagen stays
+   scannable; only the one being edited is expanded. The disclosure control is a <span>
+   rather than a <button> because the whole bijlagen block sits inside a <fieldset disabled>
+   in read-only mode, where a real button would be unclickable. */
+.bijlage-toggle {
+    cursor: pointer;
+    user-select: none;
+    color: var(--bs-secondary-color);
+    padding: 0.35rem 0.5rem;
+    line-height: 1;
+}
+.bijlage-toggle:hover {
+    color: var(--bs-emphasis-color);
+}
+/* A tabindex span gets only the browser's focus ring; draw the same one as the form controls. */
+.bijlage-toggle:focus-visible {
+    outline: 0;
+    box-shadow: 0 0 0 0.25rem var(--pb-focus-ring);
+    border-radius: var(--bs-border-radius-sm);
+}
+.bijlage-toggle-chevron {
+    display: inline-block;
+    transition: transform 0.2s;
+    font-size: 0.75rem;
+}
+.bijlage-toggle[aria-expanded="true"] .bijlage-toggle-chevron {
+    transform: rotate(180deg);
+}
+
+/* A terrain map is usually black line art on a transparent background: it keeps a white backing
+   in both themes, as on paper. */
+.kaart-papier {
+    background-color: #fff;
+}
+
+/* NPC count in pagina list: inherit the active row's text colour */
+.list-group-item .npc-count {
+    color: var(--bs-secondary-color);
+}
+.list-group-item.active .npc-count {
+    color: inherit;
+}
+
+/* Quill rich text editor – override Quill 2's default height:100% on .ql-container
+   so the editor sizes based on content instead of overflowing the parent. */
+#samenvatting-plot-editor,
+#samenvatting-algemeen-plot-editor,
+#meer-informatie-editor,
+#instructie-techniek-editor,
+.bijlage-inhoud-editor {
+    height: auto;
+}
+
+#samenvatting-plot-editor .ql-container,
+#samenvatting-algemeen-plot-editor .ql-container,
+#meer-informatie-editor .ql-container,
+#instructie-techniek-editor .ql-container,
+.bijlage-inhoud-editor .ql-container {
+    height: auto;
+}
+
+#samenvatting-plot-editor .ql-editor,
+#samenvatting-algemeen-plot-editor .ql-editor,
+#meer-informatie-editor .ql-editor,
+#instructie-techniek-editor .ql-editor,
+.bijlage-inhoud-editor .ql-editor {
+    min-height: 150px;
+}
+
+/* Quill's snow theme in the page's colours. Its stylesheet (loaded just before this one) hard-codes
+   #ccc borders, #444 icons, a white surface and a #06c hover; these rules repeat its selectors with
+   the theme's variables, so the editors follow light and dark like the form controls do. */
+.ql-toolbar.ql-snow,
+.ql-container.ql-snow {
+    border-color: var(--bs-border-color);
+}
+.ql-toolbar.ql-snow {
+    background-color: var(--bs-tertiary-bg);
+    border-top-left-radius: var(--bs-border-radius);
+    border-top-right-radius: var(--bs-border-radius);
+}
+.ql-container.ql-snow {
+    color: var(--bs-body-color);
+    background-color: var(--bs-body-bg);
+    border-bottom-left-radius: var(--bs-border-radius);
+    border-bottom-right-radius: var(--bs-border-radius);
+}
+.ql-disabled .ql-editor {
+    background-color: var(--bs-secondary-bg);
+}
+.ql-editor.ql-blank::before {
+    color: var(--bs-secondary-color);
+}
+.ql-snow .ql-stroke {
+    stroke: var(--bs-body-color);
+}
+.ql-snow .ql-fill,
+.ql-snow .ql-stroke.ql-fill {
+    fill: var(--bs-body-color);
+}
+.ql-snow .ql-picker {
+    color: var(--bs-body-color);
+}
+.ql-snow .ql-picker-options {
+    background-color: var(--bs-body-bg);
+}
+.ql-snow .ql-picker.ql-expanded .ql-picker-label,
+.ql-snow .ql-picker.ql-expanded .ql-picker-options {
+    border-color: var(--bs-border-color);
+}
+.ql-snow.ql-toolbar button:hover,
+.ql-snow .ql-toolbar button:hover,
+.ql-snow.ql-toolbar button:focus,
+.ql-snow .ql-toolbar button:focus,
+.ql-snow.ql-toolbar button.ql-active,
+.ql-snow .ql-toolbar button.ql-active,
+.ql-snow.ql-toolbar .ql-picker-label:hover,
+.ql-snow .ql-toolbar .ql-picker-label:hover,
+.ql-snow.ql-toolbar .ql-picker-label.ql-active,
+.ql-snow .ql-toolbar .ql-picker-label.ql-active,
+.ql-snow.ql-toolbar .ql-picker-item:hover,
+.ql-snow .ql-toolbar .ql-picker-item:hover,
+.ql-snow.ql-toolbar .ql-picker-item.ql-selected,
+.ql-snow .ql-toolbar .ql-picker-item.ql-selected {
+    color: var(--pb-primary-text);
+}
+.ql-snow.ql-toolbar button:hover .ql-stroke,
+.ql-snow .ql-toolbar button:hover .ql-stroke,
+.ql-snow.ql-toolbar button:focus .ql-stroke,
+.ql-snow .ql-toolbar button:focus .ql-stroke,
+.ql-snow.ql-toolbar button.ql-active .ql-stroke,
+.ql-snow .ql-toolbar button.ql-active .ql-stroke,
+.ql-snow.ql-toolbar .ql-picker-label:hover .ql-stroke,
+.ql-snow .ql-toolbar .ql-picker-label:hover .ql-stroke,
+.ql-snow.ql-toolbar .ql-picker-label.ql-active .ql-stroke,
+.ql-snow .ql-toolbar .ql-picker-label.ql-active .ql-stroke {
+    stroke: var(--pb-primary-text);
+}
+.ql-snow.ql-toolbar button:hover .ql-fill,
+.ql-snow .ql-toolbar button:hover .ql-fill,
+.ql-snow.ql-toolbar button:focus .ql-fill,
+.ql-snow .ql-toolbar button:focus .ql-fill,
+.ql-snow.ql-toolbar button.ql-active .ql-fill,
+.ql-snow .ql-toolbar button.ql-active .ql-fill {
+    fill: var(--pb-primary-text);
+}
+.ql-snow a {
+    color: var(--bs-link-color);
+}
+.ql-snow .ql-tooltip {
+    color: var(--bs-body-color);
+    background-color: var(--bs-body-bg);
+    border-color: var(--bs-border-color);
+    box-shadow: var(--bs-box-shadow-sm);
+}
+.ql-snow .ql-tooltip input[type=text] {
+    color: var(--bs-body-color);
+    background-color: var(--bs-body-bg);
+    border-color: var(--bs-border-color);
+}
+.ql-snow .ql-editor code,
+.ql-snow .ql-editor .ql-code-block-container {
+    background-color: var(--bs-secondary-bg);
+}
+
+/* Ignore pasted inline text/background colors inside Quill editors */
+.ql-editor [style*="color"],
+.ql-editor [style*="background"],
+.ql-editor [color],
+.ql-editor [bgcolor] {
+    color: inherit !important;
+    background-color: transparent !important;
+}

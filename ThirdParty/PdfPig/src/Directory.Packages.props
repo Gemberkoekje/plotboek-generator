@@ -1,0 +1,11 @@
+<Project>
+  <!--
+    Shadows the repo root's Directory.Packages.props for this vendored subtree: Central
+    Package Management is off here so the upstream .csproj files' own inline package
+    versions (e.g. Microsoft.SourceLink.GitHub) resolve exactly as UglyToad/PdfPig
+    authored them, without needing matching entries in this repo's central versions file.
+  -->
+  <PropertyGroup>
+    <ManagePackageVersionsCentrally>false</ManagePackageVersionsCentrally>
+  </PropertyGroup>
+</Project>

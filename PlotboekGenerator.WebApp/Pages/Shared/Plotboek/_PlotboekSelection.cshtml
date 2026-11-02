@@ -1,0 +1,40 @@
+@model PlotboekModel
+
+<div class="row mb-4">
+    <div class="col-md-6 mx-auto">
+        <label for="plotboek-select" class="form-label">Select Plotboek:</label>
+        @if (!Model.AvailablePlotboeken.Any())
+        {
+            <select id="plotboek-select" class="form-select" disabled>
+                <option>Nog geen plotboek beschikbaar</option>
+            </select>
+            <small class="text-muted d-block mt-1">Er is nog geen plotboek volledig klaar voor NPC's.</small>
+        }
+        else
+        {
+        <select id="plotboek-select"
+                class="form-select"
+                onchange="navigateToPlotboek(this.value)">
+            <option value="">-- Select a Plotboek --</option>
+            @foreach (var plotboek in Model.AvailablePlotboeken.Where(p => !string.Equals(p.EventId, "Evergreen", StringComparison.Ordinal)))
+            {
+                <option value="@plotboek.Jaar|@plotboek.EventId"
+                        selected="@(Model.PlotboekId == plotboek.Id)">
+                    @plotboek.DisplayName
+                </option>
+            }
+            @{
+                var evergreenPlotboek = Model.AvailablePlotboeken.FirstOrDefault(p => string.Equals(p.EventId, "Evergreen", StringComparison.Ordinal));
+            }
+            @if (evergreenPlotboek != null)
+            {
+                <option disabled>──────────</option>
+                <option value="@evergreenPlotboek.Jaar|@evergreenPlotboek.EventId"
+                        selected="@(Model.PlotboekId == evergreenPlotboek.Id)">
+                    🌿 @evergreenPlotboek.DisplayName
+                </option>
+            }
+        </select>
+        }
+    </div>
+</div>

@@ -1,0 +1,32 @@
+/* The product's look: Bootstrap 5.3 in light and dark, with the few colour tokens of its own below.
+   Each token defaults to a Bootstrap variable that already differs per theme, so one rule holds in
+   both; a deployment with its own look (its own _Layout) points them at its colours. Only what
+   Bootstrap cannot know about lives here and in plotboek.css. */
+
+:root,
+[data-bs-theme] {
+  /* An accent for drop targets and highlights. */
+  --pb-accent: var(--bs-warning-text-emphasis);
+  /* Text that marks something as wrong, readable on the body background. */
+  --pb-danger-text: var(--bs-danger-text-emphasis);
+  /* The ring around a focused custom control. */
+  --pb-focus-ring: rgba(var(--bs-primary-rgb), 0.25);
+  /* Text and icons in the primary colour, readable on the body background. */
+  --pb-primary-text: var(--bs-primary-text-emphasis);
+}
+
+/* A quiet badge for counts and names: body text on the secondary background. */
+.pb-badge-neutral {
+  --bs-badge-color: var(--bs-body-color);
+  background-color: var(--bs-secondary-bg);
+  border: var(--bs-border-width) solid var(--bs-border-color);
+}
+
+.form-floating > .form-control-plaintext::placeholder, .form-floating > .form-control::placeholder {
+  color: var(--bs-secondary-color);
+  text-align: end;
+}
+
+.form-floating > .form-control-plaintext:focus::placeholder, .form-floating > .form-control:focus::placeholder {
+  text-align: start;
+}

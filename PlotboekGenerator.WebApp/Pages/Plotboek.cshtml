@@ -1,0 +1,340 @@
+@page
+@model PlotboekModel
+@{
+    ViewData["Title"] = "Plotboek";
+}
+
+@section Styles {
+    <link href="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.snow.css" rel="stylesheet" />
+    @* After Quill's own stylesheet: plotboek.css themes the editors for light and dark. *@
+    <link rel="stylesheet" href="~/_content/PlotboekGenerator.WebApp/css/plotboek.css" asp-append-version="true" />
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <h1 class="display-4 text-center mb-4">Plotboek</h1>
+        </div>
+    </div>
+
+    @if (!ViewData.ModelState.IsValid)
+    {
+        <div class="row mb-3">
+            <div class="col-12">
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger mb-0"></div>
+            </div>
+        </div>
+    }
+
+    <partial name="Shared/Plotboek/_PlotboekSelection" model="Model" />
+
+    @if (!Model.HasPlotboekAccess)
+    {
+        <div class="row mb-4">
+            <div class="col-md-8 mx-auto">
+                <div class="alert alert-info text-center" role="alert">
+                    <h4 class="alert-heading">Nog geen plotboek beschikbaar</h4>
+                    <p class="mb-0">@Model.PlotboekAccessMessage</p>
+                </div>
+            </div>
+        </div>
+    }
+    else if (Model.IsEvergreen || (Model.Jaar != Qowaiv.Year.Empty && !string.Equals(Model.EventId, "None", StringComparison.Ordinal)))
+    {
+        <partial name="Shared/Plotboek/_PlotboekSettings" model="Model" />
+
+        <div class="row">
+            <partial name="Shared/Plotboek/_PlotboekPaginaList" model="Model" />
+            <partial name="Shared/Plotboek/_PlotboekPaginaDetails" model="Model" />
+        </div>
+    }
+</div>
+
+<partial name="Shared/Plotboek/_Modals" model="Model" />
+
+@section Scripts {
+    <script src="~/_content/PlotboekGenerator.WebApp/js/timestamps.js"></script>
+    <script src="~/_content/PlotboekGenerator.WebApp/js/audit-trail.js"></script>
+    <script src="~/_content/PlotboekGenerator.WebApp/js/drag-drop.js"></script>
+    <script src="~/_content/PlotboekGenerator.WebApp/js/starttijd.js"></script>
+    <script src="~/_content/PlotboekGenerator.WebApp/js/encounter.js"></script>
+    <script src="~/_content/PlotboekGenerator.WebApp/js/plotlijn.js"></script>
+    <script src="~/_content/PlotboekGenerator.WebApp/js/npc.js"></script>
+    <script src="~/_content/PlotboekGenerator.WebApp/js/extra-sl.js"></script>
+    <script src="~/_content/PlotboekGenerator.WebApp/js/props-loot.js"></script>
+    <script src="~/_content/PlotboekGenerator.WebApp/js/debrief.js"></script>
+    <script src="~/_content/PlotboekGenerator.WebApp/js/form-state.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.js"></script>
+    <script>
+        var richTextToolbarOptions = @Html.Raw(Model.IsPlotboekReadOnly ? "false" : "[['bold', 'italic', 'underline'], [{ 'list': 'ordered' }, { 'list': 'bullet' }], ['clean']]");
+
+        // Initialize NPC role index from server-side count
+        initializeNpcRolIndex(@(Model.EditableNpcRollen?.Count ?? 0));
+
+        // Initialize Extra SL index from server-side count
+        initializeExtraSlIndex(@(Model.EditableExtraSlIds?.Count ?? 0));
+
+        // Initialize Props & Loot indexes from server-side count
+        initializePropIndex(@(Model.EditableProps?.Count ?? 0));
+        initializeLootIndex(@(Model.EditableLoot?.Count ?? 0));
+
+        // Initialize Debrief vragen index from server-side count
+        initializeDebriefVraagIndex(@(Model.EditableDebriefVragen?.Count ?? 0));
+
+        function sanitizeRichTextHtml(html) {
+            var wrapper = document.createElement('div');
+            wrapper.innerHTML = html;
+
+            var elements = wrapper.querySelectorAll('*');
+            for (var i = 0; i < elements.length; i++) {
+                var element = elements[i];
+
+                if (element.style) {
+                    element.style.removeProperty('color');
+                    element.style.removeProperty('background-color');
+                    element.style.removeProperty('background');
+
+                    var styleValue = element.getAttribute('style');
+                    if (!styleValue || styleValue.trim().length === 0) {
+                        element.removeAttribute('style');
+                    }
+                }
+
+                element.removeAttribute('color');
+                element.removeAttribute('bgcolor');
+            }
+
+            return wrapper.innerHTML;
+        }
+
+        function getSanitizedQuillSemanticHtml(quill) {
+            if (quill.getText().trim().length === 0) {
+                return '';
+            }
+
+            return sanitizeRichTextHtml(quill.getSemanticHTML());
+        }
+
+        function registerQuillColorSanitizer(quill) {
+            quill.clipboard.addMatcher(Node.ELEMENT_NODE, function (node, delta) {
+                if (!delta || !delta.ops) {
+                    return delta;
+                }
+
+                for (var i = 0; i < delta.ops.length; i++) {
+                    var op = delta.ops[i];
+                    if (!op.attributes) {
+                        continue;
+                    }
+
+                    delete op.attributes.color;
+                    delete op.attributes.background;
+
+                    if (Object.keys(op.attributes).length === 0) {
+                        delete op.attributes;
+                    }
+                }
+
+                return delta;
+            });
+        }
+
+        function normalizeQuillContent(quill) {
+            var currentHtml = quill.root.innerHTML;
+            var sanitizedHtml = sanitizeRichTextHtml(currentHtml);
+
+            if (sanitizedHtml !== currentHtml) {
+                quill.clipboard.dangerouslyPasteHTML(sanitizedHtml, 'silent');
+            }
+        }
+
+        // Initialize Quill rich text editor for Samenvatting Algemeen Plot (Plotboek settings)
+        (function () {
+            var editorEl = document.getElementById('samenvatting-algemeen-plot-editor');
+            if (editorEl) {
+                var quill = new Quill('#samenvatting-algemeen-plot-editor', {
+                    theme: 'snow',
+                    readOnly: @(Model.IsPlotboekReadOnly ? "true" : "false"),
+                    modules: {
+                        toolbar: richTextToolbarOptions
+                    }
+                });
+
+                registerQuillColorSanitizer(quill);
+                normalizeQuillContent(quill);
+
+                // Capture the initial semantic HTML so we can detect real changes
+                var initialHtml = getSanitizedQuillSemanticHtml(quill);
+
+                // Sync Quill content to hidden input on form submit
+                var form = editorEl.closest('form');
+                if (form) {
+                    form.addEventListener('submit', function () {
+                        var hiddenInput = document.getElementById('editable-samenvatting-algemeen-plot');
+                        if (hiddenInput) {
+                            var html = getSanitizedQuillSemanticHtml(quill);
+                            // Only update hidden field if user actually changed content
+                            if (html !== initialHtml) {
+                                hiddenInput.value = html;
+                            }
+                        }
+                    });
+                }
+            }
+        })();
+
+        // Initialize Quill rich text editor for Samenvatting Plot
+        (function () {
+            function initializeSamenvattingPlotEditor() {
+                var editorEl = document.getElementById('samenvatting-plot-editor');
+                if (!editorEl || editorEl.dataset.quillInitialized === 'true') {
+                    return;
+                }
+
+                if (!window.Quill) {
+                    window.setTimeout(initializeSamenvattingPlotEditor, 50);
+                    return;
+                }
+
+                // Recover content that was previously saved with Quill's own wrapper markup:
+                // unwrap an embedded .ql-editor so Quill mounts on the real content instead of the wrapper.
+                var embeddedEditor = editorEl.querySelector('.ql-editor');
+                if (embeddedEditor) {
+                    editorEl.innerHTML = embeddedEditor.innerHTML;
+                }
+
+                var quill = new Quill(editorEl, {
+                        theme: 'snow',
+                        readOnly: @(Model.IsSelectedPaginaReadOnly ? "true" : "false"),
+                        modules: {
+                            toolbar: richTextToolbarOptions
+                        }
+                    });
+                editorEl.dataset.quillInitialized = 'true';
+                paginaQuillInstances.push(quill);
+
+                registerQuillColorSanitizer(quill);
+                normalizeQuillContent(quill);
+
+                // Capture the initial semantic HTML so we can detect real changes
+                var initialHtml = getSanitizedQuillSemanticHtml(quill);
+
+                // Sync Quill content to hidden input on form submit
+                var form = editorEl.closest('form');
+                if (form) {
+                    form.addEventListener('submit', function () {
+                        var hiddenInput = document.getElementById('editable-samenvatting-plot');
+                        if (hiddenInput) {
+                            var html = getSanitizedQuillSemanticHtml(quill);
+                            // Only update hidden field if user actually changed content
+                            if (html !== initialHtml) {
+                                hiddenInput.value = html;
+                            }
+                        }
+                    });
+                }
+            }
+
+            initializeSamenvattingPlotEditor();
+
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', initializeSamenvattingPlotEditor);
+            } else {
+                window.setTimeout(initializeSamenvattingPlotEditor, 0);
+            }
+
+            window.addEventListener('load', initializeSamenvattingPlotEditor);
+
+            var plotSection = document.getElementById('section-plot');
+            if (plotSection) {
+                plotSection.addEventListener('shown.bs.collapse', initializeSamenvattingPlotEditor);
+            }
+        })();
+
+        // Initialize Quill rich text editor for Meer Informatie
+        (function () {
+            var editorEl = document.getElementById('meer-informatie-editor');
+            if (editorEl) {
+                var quill = new Quill('#meer-informatie-editor', {
+                        theme: 'snow',
+                        readOnly: @(Model.IsSelectedPaginaReadOnly ? "true" : "false"),
+                        modules: {
+                            toolbar: richTextToolbarOptions
+                        }
+                    });
+                    paginaQuillInstances.push(quill);
+
+                registerQuillColorSanitizer(quill);
+                normalizeQuillContent(quill);
+
+                // Capture the initial semantic HTML so we can detect real changes
+                var initialHtml = getSanitizedQuillSemanticHtml(quill);
+
+                // Sync Quill content to hidden input on form submit
+                var form = editorEl.closest('form');
+                if (form) {
+                    form.addEventListener('submit', function () {
+                        var hiddenInput = document.getElementById('editable-meer-informatie');
+                        if (hiddenInput) {
+                            var html = getSanitizedQuillSemanticHtml(quill);
+                            // Only update hidden field if user actually changed content
+                            if (html !== initialHtml) {
+                                hiddenInput.value = html;
+                            }
+                        }
+                    });
+                }
+            }
+        })();
+
+        // Initialize Quill rich text editor for the techniek instruction
+        (function () {
+            var editorEl = document.getElementById('instructie-techniek-editor');
+            if (editorEl) {
+                var quill = new Quill('#instructie-techniek-editor', {
+                        theme: 'snow',
+                        readOnly: @(Model.IsSelectedPaginaReadOnly ? "true" : "false"),
+                        modules: {
+                            toolbar: richTextToolbarOptions
+                        }
+                    });
+                    paginaQuillInstances.push(quill);
+
+                registerQuillColorSanitizer(quill);
+                normalizeQuillContent(quill);
+
+                // Capture the initial semantic HTML so we can detect real changes
+                var initialHtml = getSanitizedQuillSemanticHtml(quill);
+
+                // Sync Quill content to hidden input on form submit
+                var form = editorEl.closest('form');
+                if (form) {
+                    form.addEventListener('submit', function () {
+                        var hiddenInput = document.getElementById('editable-instructie-techniek');
+                        if (hiddenInput) {
+                            var html = getSanitizedQuillSemanticHtml(quill);
+                            // Only update hidden field if user actually changed content
+                            if (html !== initialHtml) {
+                                hiddenInput.value = html;
+                            }
+                        }
+                    });
+                }
+            }
+        })();
+
+        function navigateToPlotboek(plotboekValue) {
+            if (plotboekValue) {
+                // Split the value to get year and event
+                const parts = plotboekValue.split('|');
+                if (parts.length === 2) {
+                    const jaar = encodeURIComponent(parts[0]);
+                    const eventId = encodeURIComponent(parts[1]);
+                    window.location.href = '@Url.Page("/Plotboek")?jaar=' + jaar + '&event=' + eventId;
+                }
+            } else {
+                window.location.href = '@Url.Page("/Plotboek")';
+            }
+        }
+    </script>
+}

@@ -1,0 +1,115 @@
+@inject UserManager<PlotboekUser> UserManager
+@inject ThemeCookie ThemeCookie
+@inject PlotboekGenerator.WebApp.Branding Branding
+@{
+    var isSignedIn = User.Identity?.IsAuthenticated == true;
+    var currentUser = isSignedIn ? await UserManager.GetUserAsync(User) : null;
+
+    // The theme cookie (Theme:CookieName) is written by plotboek-theme.js. Rendering it here as well
+    // spares a dark page the white flash before the script runs; without the cookie the script
+    // follows the system. An account that had dark mode on in the old per-account toggle is moved
+    // over once. Razor drops an attribute whose value is null, but it renders a data-* one empty
+    // instead. So this is the whole attribute (with its leading space) or nothing, and its value is
+    // one of two literals, never the cookie.
+    var theme = await ThemeCookie.AdoptAccountPreferenceAsync(Context, UserManager, currentUser) switch
+    {
+        ThemeCookie.Light => Html.Raw(" data-bs-theme=\"light\""),
+        ThemeCookie.Dark => Html.Raw(" data-bs-theme=\"dark\""),
+        _ => Html.Raw(string.Empty),
+    };
+
+    // The page being rendered, so the menu can mark its own entry.
+    var currentPage = ViewContext.RouteData.Values["page"] as string ?? string.Empty;
+}
+<!DOCTYPE html>
+<html lang="nl"@theme data-theme-cookie="@ThemeCookie.CookieName" data-theme-domain="@ThemeCookie.SharedDomain">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] · @Branding.Name</title>
+    <meta name="theme-color" content="@Branding.ThemeColor" />
+    <link rel="icon" href="@Url.Content(Branding.FaviconUrl)" />
+    <script type="importmap"></script>
+    @* Before the stylesheets and without defer: it sets the theme before the first paint. *@
+    <script src="~/_content/PlotboekGenerator.WebApp/js/plotboek-theme.js" asp-append-version="true"></script>
+    <link rel="stylesheet" href="~/_content/PlotboekGenerator.WebApp/lib/bootstrap/dist/css/bootstrap.min.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/_content/PlotboekGenerator.WebApp/lib/fontawesome/css/all.min.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/_content/PlotboekGenerator.WebApp/css/site.css" asp-append-version="true" />
+    @await RenderSectionAsync("Styles", required: false)
+</head>
+<body class="d-flex flex-column min-vh-100">
+    <a class="visually-hidden-focusable position-absolute top-0 start-0 p-2" href="#main-content">Naar de inhoud</a>
+    <header>
+        @* The title bar is drawn in the deployment's colour in both themes; data-bs-theme="dark" makes
+           Bootstrap draw its text, toggler and focus rings light on it. *@
+        <nav class="navbar navbar-expand-md shadow-sm" data-bs-theme="dark" style="background-color: @Branding.ThemeColor;" aria-label="Hoofdmenu">
+            <div class="container">
+                <a class="navbar-brand d-flex align-items-center gap-2" asp-area="" asp-page="/Index">
+                    @if (!string.IsNullOrWhiteSpace(Branding.LogoUrl))
+                    {
+                        <img src="@Url.Content(Branding.LogoUrl)" alt="" height="32" />
+                    }
+                    <span>@Branding.Name</span>
+                </a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#main-menu"
+                        aria-controls="main-menu" aria-expanded="false" aria-label="Menu tonen">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="main-menu">
+                    <ul class="navbar-nav me-auto">
+                        @if (!User.IsInRole("User") && !User.IsInRole("Admin"))
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link @(currentPage == "/Index" ? "active" : "")" aria-current="@(currentPage == "/Index" ? "page" : null)"
+                                   asp-area="" asp-page="/Index">Home</a>
+                            </li>
+                        }
+                        @if (User.IsInRole("User") || User.IsInRole("Admin"))
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link @(currentPage == "/Plotboek" ? "active" : "")" aria-current="@(currentPage == "/Plotboek" ? "page" : null)"
+                                   asp-area="" asp-page="/Plotboek">Plotboek</a>
+                            </li>
+                        }
+                        @if (User.IsInRole("Admin"))
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link @(currentPage == "/Admin" ? "active" : "")" aria-current="@(currentPage == "/Admin" ? "page" : null)"
+                                   asp-area="" asp-page="/Admin">Admin</a>
+                            </li>
+                        }
+                    </ul>
+                    <div class="navbar-nav align-items-md-center">
+                        <partial name="_LoginPartial" />
+                        @* Cycles system → light → dark; plotboek-theme.js wires it and sets the labels.
+                           Hidden until that script has run: without it the button can do nothing. *@
+                        <button type="button" class="nav-link px-2" data-theme-toggle hidden
+                                data-label-system="Thema volgt het systeem. Klik voor licht."
+                                data-label-light="Licht thema. Klik voor donker."
+                                data-label-dark="Donker thema. Klik om het systeem te volgen.">
+                            <i class="fas fa-circle-half-stroke" aria-hidden="true"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </header>
+    <div class="container pt-3 flex-grow-1">
+        <main id="main-content" role="main" class="pb-3">
+            @RenderBody()
+        </main>
+    </div>
+
+    <footer class="border-top py-3 text-body-secondary small">
+        <div class="container">
+            <span>@Branding.FooterText</span>
+        </div>
+    </footer>
+
+    <script src="~/_content/PlotboekGenerator.WebApp/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/_content/PlotboekGenerator.WebApp/lib/bootstrap/dist/js/bootstrap.bundle.min.js" asp-append-version="true"></script>
+    <script src="~/_content/PlotboekGenerator.WebApp/js/site.js" asp-append-version="true"></script>
+
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

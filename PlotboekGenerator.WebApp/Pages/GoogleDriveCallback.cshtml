@@ -1,0 +1,48 @@
+@page
+@model GoogleDriveCallbackModel
+@{
+    ViewData["Title"] = "Google Drive Autorisatie";
+}
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            @if (!string.IsNullOrEmpty(Model.Message))
+            {
+                <div class="alert @(Model.Success ? "alert-success" : "alert-danger")" role="alert">
+                    <h4 class="alert-heading">
+                        <i class="fas @(Model.Success ? "fa-check-circle" : "fa-exclamation-circle") me-2"></i>
+                        @(Model.Success ? "Autorisatie geslaagd!" : "Autorisatie mislukt")
+                    </h4>
+                    <p>@Model.Message</p>
+                    @if (Model.Success && !string.IsNullOrEmpty(Model.RefreshToken))
+                    {
+                        <hr>
+                        <p class="mb-1"><strong>Voeg dit toe aan je <code>secrets.json</code> onder <code>"GoogleDrive"</code>:</strong></p>
+                        <div class="input-group mb-3">
+                            <span class="input-group-text"><code>"RefreshToken":</code></span>
+                            <input type="text" class="form-control font-monospace" value="@Model.RefreshToken" id="refreshTokenValue" readonly>
+                            <button class="btn btn-outline-secondary" type="button"
+                                    onclick="navigator.clipboard.writeText(document.getElementById('refreshTokenValue').value); this.innerHTML='<i class=\'fas fa-check\'></i> Gekopieerd!';">
+                                <i class="fas fa-copy"></i> Kopiëren
+                            </button>
+                        </div>
+                        <p class="small text-muted mb-0">Herstart de applicatie na het toevoegen van de token.</p>
+                    }
+                </div>
+            }
+            else
+            {
+                <div class="text-center">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Laden...</span>
+                    </div>
+                    <p class="mt-2 text-muted">Bezig met verwerken...</p>
+                </div>
+            }
+            <a href="@Url.Page("/Admin", new { Section = "googledrive" })" class="btn btn-primary">
+                <i class="fas fa-arrow-left me-1"></i> Terug naar Admin
+            </a>
+        </div>
+    </div>
+</div>

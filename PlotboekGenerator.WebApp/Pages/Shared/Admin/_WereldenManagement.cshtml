@@ -1,0 +1,88 @@
+@model AdminModel
+
+<!-- World Name Management Section -->
+<div class="card mb-4">
+    <div class="card-header text-bg-warning">
+        <h5 class="mb-0">
+            <i class="fas fa-globe-americas"></i> Werelden Management
+        </h5>
+    </div>
+    <div class="card-body">
+        <p class="text-muted mb-3">
+            Beheer de wereldnamen die worden afgedrukt in de plotboek export.
+            Werelden worden altijd op alfabetische volgorde weergegeven.
+        </p>
+
+        <!-- Add/Edit World Name Form -->
+        <form method="post" class="mb-4">
+            <input type="hidden" name="Action" value="saveWorldName" />
+            <input type="hidden" name="Section" value="werelden" />
+            <input type="hidden" name="EditWorldNameId" id="editWorldNameId" value="" />
+            <div class="row g-3 align-items-end">
+                <div class="col-md-6">
+                    <label for="editWorldNameNaam" class="form-label">Wereld</label>
+                    <input type="text"
+                           class="form-control"
+                           id="editWorldNameNaam"
+                           name="EditWorldNameNaam"
+                           required />
+                </div>
+                <div class="col-md-6">
+                    <button type="submit" class="btn btn-warning" id="saveWorldNameBtn">
+                        <i class="fas fa-plus"></i> Wereld Toevoegen
+                    </button>
+                    <button type="button" class="btn btn-outline-secondary" id="cancelEditWorldNameBtn" style="display: none;" onclick="cancelEditWorldName()">
+                        <i class="fas fa-times"></i> Annuleren
+                    </button>
+                </div>
+            </div>
+        </form>
+
+        <!-- World Names List -->
+        @if (Model.WorldNames.Count > 0)
+        {
+            <p class="text-muted small mb-2">@Model.WorldNames.Count werelden</p>
+            <div class="table-responsive" style="max-height: 500px; overflow-y: auto;">
+                <table class="table table-hover table-sm">
+                    <thead class="sticky-top bg-body-tertiary">
+                        <tr>
+                            <th>Wereld</th>
+                            <th style="width: 150px;">Acties</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var world in Model.WorldNames)
+                        {
+                            <tr>
+                                <td>@world.Naam</td>
+                                <td>
+                                    <button type="button"
+                                            class="btn btn-sm btn-outline-primary me-1"
+                                            onclick="editWorldName('@world.Id', '@world.Naam')">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <form method="post" style="display: inline;">
+                                        <input type="hidden" name="Action" value="deleteWorldName" />
+                                        <input type="hidden" name="Section" value="werelden" />
+                                        <input type="hidden" name="DeleteWorldNameId" value="@world.Id" />
+                                        <button type="submit"
+                                                class="btn btn-sm btn-outline-danger"
+                                                onclick="return confirm('Weet je zeker dat je wereld \'@world.Naam\' wilt verwijderen?');">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+        else
+        {
+            <div class="alert alert-info">
+                <i class="fas fa-info-circle"></i> Geen werelden gevonden. Voeg een wereld toe om te beginnen.
+            </div>
+        }
+    </div>
+</div>

@@ -1,0 +1,15 @@
+# Scoped on purpose: only the files whose line endings actually break something.
+
+# Shell scripts run on Linux. A CRLF breaks the shebang with a bare "no such file or directory".
+*.sh text eol=lf
+
+# PowerShell is run on Windows.
+*.ps1 text eol=crlf
+
+# Word templates are binary packages.
+*.docx binary
+
+# Font Awesome 6.5.1, self-hosted from the npm package (the same bytes cdnjs served, same SRI hash).
+PlotboekGenerator.WebApp/wwwroot/lib/fontawesome/** -text
+# Bootstrap 5.3.8, as its release built it.
+PlotboekGenerator.WebApp/wwwroot/lib/bootstrap/** -text

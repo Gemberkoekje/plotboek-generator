@@ -1,0 +1,53 @@
+@using PlotboekGenerator.WebApp.Pages
+@model PlotboekModel.PlotboekPaginaInfo
+
+@{
+    var hasVechten = Model.EncounterTypeIds.Major?.Contains("Vechten") == true;
+    var hasEventBreed = Model.Iconen.HasFlag(core.Enums.PlotboekPaginaIcons.EventBreed);
+    var hasQuestOpExternVeld = Model.LocatieEncounter.Locatie == core.Enums.LocatieEncounter.Questveld;
+    var iconen = Model.Iconen;
+    var hasNachtPlot = Model.IsFlexibelNachtPlot;
+    // Derived from the NPC roles, not from an icon flag: at least one role asks something of the
+    // figurant that the MSL has to agree with them beforehand.
+    var hasAfstemming = Model.AantalNpcs.HeeftAfstemmingNodig;
+    // Deliberately NOT the ⚠ used elsewhere: that one means "niet volledig klaar", while a double-booked
+    // questlocatie is a planning hint that does not block anything.
+    var locatieBotsingen = Model.LocatieConflicten
+        .Where(c => c.Soort == core.Enums.LocatieConflictSoort.ExacteMatch)
+        .ToList();
+    var hasAnyIcon = hasVechten || hasEventBreed || hasQuestOpExternVeld || hasNachtPlot || hasAfstemming || locatieBotsingen.Count > 0 || iconen != core.Enums.PlotboekPaginaIcons.None;
+}
+
+@* Compact responsible-SL label (hoofd-SL only). Names are first names; shown truncated with the
+   full name in the tooltip. Hideable/reorderable via the "Weergave" dropdown in the list header,
+   which toggles the .pagina-part-name class this span carries. *@
+@if (!string.IsNullOrEmpty(Model.VerantwoordelijkeSlName))
+{
+    <span class="pagina-part pagina-part-name pagina-sl-label badge rounded-pill pb-badge-neutral text-body-secondary fw-normal ms-1 d-inline-block text-truncate align-middle"
+          style="max-width: 6rem;"
+          title="Verantwoordelijke SL: @Model.VerantwoordelijkeSlName">
+        <i class="fas fa-user me-1"></i>@Model.VerantwoordelijkeSlName
+    </span>
+}
+
+@if (hasAnyIcon)
+{
+    <span class="pagina-part pagina-part-icons ms-1 text-nowrap">
+        @if (hasVechten) { <span title="Vechten">⚔️</span> }
+        @if (hasNachtPlot) { <span title="Flexibel nacht plot (hoort in een slot om 20:00 of later)">🌙</span> }
+        @if (hasEventBreed) { <span title="@Terminologie.EventBreedUitleg">👯</span> }
+        @if (iconen.HasFlag(core.Enums.PlotboekPaginaIcons.TimingCruciaal)) { <span title="Timing Cruciaal">⭐</span> }
+        @if (iconen.HasFlag(core.Enums.PlotboekPaginaIcons.PlotCruciaal)) { <span title="Plot Cruciaal">❗</span> }
+        @if (iconen.HasFlag(core.Enums.PlotboekPaginaIcons.MagAlsEersteCancelled)) { <span title="Mag als eerste gecancelled worden">❓</span> }
+        @if (iconen.HasFlag(core.Enums.PlotboekPaginaIcons.UitgebreideBriefing)) { <span title="Uitgebreide briefing">📖</span> }
+        @if (hasAfstemming) { <span title="Vereist afstemming vooraf met de figurant">🤝</span> }
+        @if (hasQuestOpExternVeld) { <span title="Quest op extern veld">🪦</span> }
+        @if (locatieBotsingen.Count > 0)
+        {
+            <span class="text-danger" title="Locatie dubbel geboekt met: @string.Join(", ", locatieBotsingen.Select(c => c.Titel))">📍</span>
+        }
+        @if (iconen.HasFlag(core.Enums.PlotboekPaginaIcons.GrootPakOfKostuum)) { <span title="Groot pak of uitgebreid kostuum/schmink">❤️</span> }
+        @if (iconen.HasFlag(core.Enums.PlotboekPaginaIcons.MuziekVanuitTechniek)) { <span title="@Terminologie.MuziekVanuitTechniek">🎶</span> }
+        @if (iconen.HasFlag(core.Enums.PlotboekPaginaIcons.LichtOfRookVanuitTechniek)) { <span title="@Terminologie.LichtOfRookVanuitTechniek">💡</span> }
+    </span>
+}

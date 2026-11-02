@@ -1,0 +1,42 @@
+@model AdminModel
+
+<div class="card">
+    <div class="card-header">
+        <h5 class="mb-0"><i class="fas fa-trash-restore me-2"></i>Verwijderde Paginas</h5>
+    </div>
+    <div class="card-body">
+        @if (Model.DeletedPaginasByPlotboek.Count == 0)
+        {
+            <p class="text-muted">Geen verwijderde paginas gevonden.</p>
+        }
+        else
+        {
+            @foreach (var plotboek in Model.DeletedPaginasByPlotboek)
+            {
+                <h6 class="mt-3 mb-2 text-secondary">@plotboek.Key</h6>
+                <div class="list-group mb-3">
+                    @foreach (var pagina in plotboek.Value)
+                    {
+                        <div class="list-group-item d-flex justify-content-between align-items-center">
+                            <div>
+                                @if (!string.IsNullOrEmpty(pagina.DomainShorthand))
+                                {
+                                    <span class="badge bg-secondary me-2">@pagina.DomainShorthand</span>
+                                }
+                                <span>@pagina.Titel</span>
+                            </div>
+                            <form method="post" class="mb-0">
+                                <input type="hidden" name="Section" value="verwijderd" />
+                                <input type="hidden" name="Action" value="herstellenPagina" />
+                                <input type="hidden" name="HerstellenPaginaId" value="@pagina.PaginaId" />
+                                <button type="submit" class="btn btn-outline-success btn-sm">
+                                    <i class="fas fa-trash-restore me-1"></i>Herstellen
+                                </button>
+                            </form>
+                        </div>
+                    }
+                </div>
+            }
+        }
+    </div>
+</div>

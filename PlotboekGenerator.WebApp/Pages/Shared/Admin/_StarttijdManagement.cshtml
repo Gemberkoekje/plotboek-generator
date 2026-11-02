@@ -1,0 +1,189 @@
+@model AdminModel
+@using PlotboekGenerator.core.Enums
+
+@{
+    var slots = Model.Starttijden.Where(s => !s.IsNone).ToList();
+    var dagTypes = new[]
+    {
+        (Title: "Eerste dag", DagType: MeetingDagType.EersteDag),
+        (Title: "Tussendagen", DagType: MeetingDagType.Tussendag),
+        (Title: "Laatste dag", DagType: MeetingDagType.LaatseDag),
+    };
+}
+
+<!-- Starttijd Management Section -->
+<div class="card mb-4">
+    <div class="card-header text-bg-info">
+        <h5 class="mb-0">
+            <i class="fas fa-clock"></i> Starttijden &amp; blokken
+        </h5>
+    </div>
+    <div class="card-body">
+        <p class="text-muted mb-3">
+            De tijdblokken die een plot als starttijd kan krijgen. Per dagtype bepaal je of een slot
+            gekozen kan worden en welk blokvenster erachter staat; het bloknummer ("Blok 3.1") is de
+            plek van het slot tussen de andere slots mét venster van die dag. Een slot zonder venster
+            krijgt dus geen nummer en telt niet mee — zo blijft "19:30: Introquest" ongenummerd.
+            <br />
+            Verwijderen kan niet: zet alle drie de vinkjes uit om een slot uit de keuzelijsten te halen
+            zonder oude plots te breken. Hernoemen mag altijd — de sleutel blijft staan, dus de nieuwe
+            naam verschijnt overal. De volgorde volgt automatisch uit de tijd in de naam.
+        </p>
+
+        <form method="post" class="mb-4">
+            <input type="hidden" name="Action" value="saveStarttijd" />
+            <input type="hidden" name="Section" value="starttijden" />
+            <input type="hidden" name="EditStarttijdId" id="editStarttijdId" value="" />
+            <div class="row g-3 align-items-end">
+                <div class="col-md-6">
+                    <label for="editStarttijdNaam" class="form-label">Naam</label>
+                    <input type="text"
+                           class="form-control"
+                           id="editStarttijdNaam"
+                           name="EditStarttijdNaam"
+                           placeholder="bv. 11:30 of 19:30: Introquest"
+                           required />
+                    <div class="form-text">
+                        Moet met een tijd beginnen: daar komen de volgorde en (bij een nieuw slot) de
+                        sleutel uit. Er is geen volgordeveld.
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="editStarttijdEersteDag" name="EditStarttijdEersteDag" value="true" />
+                        <input type="hidden" name="EditStarttijdEersteDag" value="false" />
+                        <label class="form-check-label" for="editStarttijdEersteDag">Beschikbaar op de eerste dag</label>
+                    </div>
+                    <input type="text"
+                           class="form-control mt-1"
+                           id="editStarttijdBlokVensterEersteDag"
+                           name="EditStarttijdBlokVensterEersteDag"
+                           placeholder="Blokvenster, bv. 18:00 - 21:00" />
+                </div>
+                <div class="col-md-4">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="editStarttijdMiddelDagen" name="EditStarttijdMiddelDagen" value="true" />
+                        <input type="hidden" name="EditStarttijdMiddelDagen" value="false" />
+                        <label class="form-check-label" for="editStarttijdMiddelDagen">Beschikbaar op tussendagen</label>
+                    </div>
+                    <input type="text"
+                           class="form-control mt-1"
+                           id="editStarttijdBlokVensterMiddelDagen"
+                           name="EditStarttijdBlokVensterMiddelDagen"
+                           placeholder="Blokvenster, bv. 19:00 - 21:00" />
+                </div>
+                <div class="col-md-4">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="editStarttijdLaatsteDag" name="EditStarttijdLaatsteDag" value="true" />
+                        <input type="hidden" name="EditStarttijdLaatsteDag" value="false" />
+                        <label class="form-check-label" for="editStarttijdLaatsteDag">Beschikbaar op de laatste dag</label>
+                    </div>
+                    <input type="text"
+                           class="form-control mt-1"
+                           id="editStarttijdBlokVensterLaatsteDag"
+                           name="EditStarttijdBlokVensterLaatsteDag"
+                           placeholder="Blokvenster, bv. 11:30 - 13:30" />
+                </div>
+                <div class="col-12">
+                    <button type="submit" class="btn btn-info" id="saveStarttijdBtn">
+                        <i class="fas fa-plus"></i> Starttijd Toevoegen
+                    </button>
+                    <button type="button" class="btn btn-outline-secondary" id="cancelEditStarttijdBtn" style="display: none;" onclick="cancelEditStarttijd()">
+                        <i class="fas fa-times"></i> Annuleren
+                    </button>
+                    <small class="text-muted ms-2" id="starttijdIdHint"></small>
+                </div>
+            </div>
+        </form>
+
+        @if (slots.Count > 0)
+        {
+            <div class="table-responsive">
+                <table class="table table-hover table-sm align-middle">
+                    <thead>
+                        <tr>
+                            <th style="width: 60px;">#</th>
+                            <th>Naam</th>
+                            <th>Eerste dag</th>
+                            <th>Tussendagen</th>
+                            <th>Laatste dag</th>
+                            <th style="width: 70px;">Acties</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var slot in slots)
+                        {
+                            var isUitgeschakeld = !slot.IsAvailableOnEersteDag && !slot.IsAvailableOnMiddelDagen && !slot.IsAvailableOnLaatsteDag;
+                            var cellen = new[]
+                            {
+                                (Beschikbaar: slot.IsAvailableOnEersteDag, Venster: slot.BlokVensterEersteDag),
+                                (Beschikbaar: slot.IsAvailableOnMiddelDagen, Venster: slot.BlokVensterMiddelDagen),
+                                (Beschikbaar: slot.IsAvailableOnLaatsteDag, Venster: slot.BlokVensterLaatsteDag),
+                            };
+                            <tr class="@(isUitgeschakeld ? "text-muted" : string.Empty)">
+                                <td>@slot.Order</td>
+                                <td>
+                                    @slot.DisplayName
+                                    @if (isUitgeschakeld)
+                                    {
+                                        <span class="badge bg-secondary ms-1">uitgeschakeld</span>
+                                    }
+                                    <br /><code class="small text-muted">@slot.Id</code>
+                                </td>
+                                @foreach (var cel in cellen)
+                                {
+                                    <td class="small">
+                                        @if (cel.Beschikbaar)
+                                        {
+                                            <i class="fas fa-check text-success"></i>
+                                        }
+                                        else
+                                        {
+                                            <i class="fas fa-minus text-muted"></i>
+                                        }
+                                        @if (!string.IsNullOrWhiteSpace(cel.Venster))
+                                        {
+                                            <span class="ms-1">@cel.Venster</span>
+                                        }
+                                    </td>
+                                }
+                                <td>
+                                    <button type="button"
+                                            class="btn btn-sm btn-outline-primary"
+                                            data-starttijd-id="@slot.Id"
+                                            data-starttijd-naam="@slot.DisplayName"
+                                            data-starttijd-eerste-dag="@slot.IsAvailableOnEersteDag.ToString().ToLowerInvariant()"
+                                            data-starttijd-middel-dagen="@slot.IsAvailableOnMiddelDagen.ToString().ToLowerInvariant()"
+                                            data-starttijd-laatste-dag="@slot.IsAvailableOnLaatsteDag.ToString().ToLowerInvariant()"
+                                            data-starttijd-venster-eerste-dag="@slot.BlokVensterEersteDag"
+                                            data-starttijd-venster-middel-dagen="@slot.BlokVensterMiddelDagen"
+                                            data-starttijd-venster-laatste-dag="@slot.BlokVensterLaatsteDag"
+                                            onclick="editStarttijd(this)">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+            <h6 class="mt-4"><i class="fas fa-list-ol me-1"></i> Zo ziet een plotdag eruit</h6>
+            <ul class="list-group">
+                @foreach (var dagType in dagTypes)
+                {
+                    <li class="list-group-item">
+                        <strong>@dagType.Title:</strong>
+                        <span class="small">@Model.BuildStarttijdOverzicht(dagType.DagType)</span>
+                    </li>
+                }
+            </ul>
+        }
+        else
+        {
+            <div class="alert alert-info">
+                <i class="fas fa-info-circle"></i> Nog geen starttijden. Voeg er een toe om te beginnen.
+            </div>
+        }
+    </div>
+</div>

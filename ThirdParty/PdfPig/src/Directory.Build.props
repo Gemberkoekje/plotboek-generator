@@ -1,0 +1,8 @@
+<Project>
+  <!--
+    Shadows the repo root's Directory.Build.props for this vendored subtree. This is
+    third-party source, built exactly as UglyToad/PdfPig authored it (analyzer stack,
+    LangVersion, etc. all come from the individual .csproj files below, unmodified) -
+    it should not inherit this repo's own style/analyzer conventions.
+  -->
+</Project>

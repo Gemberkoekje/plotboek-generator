@@ -1,0 +1,1714 @@
+@model PlotboekModel
+@inject PlotboekGenerator.WebApp.TerreinKaart TerreinKaart
+
+<!-- Right side: Selected Plotboek Pagina Details -->
+<div class="col-md-6">
+    <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">Plotboek Pagina Details</h5>
+            @if (Model.SelectedPlotboekPagina != null)
+            {
+                <a href="@Url.Page("/Plotboek", new { Jaar = Model.Jaar, Event = Model.EventId, PaginaId = Model.PaginaId, ShowPaginaAuditTrail = true })"
+                   class="btn btn-outline-secondary btn-sm">
+                    <i class="fas fa-history"></i> Wijzigingen
+                </a>
+            }
+        </div>
+        <div class="card-body">
+            @if (Model.SelectedPlotboekPagina != null)
+            {
+                var pagina = Model.SelectedPlotboekPagina;
+
+                // Compute title summary (e.g. "Ti 1.1 Plot Title")
+                var titlePrefix = "";
+                if (!string.IsNullOrEmpty(pagina.DomainShorthand))
+                {
+                    titlePrefix = !string.IsNullOrEmpty(pagina.PlotlijnNummer)
+                        ? $"{pagina.DomainShorthand} {pagina.PlotlijnNummer}"
+                        : pagina.DomainShorthand;
+                }
+                var titleSummary = !string.IsNullOrEmpty(titlePrefix)
+                    ? $"{titlePrefix} {pagina.Title}"
+                    : pagina.Title ?? "";
+
+                // Compute planning summary
+                var planningParts = new List<string>();
+                if (pagina.AantalBlokkenId != "None")
+                    planningParts.Add(Model.AvailableAantalBlokkenConfigs.GetDisplayName(pagina.AantalBlokkenId));
+                var allSlNames = new List<string>();
+                if (!string.IsNullOrEmpty(pagina.VerantwoordelijkeSlName))
+                    allSlNames.Add(pagina.VerantwoordelijkeSlName);
+                if (pagina.ExtraSlNames?.Any() == true)
+                    allSlNames.AddRange(pagina.ExtraSlNames);
+                if (allSlNames.Count > 0)
+                    planningParts.Add($"SL: {string.Join(", ", allSlNames)}");
+                var planningSummary = string.Join(" \u00B7 ", planningParts);
+
+                // Compute encounter summary
+                var encounterParts = new List<string>();
+                if (pagina.EncounterTypeIds.HasValue)
+                    encounterParts.Add(pagina.EncounterTypeIds.ToString());
+                if (pagina.LocatieEncounter.HasValue)
+                    encounterParts.Add(Model.GetLocatieEncounterDisplay(pagina.LocatieEncounter));
+                var encounterSummary = string.Join(" \u00B7 ", encounterParts);
+
+                // Compute NPC summary (roles with counts, excluding clothing/metadata)
+                string npcSummary = string.Empty;
+                if (pagina.AantalNpcs.HasValue)
+                {
+                    var summaryParts = new List<string>();
+                    if (pagina.AantalNpcs.AlleNpcs)
+                        summaryParts.Add("ALLE NPCs");
+                    var npcRoles = pagina.AantalNpcs.Rollen?.Where(r => r.HasValue).ToList() ?? [];
+                    if (npcRoles.Count > 0)
+                    {
+                        var roleDescriptions = npcRoles.Select(r => r switch
+                        {
+                            { IsRange: true } => $"{r.MinimumAantal}-{r.MaximumAantal} {r.Rol}",
+                            { HasCount: true } => $"{r.MinimumAantal} {r.Rol}",
+                            _ => r.Rol
+                        });
+                        summaryParts.Add(string.Join(", ", roleDescriptions));
+                    }
+                    npcSummary = string.Join(": ", summaryParts);
+                }
+
+                // The required-field rules live in Plotboek.Volledigheid.cs, shared with the plot list.
+                var ontbrekend = PlotboekModel.BepaalOntbrekendeVelden(pagina, Model.IsEvergreen);
+                var titleMissing = ontbrekend.Titel;
+                var planningMissing = ontbrekend.Planning;
+                var encounterMissing = ontbrekend.Encounter;
+                var npcMissing = ontbrekend.Npc;
+                var plotMissing = ontbrekend.Plot;
+                var propsLootMissing = ontbrekend.PropsEnLoot;
+
+                // Soft warning (not a required-field error): a flexible night plot that is not scheduled in a 20:00-or-later slot.
+                var nachtPlotWarning = !Model.IsEvergreen
+                    && PlotboekModel.ShouldWarnFlexibelNachtPlot(pagina.IsFlexibelNachtPlot, pagina.IsSpelerGedreven, pagina.StarttijdId);
+
+                // Questlocaties that are double-booked. A planning aid, not a required-field error, so it
+                // gets its own counter next to encounterMissing rather than joining it.
+                var locatieConflicten = Model.GetLocatieConflicten(pagina.Id);
+                var exacteLocatieBotsingen = locatieConflicten.Count(c => c.Soort == core.Enums.LocatieConflictSoort.ExacteMatch);
+
+                var allMissing = ontbrekend.Alle;
+                var isVolledigKlaar = pagina.IsVolledigKlaar;
+                var canMarkVolledigKlaar = ontbrekend.IsCompleet;
+                // Everything is filled in but the SL hasn't ticked the switch yet: remind them, since that
+                // tick is their last step. Not during a restore preview, which shows history, not their work.
+                var alleenVinkjeNog = !Model.IsPlotboekReadOnly && !Model.IsRestorePreview
+                    && PlotboekModel.IsAlleenVinkjeNog(pagina, Model.IsEvergreen);
+                // During a restore preview the pagina self-lock is ignored so the historical values can be
+                // reviewed and saved; the plotboek-wide lock still applies via IsPlotboekReadOnly.
+                var isPaginaReadOnly = Model.IsPlotboekReadOnly || (!Model.IsRestorePreview && isVolledigKlaar && !Model.IsAdmin);
+
+                @* Feedback sits ABOVE and OUTSIDE the detail form on purpose: it has its own forms so
+                   responding keeps working while the plot is content-locked, and an open point should be
+                   the first thing you see. *@
+                <partial name="Shared/Plotboek/_PlotboekPaginaFeedback" model="Model" />
+
+                <form method="post" id="pagina-details-form">
+                    <input type="hidden" name="Jaar" value="@Model.Jaar" />
+                    <input type="hidden" name="Event" value="@Model.EventId" />
+                    <input type="hidden" name="PaginaId" value="@Model.PaginaId" />
+                    <input type="hidden" name="PaginaVersion" value="@Model.PaginaVersion" />
+                    <input type="hidden" name="Action" value="save" />
+                    @* Filled by bewaarNpcRolAlsStandaard() in npc.js from the clicked role row. *@
+                    <input type="hidden" name="StandaardNpcRol" value="" />
+                    <input type="hidden" name="StandaardNpcKledingEnSchmink" value="" />
+                    <input type="hidden" name="StandaardNpcCastingInstructie" value="" />
+
+                    @if (Model.IsRestorePreview)
+                    {
+                        <div class="alert alert-warning d-flex justify-content-between align-items-center" role="alert">
+                            <div>
+                                <i class="fas fa-clock-rotate-left me-2"></i>
+                                Je bekijkt de versie van
+                                @if (Model.RestoreFromWhen is { } restoreWhen)
+                                {
+                                    <strong><span data-utc="@restoreWhen.ToString("o")">@restoreWhen.ToString("dd-MM-yyyy HH:mm")</span></strong>
+                                }
+                                else
+                                {
+                                    <strong>een eerder moment</strong>
+                                }
+                                @if (!string.IsNullOrEmpty(Model.RestoreFromWho))
+                                {
+                                    <text>(door @Model.RestoreFromWho)</text>
+                                }
+                                &mdash; deze waarden zijn <strong>nog niet opgeslagen</strong>. Klik op <strong>Opslaan</strong> om de inhoud te herstellen.
+                                Volgorde en verwijderstatus blijven ongewijzigd.
+                            </div>
+                            <a href="@Url.Page("/Plotboek", new { Jaar = Model.Jaar, Event = Model.EventId, PaginaId = Model.PaginaId })"
+                               class="btn btn-sm btn-secondary ms-3 text-nowrap">
+                                <i class="fas fa-times me-1"></i>Annuleren
+                            </a>
+                        </div>
+                    }
+
+                    @if (!string.IsNullOrEmpty(Model.ConcurrencyError))
+                    {
+                        var quillFields = new HashSet<string> { "Samenvatting Plot", "Meer Informatie", Terminologie.InstructieTechniek };
+                        <div class="alert alert-danger fade show" role="alert">
+                            <strong><i class="fas fa-exclamation-triangle"></i> Let op!</strong> @Model.ConcurrencyError
+                            <br /><small>Het formulier toont nu de huidige waarden.</small>
+                            @if (Model.AttemptedChanges.Count > 0)
+                            {
+                                <details class="mt-2">
+                                    <summary><strong>Jouw niet-opgeslagen wijzigingen</strong></summary>
+                                    <div class="mt-2">
+                                        @foreach (var change in Model.AttemptedChanges)
+                                        {
+                                            <div class="mb-2">
+                                                <strong>@change.Key:</strong>
+                                                @if (quillFields.Contains(change.Key))
+                                                {
+                                                    <div class="mb-0 p-2 bg-body-tertiary border rounded small attempted-change-html">@Html.Raw(change.Value)</div>
+                                                }
+                                                else
+                                                {
+                                                    <pre class="mb-0 p-2 bg-body-tertiary border rounded small" style="white-space: pre-wrap;">@change.Value</pre>
+                                                }
+                                            </div>
+                                        }
+                                    </div>
+                                </details>
+                            }
+                        </div>
+                    }
+
+                    <!-- VOLLEDIG KLAAR CHECKBOX -->
+                    <div class="volledig-klaar-blok mb-3 p-3 border rounded @(isVolledigKlaar ? "bg-success bg-opacity-10 border-success" : alleenVinkjeNog ? "bg-warning bg-opacity-10 border-warning" : "bg-body-tertiary")">
+                        <div class="form-check form-switch d-flex align-items-center">
+                            @{
+                                // The switch is only locked when the whole plotboek is finalized (read-only for non-admins),
+                                // when the pagina can't be completed yet because required fields are missing, or while
+                                // feedback is still open (the domain rejects the flag then anyway — see
+                                // PlotboekPagina.AanpassenVolledigKlaar).
+                                // A pagina being "volledig klaar" must NOT lock its own switch: as long as the plotboek
+                                // isn't finalized, a regular user may switch it back off to keep editing. Every clause
+                                // therefore only blocks switching the flag ON.
+                                var geblokkeerdDoorFeedback = Model.HeeftOpenstaandeFeedback && !isVolledigKlaar;
+                                var volledigKlaarDisabled = Model.IsPlotboekReadOnly || (!canMarkVolledigKlaar && !isVolledigKlaar) || geblokkeerdDoorFeedback;
+                            }
+                            @if (volledigKlaarDisabled)
+                            {
+                                <input type="hidden" name="EditableIsVolledigKlaar" value="@(Model.EditableIsVolledigKlaar ? "true" : "false")" />
+                            }
+                            @if (volledigKlaarDisabled)
+                            {
+                                <input class="form-check-input me-2"
+                                       type="checkbox"
+                                       asp-for="EditableIsVolledigKlaar"
+                                       id="editable-is-volledig-klaar"
+                                       disabled
+                                       onchange="toggleVolledigKlaar()">
+                            }
+                            else
+                            {
+                                <input class="form-check-input me-2"
+                                       type="checkbox"
+                                       asp-for="EditableIsVolledigKlaar"
+                                       id="editable-is-volledig-klaar"
+                                       onchange="toggleVolledigKlaar()">
+                            }
+                            <label class="form-check-label fw-bold @(isVolledigKlaar ? "text-success" : "")" for="editable-is-volledig-klaar"
+                                   title="@(geblokkeerdDoorFeedback ? "Dit plot heeft nog openstaande feedback; reageer daar eerst op." : null)">
+                                <i class="fas @(isVolledigKlaar ? "fa-check-circle" : "fa-circle") me-1"></i>Plot volledig klaar
+                            </label>
+                        </div>
+                        @if (Model.IsPlotboekReadOnly)
+                        {
+                            <small class="text-muted d-block mt-1">
+                                <i class="fas fa-lock me-1"></i>Dit plotboek is volledig klaar en is alleen-lezen.
+                            </small>
+                        }
+                        else if (geblokkeerdDoorFeedback)
+                        {
+                            <small class="text-danger d-block mt-1">
+                                <i class="fas fa-comment-dots me-1"></i>Dit plot heeft nog openstaande feedback; reageer daar eerst op.
+                            </small>
+                        }
+                        else if (!canMarkVolledigKlaar && !isVolledigKlaar)
+                        {
+                            <small class="text-muted d-block mt-1">
+                                <i class="fas fa-info-circle me-1"></i>Vul eerst alle verplichte velden in: @string.Join(", ", allMissing)
+                            </small>
+                        }
+                        else if (alleenVinkjeNog)
+                        {
+                            @* Hidden by toggleVolledigKlaar() once the switch is ticked, so it doesn't linger before saving. *@
+                            <div id="volledig-klaar-herinnering" class="alert alert-warning py-2 small mt-2 mb-0" role="status">
+                                <i class="fas fa-exclamation-triangle me-1"></i>
+                                Alles is ingevuld. Is je plot af? Vink dan <strong>Plot volledig klaar</strong> aan; dat is de laatste stap.
+                            </div>
+                        }
+                    </div>
+
+                    @if (Model.IsEvergreen)
+                    {
+                        <!-- GEDRAAID (RAN) CHECKBOX - Evergreen only -->
+                        <div class="mb-3 p-3 border rounded @(pagina.IsGedraaid ? "bg-warning bg-opacity-10 border-warning" : "bg-body-tertiary")">
+                            <div class="form-check form-switch d-flex align-items-center">
+                                <input class="form-check-input me-2"
+                                       type="checkbox"
+                                       asp-for="EditableIsGedraaid"
+                                       id="editable-is-gedraaid">
+                                <label class="form-check-label fw-bold @(pagina.IsGedraaid ? "text-warning" : "")" for="editable-is-gedraaid">
+                                    <i class="fas @(pagina.IsGedraaid ? "fa-flag-checkered" : "fa-flag") me-1"></i>Gedraaid (Ran)
+                                </label>
+                            </div>
+                            <small class="text-muted d-block mt-1">
+                                <i class="fas fa-info-circle me-1"></i>Wanneer aangevinkt, wordt deze encounter niet meer afgedrukt in toekomstige plotboeken.
+                            </small>
+                        </div>
+                    }
+
+                    <fieldset id="pagina-fields" @(isPaginaReadOnly ? "disabled" : "")>
+                    <!-- TITLE SECTION -->
+                    <div class="detail-section">
+                        <div class="detail-section-header"
+                             role="button"
+                             data-bs-toggle="collapse"
+                             data-bs-target="#section-title"
+                             aria-expanded="false"
+                             aria-controls="section-title">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="detail-section-label">
+                                    <i class="fas fa-heading me-1"></i>Titel
+                                    @if (titleMissing.Count > 0) { <i class="fas fa-exclamation-triangle text-warning ms-1"></i><small class="text-warning ms-1">@string.Join(", ", titleMissing)</small> }
+                                </span>
+                                <i class="fas fa-chevron-down detail-section-chevron"></i>
+                            </div>
+                            <div class="detail-section-summary mt-1">
+                                @if (!string.IsNullOrEmpty(titleSummary))
+                                {
+                                    @titleSummary
+                                }
+                                else
+                                {
+                                    <span class="text-muted fst-italic">Geen titel</span>
+                                }
+                            </div>
+                        </div>
+                        <div class="collapse" id="section-title">
+                            <div class="detail-section-body">
+                                <div class="mb-3">
+                                    <label for="editable-domain" class="form-label fw-bold">Domein:</label>
+                                <select id="editable-domain"
+                                            asp-for="EditableDomainId"
+                                            class="form-select"
+                                            onchange="updatePlotlijnOptions()">
+                                        <option value="">-- Geen domein --</option>
+                                        @foreach (var domain in Model.AvailableDomains)
+                                        {
+                                            <option value="@domain.Id" selected="@(Model.EditableDomainId == domain.Id)">@domain.DisplayName</option>
+                                        }
+                                    </select>
+                                    @if (!string.IsNullOrEmpty(Model.DomainValidationMessage))
+                                    {
+                                        <div class="form-text text-danger">@Model.DomainValidationMessage</div>
+                                    }
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="editable-title" class="form-label fw-bold">Title:</label>
+                                    <div class="input-group">
+                                        <input type="text"
+                                               id="editable-title"
+                                               asp-for="EditableTitle"
+                                               class="form-control">
+                                    </div>
+                                </div>
+
+                                @if (!Model.IsEvergreen)
+                                {
+                                <div class="mb-3" id="plotlijn-container">
+                                    <label for="editable-plotlijn" class="form-label fw-bold">Plotlijn:</label>
+                                    <select id="editable-plotlijn"
+                                            asp-for="EditablePlotlijnIdRaw"
+                                            class="form-select">
+                                        <option value="">-- Zelfstandige encounter (geen plotlijn) --</option>
+                                        @if (Model.AvailablePlotlijnen.Any())
+                                        {
+                                            <optgroup label="Bestaande plotlijnen">
+                                                @foreach (var plotlijn in Model.AvailablePlotlijnen)
+                                                {
+                                                    <option value="plotlijn:@plotlijn.PlotlijnId"
+                                                            selected="@(Model.EditablePlotlijnIdRaw == $"plotlijn:{plotlijn.PlotlijnId}")"
+                                                            data-domain-id="@plotlijn.DomainId">@plotlijn.Titel</option>
+                                                }
+                                            </optgroup>
+                                        }
+                                        @if (Model.PlotboekPaginas.Any(p => !p.PlotlijnId.HasValue && p.Id != Model.PaginaId))
+                                        {
+                                            <optgroup label="Koppelen aan plot (nieuwe plotlijn)">
+                                                @foreach (var linkPagina in Model.PlotboekPaginas.Where(p => !p.PlotlijnId.HasValue && p.Id != Model.PaginaId))
+                                                {
+                                                    <option value="pagina:@linkPagina.Id"
+                                                            data-domain-id="@linkPagina.DomainId">@linkPagina.Title</option>
+                                                }
+                                            </optgroup>
+                                        }
+                                    </select>
+                                    <small class="form-text text-muted">
+                                        Selecteer een bestaande plotlijn om aan te koppelen, of kies een ander plot om samen een nieuwe plotlijn te vormen.
+                                    </small>
+                                </div>
+                                }
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- PLANNING SECTION -->
+                    <div class="detail-section">
+                        <div class="detail-section-header"
+                             role="button"
+                             data-bs-toggle="collapse"
+                             data-bs-target="#section-planning"
+                             aria-expanded="false"
+                             aria-controls="section-planning">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="detail-section-label">
+                                    <i class="fas fa-calendar-alt me-1"></i>Planning
+                                    @if (planningMissing.Count > 0) { <i class="fas fa-exclamation-triangle text-warning ms-1"></i><small class="text-warning ms-1">@string.Join(", ", planningMissing)</small> }
+                                    @if (!Model.IsEvergreen)
+                                    {
+                                        <span id="nacht-plot-warning-indicator" class="text-warning ms-1" title="Flexibel nacht plot zonder slot om 20:00 of later" style="display:@(nachtPlotWarning ? "inline" : "none");">
+                                            <i class="fas fa-moon"></i><small class="ms-1">Geen nachtslot</small>
+                                        </span>
+                                    }
+                                </span>
+                                <i class="fas fa-chevron-down detail-section-chevron"></i>
+                            </div>
+                            <div class="detail-section-summary mt-1">
+                                @if (!string.IsNullOrEmpty(planningSummary))
+                                {
+                                    @planningSummary
+                                }
+                                else
+                                {
+                                    <span class="text-muted fst-italic">Geen planning</span>
+                                }
+                            </div>
+                        </div>
+                        <div class="collapse" id="section-planning">
+                            <div class="detail-section-body">
+                                @if (!Model.IsEvergreen)
+                                {
+                                <div class="mb-3" id="dag-container">
+                                    <label for="editable-day" class="form-label fw-bold">Dag:</label>
+                                    <select id="editable-day"
+                                            asp-for="EditableDay"
+                                            class="form-select"
+                                            disabled="@Model.EditableIsSpelerGedreven"
+                                            onchange="updateStarttijdOptions()">
+                                        @foreach (var dag in Model.AvailableDays)
+                                        {
+                                            <option value="@dag" selected="@(Model.EditableDay == dag)">@dag</option>
+                                        }
+                                    </select>
+                                </div>
+                                <div class="row mb-3">
+                                    <div class="col-md-6" id="starttijd-container">
+                                        <label for="editable-starttijd" class="form-label fw-bold">Starttijd:</label>
+                                        <select id="editable-starttijd"
+                                                asp-for="EditableStarttijd"
+                                                class="form-select"
+                                                disabled="@Model.EditableIsSpelerGedreven">
+                                            @foreach (var starttijdId in Model.AvailableStarttijden)
+                                            {
+                                                var dropdownLabel = PlotboekModel.GetStarttijdDropdownLabel(
+                                                    Model.EditableDay,
+                                                    starttijdId,
+                                                    Model.PlotboekSettings?.StartDag ?? core.Enums.Dag.None,
+                                                    Model.PlotboekSettings?.EindDag ?? core.Enums.Dag.None,
+                                                    Model.AvailableStarttijdConfigs);
+                                                <option value="@starttijdId" selected="@(Model.EditableStarttijd == starttijdId)">@dropdownLabel</option>
+                                            }
+                                        </select>
+                                        @* The options for every other day, exactly as the server would render them.
+                                           starttijd.js only picks the list for the selected day, so availability,
+                                           block numbers and windows live in the reference data alone: change a slot
+                                           in Admin -> Starttijden and the dropdown follows without a code change.
+                                           Html.Raw is safe here: System.Text.Json escapes <, > and & by default. *@
+                                        <script type="application/json" id="starttijd-opties">@Html.Raw(Model.BuildStarttijdOptiesJson())</script>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label for="editable-aantal-blokken" class="form-label fw-bold">Geschatte Duur:</label>
+                                        <select id="editable-aantal-blokken"
+                                                asp-for="EditableAantalBlokken"
+                                                class="form-select">
+                                            @foreach (var cfg in Model.AvailableAantalBlokkenConfigs)
+                                            {
+                                                <option value="@cfg.Id" selected="@(Model.EditableAantalBlokken == cfg.Id)">@cfg.DisplayName</option>
+                                            }
+                                        </select>
+                                    </div>
+                                </div>
+                                }
+                                else
+                                {
+                                <div class="mb-3">
+                                    <label for="editable-aantal-blokken" class="form-label fw-bold">Geschatte Duur:</label>
+                                    <select id="editable-aantal-blokken"
+                                            asp-for="EditableAantalBlokken"
+                                            class="form-select">
+                                        @foreach (var cfg in Model.AvailableAantalBlokkenConfigs)
+                                        {
+                                            <option value="@cfg.Id" selected="@(Model.EditableAantalBlokken == cfg.Id)">@cfg.DisplayName</option>
+                                        }
+                                    </select>
+                                    <small class="form-text text-muted">Evergreen encounters hebben geen vaste dag of starttijd, alleen een geschatte duur.</small>
+                                </div>
+                                }
+
+                                <div class="mb-3">
+                                    <label for="editable-verantwoordelijke-sl" class="form-label fw-bold">Verantwoordelijke SL:</label>
+                                    <select id="editable-verantwoordelijke-sl"
+                                            asp-for="EditableVerantwoordelijkeSlId"
+                                            class="form-select">
+                                        <option value="">Nog niet bekend</option>
+                                        @foreach (var sl in Model.AvailableSls)
+                                        {
+                                            <option value="@sl.Id" selected="@(Model.EditableVerantwoordelijkeSlId == sl.Id)">@sl.DisplayName</option>
+                                        }
+                                    </select>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label fw-bold">Extra SL's:</label>
+                                    <div id="extra-sl-container">
+                                        @if (Model.EditableExtraSlIds != null && Model.EditableExtraSlIds.Any())
+                                        {
+                                            for (var i = 0; i < Model.EditableExtraSlIds.Count; i++)
+                                            {
+                                                var extraSlId = Model.EditableExtraSlIds[i];
+                                                <div class="extra-sl-item d-flex align-items-center mb-2" data-index="@i">
+                                                    <select name="EditableExtraSlIds[@i]"
+                                                            class="form-select form-select-sm me-2">
+                                                        <option value="">-- Selecteer een SL --</option>
+                                                        @foreach (var sl in Model.AvailableSls)
+                                                        {
+                                                            <option value="@sl.Id" selected="@(extraSlId == sl.Id)">@sl.DisplayName</option>
+                                                        }
+                                                    </select>
+                                                    <button type="button" class="btn btn-outline-danger btn-sm" onclick="removeExtraSl(this)">
+                                                        <i class="fas fa-trash"></i>
+                                                    </button>
+                                                </div>
+                                            }
+                                        }
+                                    </div>
+                                    <button type="button" class="btn btn-outline-success btn-sm" onclick="addExtraSl()">
+                                        <i class="fas fa-plus me-1"></i>Extra SL Toevoegen
+                                    </button>
+                                </div>
+
+                                <hr />
+                                <label class="form-label fw-bold">Planning Opties:</label>
+                                <div class="row g-2 mb-3">
+                                    @if (!Model.IsEvergreen)
+                                    {
+                                    <div class="col-md-6">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" asp-for="EditableIsSpelerGedreven" id="editable-is-speler-gedreven" onchange="toggleSpelerGedreven()">
+                                            <label class="form-check-label" for="editable-is-speler-gedreven">
+                                                &#x1F3AD; Speler Gedreven
+                                            </label>
+                                            <small class="text-muted d-block">Dag en starttijd worden niet gebruikt</small>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" asp-for="EditableIsFlexibel" id="editable-is-flexibel">
+                                            <label class="form-check-label" for="editable-is-flexibel">
+                                                &#x1F504; Flexibel
+                                            </label>
+                                            <small class="text-muted d-block">Exacte tijd is minder belangrijk</small>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" asp-for="EditableIsFlexibelNachtPlot" id="editable-is-flexibel-nacht-plot" onchange="updateNachtPlotWarning()">
+                                            <label class="form-check-label" for="editable-is-flexibel-nacht-plot">
+                                                &#x1F319; Flexibel nacht plot
+                                            </label>
+                                            <small class="text-muted d-block">Flexibel, maar hoort in een avond-/nachtslot (20:00 of later)</small>
+                                        </div>
+                                    </div>
+                                    }
+                                </div>
+                                @if (!Model.IsEvergreen)
+                                {
+                                    <div id="nacht-plot-warning" class="alert alert-warning py-2 small mb-3" style="display:@(nachtPlotWarning ? "block" : "none");">
+                                        <i class="fas fa-moon me-1"></i>Dit is een <strong>flexibel nacht plot</strong>, maar het staat niet in een slot om 20:00 of later. Kies een avond-/nachtslot of zet de optie uit.
+                                    </div>
+                                }
+
+                                <hr />
+                                <label class="form-label fw-bold">Planning Iconen:</label>
+                                <div class="row g-2">
+                                    <div class="col-md-6">
+                                        <div class="form-check">
+                                            <input class="form-check-input"
+                                                   type="checkbox"
+                                                   asp-for="EditableEventBreed"
+                                                   id="editable-event-breed"
+                                                   disabled="@(Model.EditableLocatieEncounter is core.Enums.LocatieEncounter.Groeperingsveld or core.Enums.LocatieEncounter.Questveld || Model.EditableAlleNpcs)"
+                                                   onchange="onEventBreedChanged()">
+                                            <label class="form-check-label" for="editable-event-breed">
+                                                &#x1F46F; @Terminologie.EventBreed
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" asp-for="EditableTimingCruciaal" id="editable-timing-cruciaal">
+                                            <label class="form-check-label" for="editable-timing-cruciaal">
+                                                &#x2B50; Timing Cruciaal
+                                            </label>
+                                            <small class="text-muted d-block">Plot moet in dit blok</small>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" asp-for="EditablePlotCruciaal" id="editable-plot-cruciaal">
+                                            <label class="form-check-label" for="editable-plot-cruciaal">
+                                                &#x2757; Plot Cruciaal
+                                            </label>
+                                            <small class="text-muted d-block">Mag niet gecanceld worden bij te weinig NPCs (in overleg met HSL/EC)</small>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" asp-for="EditableMagAlsEersteCancelled" id="editable-mag-als-eerste-gecancelled">
+                                            <label class="form-check-label" for="editable-mag-als-eerste-gecancelled">
+                                                &#x2753; Mag als eerste gecanceld
+                                            </label>
+                                            <small class="text-muted d-block">Mag als eerste gecanceld worden bij te weinig NPCs</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ENCOUNTER SECTION -->
+                    <div class="detail-section">
+                        <div class="detail-section-header"
+                             role="button"
+                             data-bs-toggle="collapse"
+                             data-bs-target="#section-encounter"
+                             aria-expanded="false"
+                             aria-controls="section-encounter">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="detail-section-label">
+                                    <i class="fas fa-theater-masks me-1"></i>Encounter
+                                    @if (encounterMissing.Count > 0) { <i class="fas fa-exclamation-triangle text-warning ms-1"></i><small class="text-warning ms-1">@string.Join(", ", encounterMissing)</small> }
+                                    @if (exacteLocatieBotsingen > 0)
+                                    {
+                                        <i class="fas fa-map-marker-alt text-danger ms-1"></i>
+                                        <small class="text-danger ms-1">
+                                            @(exacteLocatieBotsingen == 1 ? "locatie dubbel geboekt" : $"{exacteLocatieBotsingen}x locatie dubbel geboekt")
+                                        </small>
+                                    }
+                                </span>
+                                <i class="fas fa-chevron-down detail-section-chevron"></i>
+                            </div>
+                            <div class="detail-section-summary mt-1">
+                                @if (!string.IsNullOrEmpty(encounterSummary))
+                                {
+                                    @encounterSummary
+                                }
+                                else
+                                {
+                                    <span class="text-muted fst-italic">Geen encounter informatie</span>
+                                }
+                            </div>
+                        </div>
+                        <div class="collapse" id="section-encounter">
+                            <div class="detail-section-body">
+                                <div class="mb-3">
+                                    <label class="form-label fw-bold">Soort Encounter:</label>
+                                    <div class="row g-3">
+                                        <div class="col-md-6">
+                                            <label class="form-label small text-muted">Hoofdsoort (meerdere mogelijk)</label>
+                                            <div class="border rounded p-2" style="max-height: 150px; overflow-y: auto;">
+                                                @foreach (var cfg in Model.AvailableSoortEncounterConfigs.Where(s => !s.IsNone))
+                                                {
+                                                    var soortId = cfg.Id;
+                                                    <div class="form-check">
+                                                        <input class="form-check-input"
+                                                               type="checkbox"
+                                                               name="EditableEncounterTypesMajor"
+                                                               value="@soortId"
+                                                               id="major-@soortId"
+                                                               checked="@(Model.EditableEncounterTypesMajor.Contains(soortId))"
+                                                               onchange="updateEncounterPreview()">
+                                                        <label class="form-check-label" for="major-@soortId">@cfg.DisplayName</label>
+                                                    </div>
+                                                }
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label small text-muted">Mogelijk ook (meerdere mogelijk)</label>
+                                            <div class="border rounded p-2" style="max-height: 150px; overflow-y: auto;">
+                                                @foreach (var cfg in Model.AvailableSoortEncounterConfigs.Where(s => !s.IsNone))
+                                                {
+                                                    var soortId = cfg.Id;
+                                                    <div class="form-check">
+                                                        <input class="form-check-input"
+                                                               type="checkbox"
+                                                               name="EditableEncounterTypesMinor"
+                                                               value="@soortId"
+                                                               id="minor-@soortId"
+                                                               checked="@(Model.EditableEncounterTypesMinor.Contains(soortId))"
+                                                               onchange="updateEncounterPreview()">
+                                                        <label class="form-check-label" for="minor-@soortId">@cfg.DisplayName</label>
+                                                    </div>
+                                                }
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div id="encounter-preview" class="form-text text-info mt-2" style="display: none;">
+                                        <i class="fas fa-theater-masks me-1"></i><span id="encounter-preview-text"></span>
+                                    </div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label fw-bold">
+                                        Locatie Encounter:
+                                        @* An anchor, not a button: a disabled fieldset (read-only pagina) would grey out a
+                                           <button>, and looking at the terrain map should always stay possible. *@
+                                        @if (TerreinKaart.IsIngesteld)
+                                        {
+                                            <a href="#"
+                                               class="btn btn-sm btn-outline-secondary py-0 px-2 ms-1"
+                                               data-bs-toggle="modal"
+                                               data-bs-target="#terreinKaartModal"
+                                               title="Bekijk: @TerreinKaart.Titel"
+                                               aria-label="Bekijk: @TerreinKaart.Titel">?</a>
+                                        }
+                                    </label>
+                                    @{
+                                        var isQuestveld = Model.EditableLocatieEncounter == core.Enums.LocatieEncounter.Questveld;
+                                        var isAndersQuestlocatie = string.IsNullOrEmpty(Model.EditableQuestLocatieId)
+                                            || Model.EditableQuestLocatieId == PlotboekModel.QuestLocatieAndersSentinel;
+                                        // Groeperingsveld always types its own field; Questveld only in the "Anders…" branch.
+                                        var showSpecificatie = Model.EditableLocatieEncounter == core.Enums.LocatieEncounter.Groeperingsveld
+                                            || (isQuestveld && isAndersQuestlocatie);
+                                        var questLocatieGroups = Model.AvailableQuestLocatieConfigs
+                                            .GroupByCategorie(Model.AvailableQuestLocatieCategorieConfigs, Model.EditableQuestLocatieId);
+                                        var questLocatieNotitie = Model.CurrentQuestLocatieNotitie;
+                                    }
+                                    <div class="row g-2">
+                                        <div class="col-md-4">
+                                            <select id="editable-locatie-encounter"
+                                                    asp-for="EditableLocatieEncounter"
+                                                    class="form-select"
+                                                    onchange="updateLocatieEncounterSpecificatie()">
+                                                @foreach (var locatie in Enum.GetValues<core.Enums.LocatieEncounter>())
+                                                {
+                                                    <option value="@locatie" selected="@(Model.EditableLocatieEncounter == locatie)">
+                                                        @(locatie == core.Enums.LocatieEncounter.None ? "-- Selecteer --" : locatie.ToString())
+                                                    </option>
+                                                }
+                                            </select>
+                                        </div>
+                                        <div class="col-md-4" id="questlocatie-container" style="display: @(isQuestveld ? "block" : "none");">
+                                            <select id="editable-questlocatie"
+                                                    asp-for="EditableQuestLocatieId"
+                                                    class="form-select"
+                                                    onchange="updateLocatieEncounterSpecificatie()">
+                                                @foreach (var (categorie, locaties) in questLocatieGroups)
+                                                {
+                                                    <optgroup label="@categorie.DisplayName">
+                                                        @foreach (var loc in locaties)
+                                                        {
+                                                            <option value="@loc.Id"
+                                                                    selected="@(Model.EditableQuestLocatieId == loc.Id)"
+                                                                    data-categorie="@categorie.Id"
+                                                                    data-notitie="@categorie.Notitie"
+                                                                    data-ernst="@categorie.Ernst"
+                                                                    data-locatie-notitie="@loc.Notitie">
+                                                                @loc.DisplayName@(loc.IsActief ? string.Empty : " (niet meer in gebruik)")
+                                                            </option>
+                                                        }
+                                                    </optgroup>
+                                                }
+                                                <option value="@PlotboekModel.QuestLocatieAndersSentinel"
+                                                        selected="@isAndersQuestlocatie"
+                                                        data-categorie=""
+                                                        data-notitie=""
+                                                        data-ernst="@core.Enums.QuestLocatieErnst.None"
+                                                        data-locatie-notitie="">
+                                                    Anders… (vul zelf in)
+                                                </option>
+                                            </select>
+                                            <small class="form-text text-muted">Welke questlocatie?</small>
+                                        </div>
+                                        <div class="col-md-4" id="locatie-specificatie-container" style="display: @(showSpecificatie ? "block" : "none");">
+                                            <input type="text"
+                                                   id="editable-locatie-specificatie"
+                                                   asp-for="EditableLocatieEncounterSpecificatie"
+                                                   class="form-control"
+                                                   oninput="updateLocatieEncounterPreview()">
+                                            <small class="form-text text-muted">Welk veld?</small>
+                                        </div>
+                                    </div>
+                                    <div id="questlocatie-notitie"
+                                         class="alert @(questLocatieNotitie.HasValue ? questLocatieNotitie.CssClass : "alert-info") py-2 small mt-2 mb-0"
+                                         style="display: @(questLocatieNotitie.HasValue ? "block" : "none");">
+                                        <i class="fas fa-circle-info me-1"></i><span id="questlocatie-notitie-text">@questLocatieNotitie.Text</span>
+                                    </div>
+                                    @* Double-booked questlocaties. Advisory only: sharing a location is
+                                       sometimes deliberate, so this never blocks "volledig klaar".
+                                       Recomputed on load, so it goes quiet until the next save. *@
+                                    @foreach (var conflict in locatieConflicten)
+                                    {
+                                        var conflictTijd = conflict.Dag == core.Enums.Dag.None
+                                            ? string.Empty
+                                            : $"{conflict.Dag} {Model.AvailableStarttijdConfigs.GetDisplayName(conflict.StarttijdId)}";
+                                        switch (conflict.Soort)
+                                        {
+                                            case core.Enums.LocatieConflictSoort.ExacteMatch:
+                                                <div class="alert alert-danger py-2 small mt-2 mb-0">
+                                                    <i class="fas fa-triangle-exclamation me-1"></i>
+                                                    Deze locatie is al in gebruik: <strong>@conflict.Titel</strong> (@conflictTijd).
+                                                </div>
+                                                break;
+                                            case core.Enums.LocatieConflictSoort.Overlapgroep:
+                                                <div class="alert alert-warning py-2 small mt-2 mb-0">
+                                                    <i class="fas fa-triangle-exclamation me-1"></i>
+                                                    Let op: <strong>@conflict.Titel</strong> speelt op
+                                                    @Model.AvailableQuestLocatieConfigs.GetDisplayName(conflict.LocatieId)
+                                                    in hetzelfde blok — zorg dat ze elkaar niet in de weg zitten.
+                                                </div>
+                                                break;
+                                            case core.Enums.LocatieConflictSoort.ZonderTijdvak:
+                                                <div class="alert alert-info py-2 small mt-2 mb-0">
+                                                    <i class="fas fa-circle-info me-1"></i>
+                                                    <strong>@conflict.Titel</strong> gebruikt dezelfde locatie maar heeft geen dagdeel — stem onderling af.
+                                                </div>
+                                                break;
+                                        }
+                                    }
+                                    <div id="locatie-encounter-preview" class="form-text text-info mt-2" style="display: none;">
+                                        <i class="fas fa-map-marker-alt me-1"></i><span id="locatie-encounter-preview-text"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- NPC SECTION -->
+                    @{
+                        // Open after "Bewaar als standaard", so the SL sees the outcome next to the role.
+                        var npcSectieOpen = !string.IsNullOrEmpty(Model.StandaardNpcMelding) || !string.IsNullOrEmpty(Model.StandaardNpcFout);
+                    }
+                    <div class="detail-section">
+                        <div class="detail-section-header"
+                             role="button"
+                             data-bs-toggle="collapse"
+                             data-bs-target="#section-npc"
+                             aria-expanded="@(npcSectieOpen ? "true" : "false")"
+                             aria-controls="section-npc">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="detail-section-label">
+                                    <i class="fas fa-users me-1"></i>NPCs
+                                    @if (npcMissing.Count > 0) { <i class="fas fa-exclamation-triangle text-warning ms-1"></i><small class="text-warning ms-1">@string.Join(", ", npcMissing)</small> }
+                                </span>
+                                <i class="fas fa-chevron-down detail-section-chevron"></i>
+                            </div>
+                            <div class="detail-section-summary mt-1">
+                                @if (!string.IsNullOrEmpty(npcSummary))
+                                {
+                                    @npcSummary
+                                }
+                                else
+                                {
+                                    <span class="text-muted fst-italic">Geen NPC informatie</span>
+                                }
+                            </div>
+                        </div>
+                        <div class="collapse @(npcSectieOpen ? "show" : "")" id="section-npc">
+                            <div class="detail-section-body">
+                                <label class="form-label fw-bold">Aantal NPCs:</label>
+
+                                <div class="mb-3 p-2 border rounded bg-body-tertiary d-flex align-items-start">
+                                    <input class="form-check-input mt-1 me-2"
+                                           type="checkbox"
+                                           asp-for="EditableGeenNpcsNodig"
+                                           id="editable-geen-npcs"
+                                           onchange="toggleGeenNpcsNodig()">
+                                    <div>
+                                        <label class="form-check-label fw-bold mb-0" for="editable-geen-npcs">
+                                            <i class="fas fa-user-slash me-1"></i>Geen NPC's nodig
+                                        </label>
+                                        <small class="text-muted d-block">
+                                            Vink aan als dit plot geen NPC's nodig heeft. Sluit "ALLE NPCs" en losse rollen uit.
+                                        </small>
+                                    </div>
+                                </div>
+
+                                <div class="mb-3 p-2 border rounded bg-body-tertiary d-flex align-items-start">
+                                    <input class="form-check-input mt-1 me-2"
+                                           type="checkbox"
+                                           asp-for="EditableAlleNpcs"
+                                           id="editable-alle-npcs"
+                                           onchange="toggleAlleNpcsMode()">
+                                    <div>
+                                        <label class="form-check-label fw-bold text-danger mb-0" for="editable-alle-npcs">
+                                            <i class="fas fa-users me-1"></i>ALLE NPCs (bijv. groot gevecht)
+                                        </label>
+                                        <small class="text-muted d-block">
+                                            Selecteer dit als alle beschikbare NPCs nodig zijn.
+                                        </small>
+                                    </div>
+                                </div>
+
+                                <div id="npc-rollen-container">
+                                    @if (Model.EditableNpcRollen != null && Model.EditableNpcRollen.Any())
+                                    {
+                                        for (var i = 0; i < Model.EditableNpcRollen.Count; i++)
+                                        {
+                                            var rol = Model.EditableNpcRollen[i];
+                                            <div class="npc-rol-item border rounded p-3 mb-2" data-index="@i">
+                                                <div class="row g-2 mb-2">
+                                                    <div class="col-md-6">
+                                                        <label class="form-label small text-muted">Rol/Type NPC</label>
+                                                        <input type="text"
+                                                               name="EditableNpcRollen[@i].Rol"
+                                                               value="@rol.Rol"
+                                                               class="form-control form-control-sm">
+                                                    </div>
+                                                    <div class="col-md-3">
+                                                        <label class="form-label small text-muted npc-count-label">Minimum</label>
+                                                        <input type="number"
+                                                               name="EditableNpcRollen[@i].MinimumAantal"
+                                                               value="@rol.MinimumAantal"
+                                                               class="form-control form-control-sm npc-min-input"
+                                                               min="0"
+                                                               placeholder="Min">
+                                                    </div>
+                                                    <div class="col-md-3">
+                                                        <label class="form-label small text-muted npc-count-label">Maximum</label>
+                                                        <input type="number"
+                                                               name="EditableNpcRollen[@i].MaximumAantal"
+                                                               value="@rol.MaximumAantal"
+                                                               class="form-control form-control-sm npc-max-input"
+                                                               min="0"
+                                                               placeholder="Max (optioneel)">
+                                                    </div>
+                                                </div>
+                                                <div class="row g-2 mb-2">
+                                                    <div class="col-md-12">
+                                                        <label class="form-label small text-muted">Kleding &amp; Schmink</label>
+                                                        <input type="text"
+                                                               name="EditableNpcRollen[@i].KledingEnSchmink"
+                                                               value="@rol.KledingEnSchmink"
+                                                               class="form-control form-control-sm">
+                                                    </div>
+                                                </div>
+                                                @* Casting sits right under Kleding & Schmink so the three "wie/wat zoeken we"-fields stay together.
+                                                   Mirror every change here in the addNpcRol() template in npc.js. *@
+                                                <div class="row g-2 mb-2">
+                                                    <div class="col-md-12">
+                                                        <label class="form-label small text-muted">Casting &mdash; wat voor figurant zoeken we?</label>
+                                                        <input type="text"
+                                                               name="EditableNpcRollen[@i].CastingInstructie"
+                                                               value="@rol.CastingInstructie"
+                                                               class="form-control form-control-sm"
+                                                               placeholder="bv. vrouwelijk uiterlijk, goede roleplayer, stevig postuur">
+                                                    </div>
+                                                </div>
+                                                <div class="row g-2 mb-2">
+                                                    <div class="col-md-12">
+                                                        <div class="form-check">
+                                                            <input class="form-check-input npc-afstemming-check"
+                                                                   type="checkbox"
+                                                                   name="EditableNpcRollen[@i].VereistAfstemming"
+                                                                   value="true"
+                                                                   id="npc-afstemming-@i"
+                                                                   checked="@rol.VereistAfstemming"
+                                                                   data-target="npc-afstemming-toelichting-@i"
+                                                                   onchange="toggleNpcTextField(this)">
+                                                            <label class="form-check-label small" for="npc-afstemming-@i">
+                                                                &#x1F91D; Vereist afstemming vooraf (bv. marteling, intimiteit, heftige angstinhoud)
+                                                            </label>
+                                                            <small class="text-muted d-block">De MSL stemt dit vooraf af met de figurant.</small>
+                                                        </div>
+                                                        <input type="text"
+                                                               name="EditableNpcRollen[@i].AfstemmingToelichting"
+                                                               value="@rol.AfstemmingToelichting"
+                                                               id="npc-afstemming-toelichting-@i"
+                                                               class="form-control form-control-sm mt-1"
+                                                               placeholder="Waarover moet afgestemd worden?"
+                                                               style="display: @(rol.VereistAfstemming ? "block" : "none");">
+                                                    </div>
+                                                </div>
+                                                <div class="row g-2 mb-2">
+                                                    <div class="col-md-4">
+                                                        <div class="form-check">
+                                                            <input class="form-check-input"
+                                                                   type="checkbox"
+                                                                   name="EditableNpcRollen[@i].IsTerukerend"
+                                                                   value="true"
+                                                                   id="npc-terugkerend-@i"
+                                                                   checked="@rol.IsTerukerend">
+                                                            <label class="form-check-label small" for="npc-terugkerend-@i">
+                                                                Terugkerend na dit plot
+                                                            </label>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-4">
+                                                        <div class="form-check">
+                                                            <input class="form-check-input npc-eerder-gespeeld-check"
+                                                                   type="checkbox"
+                                                                   name="EditableNpcRollen[@i].IsEerderGespeeld"
+                                                                   value="true"
+                                                                   id="npc-eerder-@i"
+                                                                   checked="@rol.IsEerderGespeeld"
+                                                                   data-target="npc-eerder-door-@i"
+                                                                   onchange="toggleNpcTextField(this, 'npc-eerder-door-@i')">
+                                                            <label class="form-check-label small" for="npc-eerder-@i">
+                                                                Eerder gespeeld
+                                                            </label>
+                                                        </div>
+                                                        <input type="text"
+                                                               name="EditableNpcRollen[@i].GespeeldDoor"
+                                                               value="@rol.GespeeldDoor"
+                                                               id="npc-eerder-door-@i"
+                                                               class="form-control form-control-sm mt-1"
+                                                               placeholder="Door wie?"
+                                                               style="display: @(rol.IsEerderGespeeld ? "block" : "none");">
+                                                    </div>
+                                                    <div class="col-md-4">
+                                                        <div class="form-check">
+                                                            <input class="form-check-input npc-gekozen-check"
+                                                                   type="checkbox"
+                                                                   name="EditableNpcRollen[@i].IsAlGekozen"
+                                                                   value="true"
+                                                                   id="npc-gekozen-@i"
+                                                                   checked="@rol.IsAlGekozen"
+                                                                   data-target="npc-gekozen-persoon-@i"
+                                                                   data-warning="npc-gekozen-warning-@i"
+                                                                   onchange="toggleNpcGekozen(this)">
+                                                            <label class="form-check-label small" for="npc-gekozen-@i">
+                                                                Al gekozen/gebriefd
+                                                            </label>
+                                                        </div>
+                                                        <input type="text"
+                                                               name="EditableNpcRollen[@i].GekozenPersoon"
+                                                               value="@rol.GekozenPersoon"
+                                                               id="npc-gekozen-persoon-@i"
+                                                               class="form-control form-control-sm mt-1"
+                                                               placeholder="Wie?"
+                                                               style="display: @(rol.IsAlGekozen ? "block" : "none");">
+                                                    </div>
+                                                </div>
+                                                <div id="npc-gekozen-warning-@i"
+                                                     class="alert alert-warning py-2 small mb-2"
+                                                     style="display: @(rol.IsAlGekozen ? "block" : "none");">
+                                                    <i class="fas fa-triangle-exclamation me-1"></i><strong>LET OP:</strong> De MSL kiezen de NPC's. Gebruik deze optie alleen voor rollen waarbij een hele lange briefing nodig is die niet op het event zelf gegeven kan worden.
+                                                </div>
+                                                <button type="button" class="btn btn-outline-danger btn-sm" onclick="removeNpcRol(this)">
+                                                    <i class="fas fa-trash me-1"></i>Verwijderen
+                                                </button>
+                                                @* Mirror this button in the addNpcRol() template in npc.js. *@
+                                                <button type="button" class="btn btn-outline-secondary btn-sm ms-1"
+                                                        title="Slaat het plot op en bewaart deze rol (naam, kleding &amp; schmink, casting) als standaard-NPC."
+                                                        onclick="bewaarNpcRolAlsStandaard(this)">
+                                                    <i class="fas fa-bookmark me-1"></i>Bewaar als standaard
+                                                </button>
+                                            </div>
+                                        }
+                                    }
+                                </div>
+                                <div class="d-flex flex-wrap align-items-center gap-2">
+                                    <button type="button" class="btn btn-outline-success btn-sm" onclick="addNpcRol()">
+                                        <i class="fas fa-plus me-1"></i>NPC Rol Toevoegen
+                                    </button>
+                                    @if (Model.AvailableStandaardNpcs.Count > 0)
+                                    {
+                                        @* No name on purpose: picking only adds a filled-in role row, so the select
+                                           itself is neither posted nor part of the unsaved-changes snapshot. The
+                                           option values are the keys bewaarNpcRolAlsStandaard() checks for clashes. *@
+                                        <select id="standaard-npc-select" class="form-select form-select-sm w-auto"
+                                                aria-label="Standaard-NPC toevoegen"
+                                                onchange="addStandaardNpcRol(this)">
+                                            <option value="">+ Standaard-NPC toevoegen…</option>
+                                            @foreach (var standaardNpc in Model.AvailableStandaardNpcs)
+                                            {
+                                                <option value="@standaardNpc.Id"
+                                                        data-rol="@standaardNpc.Rol"
+                                                        data-kleding="@standaardNpc.KledingEnSchmink"
+                                                        data-casting="@standaardNpc.CastingInstructie">@standaardNpc.Rol</option>
+                                            }
+                                        </select>
+                                    }
+                                </div>
+                                @if (!string.IsNullOrEmpty(Model.StandaardNpcMelding))
+                                {
+                                    <div class="alert alert-success py-2 small mt-2 mb-0" role="status">
+                                        <i class="fas fa-bookmark me-1"></i>@Model.StandaardNpcMelding
+                                    </div>
+                                }
+                                @if (!string.IsNullOrEmpty(Model.StandaardNpcFout))
+                                {
+                                    <div class="alert alert-warning py-2 small mt-2 mb-0" role="alert">
+                                        <i class="fas fa-exclamation-triangle me-1"></i>@Model.StandaardNpcFout
+                                    </div>
+                                }
+                                <div id="npc-preview" class="form-text text-info mt-2" style="display: none;">
+                                    <i class="fas fa-users me-1"></i><span id="npc-preview-text"></span>
+                                </div>
+
+                                <hr />
+                                <label class="form-label fw-bold">NPC Iconen:</label>
+                                <div class="row g-2">
+                                    <div class="col-md-6">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" asp-for="EditableUitgebreideBriefing" id="editable-uitgebreide-briefing">
+                                            <label class="form-check-label" for="editable-uitgebreide-briefing">
+                                                &#x1F4D6; Uitgebreide briefing
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" asp-for="EditableGrootPakOfKostuum" id="editable-groot-pak-kostuum">
+                                            <label class="form-check-label" for="editable-groot-pak-kostuum">
+                                                &#x2764;&#xFE0F; Groot pak of uitgebreid kostuum/schmink
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- PLOT SECTION -->
+                    <div class="detail-section">
+                @{ var showPlotSection = !string.IsNullOrEmpty(Model.ElevatorPitchError) || !string.IsNullOrEmpty(Model.GeneratedElevatorPitchPreview); }
+                <div class="detail-section-header"
+                             role="button"
+                             data-bs-toggle="collapse"
+                             data-bs-target="#section-plot"
+                             aria-expanded="@(showPlotSection ? "true" : "false")"
+                             aria-controls="section-plot">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="detail-section-label">
+                                    <i class="fas fa-scroll me-1"></i>Plot
+                                    @if (plotMissing.Count > 0) { <i class="fas fa-exclamation-triangle text-warning ms-1"></i><small class="text-warning ms-1">@string.Join(", ", plotMissing)</small> }
+                                </span>
+                                <i class="fas fa-chevron-down detail-section-chevron"></i>
+                            </div>
+                            <div id="plot-elevator-pitch-summary" class="detail-section-summary mt-1">
+                                @if (!string.IsNullOrEmpty(pagina.ElevatorPitch))
+                                {
+                                    @pagina.ElevatorPitch
+                                }
+                                else
+                                {
+                                    <span class="text-muted fst-italic">Geen elevator pitch</span>
+                                }
+                            </div>
+                        </div>
+                        <div class="collapse @(showPlotSection ? "show" : "")" id="section-plot">
+                            <div class="detail-section-body">
+                                <div class="mb-3">
+                                    <label for="editable-elevator-pitch" class="form-label fw-bold">Elevator Pitch:</label>
+                                    <div class="input-group">
+                                        <input type="text"
+                                               id="editable-elevator-pitch"
+                                               asp-for="EditableElevatorPitch"
+                                               class="form-control">
+                                        @if (Model.KanElevatorPitchGenereren)
+                                        {
+                                            <button id="btn-genereer-elevator-pitch" type="button" class="btn btn-outline-secondary" onclick="generateElevatorPitch()">
+                                                <i class="fas fa-robot me-1"></i>Genereer elevator pitch
+                                            </button>
+                                        }
+                                    </div>
+                                    <small class="form-text text-muted">
+                                        1 zin die MSL gebruikt om het plot te verkopen richting de figuranten tijdens het verdelen van de rollen.
+                                    </small>
+                                </div>
+                                <input type="hidden" id="generated-elevator-pitch-hidden" asp-for="GeneratedElevatorPitchHidden" />
+
+                                @if (!string.IsNullOrEmpty(Model.ElevatorPitchError))
+                                {
+                                    <div class="alert alert-danger" role="alert">@Model.ElevatorPitchError</div>
+                                }
+                                else if (!string.IsNullOrEmpty(Model.GeneratedElevatorPitchPreview))
+                                {
+                                    <div class="alert alert-info" role="alert">
+                                        <strong>Gegenereerde elevator pitch:</strong>
+                                        <div class="mt-2">@Model.GeneratedElevatorPitchPreview</div>
+                                    </div>
+                                }
+
+                                <div class="mb-3">
+                                    <label class="form-label fw-bold">Samenvatting Plot:</label>
+                                    <input type="hidden" id="editable-samenvatting-plot" asp-for="EditableSamenvattingPlot" />
+                                    <div id="samenvatting-plot-editor">@Html.Raw(Model.EditableSamenvattingPlot)</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- PROPS & LOOT SECTION -->
+                    <div class="detail-section">
+                        <div class="detail-section-header"
+                             role="button"
+                             data-bs-toggle="collapse"
+                             data-bs-target="#section-props-loot"
+                             aria-expanded="false"
+                             aria-controls="section-props-loot">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="detail-section-label">
+                                    <i class="fas fa-box-open me-1"></i>Props &amp; Loot
+                                    @if (propsLootMissing.Count > 0) { <i class="fas fa-exclamation-triangle text-warning ms-1"></i><small class="text-warning ms-1">@string.Join(", ", propsLootMissing)</small> }
+                                </span>
+                                <i class="fas fa-chevron-down detail-section-chevron"></i>
+                            </div>
+                            <div class="detail-section-summary mt-1">
+                                @{
+                                    var propsLootParts = new List<string>();
+                                    var validProps = pagina.PropsEnLoot.Props?.Where(p => p.HasValue).ToList() ?? [];
+                                    var validLoot = pagina.PropsEnLoot.Loot?.Where(l => l.HasValue).ToList() ?? [];
+                                    if (validProps.Count > 0) propsLootParts.Add($"{validProps.Count} prop(s)");
+                                    if (validLoot.Count > 0) propsLootParts.Add($"{validLoot.Count} loot item(s)");
+                                }
+                                @if (propsLootParts.Count > 0)
+                                {
+                                    @string.Join(" \u00B7 ", propsLootParts)
+                                }
+                                else
+                                {
+                                    <span class="text-muted fst-italic">Geen props of loot</span>
+                                }
+                            </div>
+                        </div>
+                        <div class="collapse" id="section-props-loot">
+                            <div class="detail-section-body">
+                                <label class="form-label fw-bold">Benodigde Props:</label>
+                                <small class="text-muted d-block mb-2">Props &eacute;n wie ze aanlevert.</small>
+                                <div id="props-container">
+                                    @if (Model.EditableProps != null && Model.EditableProps.Any())
+                                    {
+                                        for (var i = 0; i < Model.EditableProps.Count; i++)
+                                        {
+                                            var prop = Model.EditableProps[i];
+                                            <div class="prop-item d-flex align-items-center mb-2" data-index="@i">
+                                                <input type="text"
+                                                       name="EditableProps[@i].Omschrijving"
+                                                       value="@prop.Omschrijving"
+                                                       class="form-control form-control-sm me-2"
+                                                       placeholder="Omschrijving prop">
+
+                                                <select name="EditableProps[@i].VerantwoordelijkeSource"
+                                                        class="form-select form-select-sm me-2 prop-source-select" style="max-width: 160px;"
+                                                        onchange="onPropSourceChanged(this)">
+                                                    <option value="SL" selected="@(string.Equals(prop.VerantwoordelijkeSource, "SL", StringComparison.OrdinalIgnoreCase))">SL</option>
+                                                    <option value="SpelerOfNpc" selected="@(string.Equals(prop.VerantwoordelijkeSource, "SpelerOfNpc", StringComparison.OrdinalIgnoreCase))">Speler of NPC</option>
+                                                    <option value="Anders" selected="@(string.Equals(prop.VerantwoordelijkeSource, "Anders", StringComparison.OrdinalIgnoreCase))">Anders</option>
+                                                </select>
+
+                                                <select name="EditableProps[@i].VerantwoordelijkeSlId"
+                                                        class="form-select form-select-sm me-2 prop-sl-select" style="max-width: 200px; display: @(string.Equals(prop.VerantwoordelijkeSource, "SL", StringComparison.OrdinalIgnoreCase) ? "block" : "none");">
+                                                    <option value="">-- SL --</option>
+                                                    @foreach (var sl in Model.AvailableSls)
+                                                    {
+                                                        <option value="@sl.Id" selected="@(prop.VerantwoordelijkeSlId == sl.Id)">@sl.DisplayName</option>
+                                                    }
+                                                </select>
+
+                                                <input type="text"
+                                                       name="EditableProps[@i].VerantwoordelijkeVrijeTekst"
+                                                       value="@prop.VerantwoordelijkeVrijeTekst"
+                                                       class="form-control form-control-sm me-2 prop-vrije-tekst"
+                                                       placeholder="Speler of naam"
+                                                       style="max-width: 200px; display: @(string.Equals(prop.VerantwoordelijkeSource, "SL", StringComparison.OrdinalIgnoreCase) ? "none" : "block");">
+                                                <button type="button" class="btn btn-outline-danger btn-sm" onclick="removePropItem(this)">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </div>
+                                        }
+                                    }
+                                </div>
+                                <button type="button" class="btn btn-outline-success btn-sm mb-3" onclick="addPropItem()">
+                                    <i class="fas fa-plus me-1"></i>Prop Toevoegen
+                                </button>
+
+                                <hr />
+
+
+                                <label class="form-label fw-bold">Gewenste Loot:</label>
+                                <small class="text-muted d-block mb-2">Lootbags / Specifieke loot &eacute;n wie dit aanlevert.</small>
+                                <div id="loot-container">
+                                    @if (Model.EditableLoot != null && Model.EditableLoot.Any())
+                                    {
+                                        for (var i = 0; i < Model.EditableLoot.Count; i++)
+                                        {
+                                            var lootItem = Model.EditableLoot[i];
+                                            <div class="loot-item d-flex align-items-center mb-2" data-index="@i">
+                                                <input type="text"
+                                                       name="EditableLoot[@i].Omschrijving"
+                                                       value="@lootItem.Omschrijving"
+                                                       class="form-control form-control-sm me-2"
+                                                       placeholder="Omschrijving loot">
+
+                                                <select name="EditableLoot[@i].VerantwoordelijkeSource"
+                                                        class="form-select form-select-sm me-2 loot-source-select" style="max-width: 160px;"
+                                                        onchange="onLootSourceChanged(this)">
+                                                    <option value="SL" selected="@(string.Equals(lootItem.VerantwoordelijkeSource, "SL", StringComparison.OrdinalIgnoreCase))">SL</option>
+                                                    <option value="SpelerOfNpc" selected="@(string.Equals(lootItem.VerantwoordelijkeSource, "SpelerOfNpc", StringComparison.OrdinalIgnoreCase))">Speler of NPC</option>
+                                                    <option value="Anders" selected="@(string.Equals(lootItem.VerantwoordelijkeSource, "Anders", StringComparison.OrdinalIgnoreCase))">Anders</option>
+                                                </select>
+
+                                                <select name="EditableLoot[@i].VerantwoordelijkeSlId"
+                                                        class="form-select form-select-sm me-2 loot-sl-select" style="max-width: 200px; display: @(string.Equals(lootItem.VerantwoordelijkeSource, "SL", StringComparison.OrdinalIgnoreCase) ? "block" : "none");">
+                                                    <option value="">-- SL --</option>
+                                                    @foreach (var sl in Model.AvailableSls)
+                                                    {
+                                                        <option value="@sl.Id" selected="@(lootItem.VerantwoordelijkeSlId == sl.Id)">@sl.DisplayName</option>
+                                                    }
+                                                </select>
+
+                                                <input type="text"
+                                                       name="EditableLoot[@i].VerantwoordelijkeVrijeTekst"
+                                                       value="@lootItem.VerantwoordelijkeVrijeTekst"
+                                                       class="form-control form-control-sm me-2 loot-vrije-tekst"
+                                                       placeholder="Speler of naam"
+                                                       style="max-width: 200px; display: @(string.Equals(lootItem.VerantwoordelijkeSource, "SL", StringComparison.OrdinalIgnoreCase) ? "none" : "block");">
+                                                <button type="button" class="btn btn-outline-danger btn-sm" onclick="removeLootItem(this)">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </div>
+                                        }
+                                    }
+                                </div>
+                                <button type="button" class="btn btn-outline-success btn-sm" onclick="addLootItem()">
+                                    <i class="fas fa-plus me-1"></i>Loot Toevoegen
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- TECHNIEK SECTION -->
+                    <div class="detail-section">
+                        <div class="detail-section-header"
+                             role="button"
+                             data-bs-toggle="collapse"
+                             data-bs-target="#section-techniek"
+                             aria-expanded="false"
+                             aria-controls="section-techniek">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="detail-section-label">
+                                    <i class="fas fa-broadcast-tower me-1"></i>@Terminologie.Techniek
+                                </span>
+                                <i class="fas fa-chevron-down detail-section-chevron"></i>
+                            </div>
+                            <div class="detail-section-summary mt-1">
+                                @if (!string.IsNullOrEmpty(pagina.InstructiePentagon))
+                                {
+                                    <span class="text-muted fst-italic">Ingevuld</span>
+                                }
+                                else
+                                {
+                                    <span class="text-muted fst-italic">@Terminologie.GeenTechniekInformatie</span>
+                                }
+                            </div>
+                        </div>
+                        <div class="collapse" id="section-techniek">
+                            <div class="detail-section-body">
+                                <div class="mb-3">
+                                    <label class="form-label fw-bold">@(Terminologie.InstructieTechniek):</label>
+                                    <small class="form-text text-muted d-block mb-2">
+                                        @Terminologie.InstructieTechniekUitleg
+                                    </small>
+                                    <input type="hidden" id="editable-instructie-techniek" asp-for="EditableInstructiePentagon" />
+                                    <div id="instructie-techniek-editor">@Html.Raw(Model.EditableInstructiePentagon)</div>
+                                </div>
+                                <div class="row g-2">
+                                    <div class="col-md-6">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" asp-for="EditableMuziekVanuitTechniek" id="editable-muziek-techniek">
+                                            <label class="form-check-label" for="editable-muziek-techniek">
+                                                &#x1F3B6; @Terminologie.MuziekVanuitTechniek
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" asp-for="EditableLichtOfRookVanuitTechniek" id="editable-licht-rook-techniek">
+                                            <label class="form-check-label" for="editable-licht-rook-techniek">
+                                                &#x1F4A1; @Terminologie.LichtOfRookVanuitTechniek
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- EXTRA INFORMATIE SECTION -->
+                    <div class="detail-section">
+                        <div class="detail-section-header"
+                             role="button"
+                             data-bs-toggle="collapse"
+                             data-bs-target="#section-extra-informatie"
+                             aria-expanded="false"
+                             aria-controls="section-extra-informatie">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="detail-section-label">
+                                    <i class="fas fa-info-circle me-1"></i>Extra informatie
+                                </span>
+                                <i class="fas fa-chevron-down detail-section-chevron"></i>
+                            </div>
+                            <div class="detail-section-summary mt-1">
+                                @if (!string.IsNullOrEmpty(pagina.MeerInformatie))
+                                {
+                                    <span class="text-muted fst-italic">Ingevuld</span>
+                                }
+                                else
+                                {
+                                    <span class="text-muted fst-italic">Geen extra informatie</span>
+                                }
+                            </div>
+                        </div>
+                        <div class="collapse" id="section-extra-informatie">
+                            <div class="detail-section-body">
+                                <div class="mb-3">
+                                    <label class="form-label fw-bold">Meer Informatie:</label>
+                                    <small class="form-text text-muted d-block mb-2">
+                                        Optioneel. Uitgebreide informatie die apart in het plotboek document wordt opgenomen.
+                                    </small>
+                                    <input type="hidden" id="editable-meer-informatie" asp-for="EditableMeerInformatie" />
+                                    <div id="meer-informatie-editor">@Html.Raw(Model.EditableMeerInformatie)</div>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="editable-opmerkingen" class="form-label fw-bold">Opmerkingen:</label>
+                                    <small class="form-text text-muted d-block mb-2">
+                                        Optioneel. Vrije opmerkingen over dit plot.
+                                    </small>
+                                    <textarea id="editable-opmerkingen"
+                                              asp-for="EditableOpmerkingen"
+                                              class="form-control"
+                                              rows="4"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- BIJLAGEN SECTION -->
+                    <div class="detail-section">
+                        <div class="detail-section-header"
+                             role="button"
+                             data-bs-toggle="collapse"
+                             data-bs-target="#section-bijlagen"
+                             aria-expanded="false"
+                             aria-controls="section-bijlagen">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="detail-section-label">
+                                    <i class="fas fa-paperclip me-1"></i>Bijlagen
+                                </span>
+                                <i class="fas fa-chevron-down detail-section-chevron"></i>
+                            </div>
+                            <div class="detail-section-summary mt-1">
+                                @{ var gekoppeldeBijlagen = Model.EditableReferencedBijlagen?.Count ?? 0; }
+                                @if (gekoppeldeBijlagen > 0)
+                                {
+                                    <span>@gekoppeldeBijlagen bijlage(n) gekoppeld</span>
+                                }
+                                else
+                                {
+                                    <span class="text-muted fst-italic">Geen bijlagen gekoppeld</span>
+                                }
+                            </div>
+                        </div>
+                        <div class="collapse" id="section-bijlagen">
+                            <div class="detail-section-body">
+                                <small class="form-text text-muted d-block mb-2">
+                                    Koppel gedeelde bijlagen aan dit plot. Elke gekoppelde bijlage krijgt in het plotboek een verwijzing "Voor ... zie bijlage op pagina ...". Bijlagen zelf beheer je bij de plotboek-instellingen.
+                                </small>
+                                @if (Model.AvailableBijlagen.Count == 0)
+                                {
+                                    <span class="text-muted fst-italic">Er zijn nog geen bijlagen. Voeg ze toe bij de plotboek-instellingen.</span>
+                                }
+                                else
+                                {
+                                    @foreach (var beschikbareBijlage in Model.AvailableBijlagen)
+                                    {
+                                        var bijlageId = beschikbareBijlage.Id.ToString();
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox"
+                                                   name="EditableReferencedBijlagen" value="@bijlageId"
+                                                   id="bijlage-ref-@bijlageId"
+                                                   checked="@(Model.EditableReferencedBijlagen.Contains(bijlageId))" />
+                                            <label class="form-check-label" for="bijlage-ref-@bijlageId">@beschikbareBijlage.Titel</label>
+                                        </div>
+                                    }
+                                }
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- DEBRIEF SECTION -->
+                    <div class="detail-section">
+                        <div class="detail-section-header"
+                             role="button"
+                             data-bs-toggle="collapse"
+                             data-bs-target="#section-debrief"
+                             aria-expanded="false"
+                             aria-controls="section-debrief">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="detail-section-label">
+                                    <i class="fas fa-clipboard-check me-1"></i>Debrief
+                                </span>
+                                <i class="fas fa-chevron-down detail-section-chevron"></i>
+                            </div>
+                            <div class="detail-section-summary mt-1">
+                                @if (pagina.Debrief.IsDebriefGewenst)
+                                {
+                                    var vragenCount = pagina.Debrief.Vragen?.Count(v => !string.IsNullOrWhiteSpace(v)) ?? 0;
+                                    <span>Debrief gewenst@(vragenCount > 0 ? $" \u00B7 {vragenCount} vraag/vragen" : "")</span>
+                                }
+                                else
+                                {
+                                    <span class="text-muted fst-italic">Geen debrief</span>
+                                }
+                            </div>
+                        </div>
+                        <div class="collapse" id="section-debrief">
+                            <div class="detail-section-body">
+                                <div class="mb-3">
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input"
+                                               type="checkbox"
+                                               asp-for="EditableDebriefGewenst"
+                                               id="editable-debrief-gewenst"
+                                               onchange="toggleDebriefVragen()">
+                                        <label class="form-check-label fw-bold" for="editable-debrief-gewenst">
+                                            Debrief gewenst
+                                        </label>
+                                    </div>
+                                    <small class="form-text text-muted d-block mb-2">
+                                        Laten staan als er een debrief gewenst is van de NPCs. De NPCs kunnen dan hier belangrijke details invullen, zodat dit niet na het event nog achterhaald moet worden.
+                                    </small>
+                                </div>
+                                <div id="debrief-vragen-section" style="display: @(Model.EditableDebriefGewenst ? "block" : "none");">
+                                    <label class="form-label fw-bold">Debrief vragen:</label>
+                                    <small class="text-muted d-block mb-2">
+                                        Optioneel. Als je specifieke dingen wilt weten bij de debrief, zet ze dan hier neer.
+                                    </small>
+                                    <div id="debrief-vragen-container">
+                                        @if (Model.EditableDebriefVragen != null && Model.EditableDebriefVragen.Any())
+                                        {
+                                            for (var i = 0; i < Model.EditableDebriefVragen.Count; i++)
+                                            {
+                                                var vraag = Model.EditableDebriefVragen[i];
+                                                <div class="debrief-vraag-item d-flex align-items-center mb-2" data-index="@i">
+                                                    <input type="text"
+                                                           name="EditableDebriefVragen[@i]"
+                                                           value="@vraag"
+                                                           class="form-control form-control-sm me-2"
+                                                           placeholder="Wat wil je weten?">
+                                                    <button type="button" class="btn btn-outline-danger btn-sm" onclick="removeDebriefVraag(this)">
+                                                        <i class="fas fa-trash"></i>
+                                                    </button>
+                                                </div>
+                                            }
+                                        }
+                                    </div>
+                                    <button type="button" class="btn btn-outline-success btn-sm" onclick="addDebriefVraag()">
+                                        <i class="fas fa-plus me-1"></i>Vraag Toevoegen
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Add more fields here as needed -->
+                    </fieldset>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i> Save
+                        </button>
+                        <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-toggle="modal" data-bs-target="#paginaActionsModal">
+                            <i class="fas fa-ellipsis-h me-1"></i>...
+                        </button>
+                    </div>
+                </form>
+
+                <script>
+                    // Live warning for "Flexibel nacht plot": show it when the option is set but the
+                    // encounter is not in a 20:00-or-later slot. Mirrors ShouldWarnFlexibelNachtPlot server-side.
+                    (function() {
+                        var NACHT_SLOTS = ['Tijd2000', 'Tijd2200', 'Tijd0000'];
+
+                        window.updateNachtPlotWarning = function() {
+                            var nachtPlot = document.getElementById('editable-is-flexibel-nacht-plot');
+                            var warning = document.getElementById('nacht-plot-warning');
+                            var indicator = document.getElementById('nacht-plot-warning-indicator');
+                            if (!nachtPlot) { return; }
+
+                            var spelerGedreven = document.getElementById('editable-is-speler-gedreven');
+                            var starttijd = document.getElementById('editable-starttijd');
+                            var starttijdValue = starttijd ? starttijd.value : 'None';
+
+                            var shouldWarn = nachtPlot.checked
+                                && !(spelerGedreven && spelerGedreven.checked)
+                                && NACHT_SLOTS.indexOf(starttijdValue) === -1;
+
+                            if (warning) { warning.style.display = shouldWarn ? 'block' : 'none'; }
+                            if (indicator) { indicator.style.display = shouldWarn ? 'inline' : 'none'; }
+                        };
+
+                        // Re-evaluate whenever any input that feeds the warning changes. The day select
+                        // rebuilds the starttijd options via updateStarttijdOptions() first (inline handler
+                        // runs before this listener), so the value is current by the time we read it.
+                        ['editable-is-speler-gedreven', 'editable-starttijd', 'editable-day'].forEach(function(id) {
+                            var el = document.getElementById(id);
+                            if (el) { el.addEventListener('change', window.updateNachtPlotWarning); }
+                        });
+
+                        window.updateNachtPlotWarning();
+                    })();
+                </script>
+
+                <script>
+                    (function() {
+                        function syncQuillFields() {
+                            // Sync the editor CONTENT into the hidden inputs before submit.
+                            // Never use the container's innerHTML: once Quill has mounted, that is Quill's
+                            // own wrapper markup (.ql-clipboard/.ql-editor), which would corrupt the stored
+                            // value and stop Quill from mounting on the next render.
+                            syncQuillFieldToHidden('samenvatting-plot-editor', 'editable-samenvatting-plot');
+                            syncQuillFieldToHidden('instructie-techniek-editor', 'editable-instructie-techniek');
+                            syncQuillFieldToHidden('meer-informatie-editor', 'editable-meer-informatie');
+                        }
+
+                        function syncQuillFieldToHidden(editorId, hiddenId) {
+                            var env = document.getElementById(editorId);
+                            var hidden = document.getElementById(hiddenId);
+                            if (!env || !hidden) {
+                                return;
+                            }
+                            // Prefer Quill's sanitized semantic HTML so we store the same clean markup as a normal save.
+                            var quill = (window.Quill && typeof Quill.find === 'function') ? Quill.find(env) : null;
+                            if (quill && typeof getSanitizedQuillSemanticHtml === 'function') {
+                                hidden.value = getSanitizedQuillSemanticHtml(quill);
+                                return;
+                            }
+                            // Fallback when the editor isn't mounted: use the inner content, not the container wrapper.
+                            var editor = env.querySelector('.ql-editor');
+                            hidden.value = editor ? editor.innerHTML : env.innerHTML;
+                        }
+
+                        window.generateElevatorPitch = function() {
+                            syncQuillFields();
+                            var actionInput = document.querySelector('#pagina-details-form input[name="Action"]');
+                            if (actionInput) actionInput.value = 'genereerElevatorPitch';
+                            var form = document.getElementById('pagina-details-form');
+                            // Show busy state and disable the button to prevent double-click
+                            var btn = document.getElementById('btn-genereer-elevator-pitch');
+                            if (btn) {
+                                btn.disabled = true;
+                                btn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Bezig...';
+                            }
+                            // Ensure the global flag prevents the beforeunload prompt. Use requestSubmit if available
+                            if (typeof window.isFormSubmitting !== 'undefined') window.isFormSubmitting = true;
+                            if (typeof window.__bypassBeforeUnload !== 'undefined') window.__bypassBeforeUnload = true;
+                            if (form && typeof form.requestSubmit === 'function') {
+                                form.requestSubmit();
+                            } else if (form) {
+                                form.submit();
+                            }
+                        };
+
+                        window.confirmReplaceElevatorPitch = function() {
+                            syncQuillFields();
+                            var preview = document.getElementById('elevator-pitch-preview-content');
+                            if (preview) {
+                                var previewText = preview.innerText.trim();
+                                // Do NOT change the hidden original elevator pitch value — leave it so the beforeunload warning triggers.
+                                // Only update the visible input so the user sees the new pitch and can save it explicitly.
+                                var visible = document.getElementById('editable-elevator-pitch');
+                                if (visible) visible.value = previewText;
+
+                                // Update the document title to indicate there are unsaved changes
+                                window.__originalDocumentTitle = window.__originalDocumentTitle || document.title;
+                                document.title = window.__originalDocumentTitle + ' · Niet opgeslagen';
+
+                                // Hide the modal programmatically
+                                var modalEl = document.getElementById('elevatorPitchPreviewModal');
+                                if (modalEl) {
+                                    var modal = bootstrap.Modal.getInstance(modalEl) || new bootstrap.Modal(modalEl);
+                                    modal.hide();
+                                }
+                                // Update the summary display so the small summary box reflects the new pitch immediately
+                                var summary = document.getElementById('plot-elevator-pitch-summary');
+                                if (summary) {
+                                    // Replace the contents with the new text
+                                    summary.textContent = previewText;
+                                }
+                            }
+                        };
+                    })();
+                </script>
+
+                @* Preview modal for generated elevator pitch *@
+                @if (!string.IsNullOrEmpty(Model.GeneratedElevatorPitchPreview))
+                {
+                    <div class="modal fade" id="elevatorPitchPreviewModal" tabindex="-1" aria-labelledby="elevatorPitchPreviewLabel" aria-hidden="true">
+                        <div class="modal-dialog modal-lg">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="elevatorPitchPreviewLabel">Gegenereerde Elevator Pitch</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <p>Bestaande elevator pitch vervangen?</p>
+                                    <div class="border rounded p-3 bg-body-tertiary small" id="elevator-pitch-preview-content">
+                                        <pre style="white-space: pre-wrap;">@Model.GeneratedElevatorPitchPreview</pre>
+                                    </div>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Nee</button>
+                                    <button type="button" class="btn btn-primary" onclick="confirmReplaceElevatorPitch()">Ja, vervangen</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <script>
+                        // Show modal when the preview is present
+                        document.addEventListener('DOMContentLoaded', function() {
+                            var modalEl = document.getElementById('elevatorPitchPreviewModal');
+                            if (modalEl) {
+                                var modal = new bootstrap.Modal(modalEl);
+                                modal.show();
+                            }
+                    // Re-enable generate button after page load (in case it was disabled)
+                    var btn = document.getElementById('btn-genereer-elevator-pitch');
+                    if (btn) {
+                        btn.disabled = false;
+                        btn.innerHTML = '<i class="fas fa-robot me-1"></i>Genereer elevator pitch';
+                    }
+                        });
+                    </script>
+                }
+            }
+            else
+            {
+                <p class="text-muted">Select a plotboek pagina to view details.</p>
+            }
+        </div>
+    </div>
+</div>
+
+@* Actions and delete modals are defined in Shared/Plotboek/_Modals.cshtml *@

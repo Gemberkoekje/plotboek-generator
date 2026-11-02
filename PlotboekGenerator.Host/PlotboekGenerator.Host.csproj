@@ -1,0 +1,32 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="PlotboekGenerator.test" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <IsPublishable>true</IsPublishable>
+    <PublishSingleFile>false</PublishSingleFile>
+    <PublishTrimmed>false</PublishTrimmed>
+    <PublishReadyToRun>true</PublishReadyToRun>
+    <SelfContained>false</SelfContained>
+    <CopyOutputSymbolsToPublishDirectory>false</CopyOutputSymbolsToPublishDirectory>
+    <AssemblyVersion>1.0.0.0</AssemblyVersion>
+    <FileVersion>1.0.0.0</FileVersion>
+    <InformationalVersion>1.0.0</InformationalVersion>
+    <OutputType>exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <RootNamespace>PlotboekGenerator.Host</RootNamespace>
+    <UserSecretsId>aspnet-PlotboekGenerator.Host-e88284cc-c5b7-4575-9ecb-748c60259498</UserSecretsId>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Templates/*.docx" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="../PlotboekGenerator.WebApp/PlotboekGenerator.WebApp.csproj" />
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,342 @@
+@model PlotboekModel
+
+@*
+    Bijlagen management, rendered inside the savePlotboek settings form. Each bijlage is a name + a
+    rich-text (Quill) content editor, added/removed dynamically. Only the name row is always visible;
+    the editor sits in a Bootstrap collapse so a long list of bijlagen stays scannable. Quill is
+    created lazily, the first time a bijlage is expanded — by then the shared helpers
+    (richTextToolbarOptions, getSanitizedQuillSemanticHtml, registerQuillColorSanitizer,
+    normalizeQuillContent) defined in Plotboek.cshtml's @@section Scripts are long loaded, and a
+    never-expanded bijlage simply re-posts its stored InhoudHtml from the hidden input.
+    Uses the ASP.NET ".Index" convention so removing a row leaves the rest bindable.
+*@
+
+<div class="row">
+    <div class="col-12 mb-3">
+        <label class="form-label fw-bold"><i class="fas fa-paperclip me-1"></i>Bijlagen:</label>
+        <small class="form-text text-muted d-block mb-2">
+            Herbruikbare bijlagen (bv. prijslijsten, statblocks). Voeg ze hier &eacute;&eacute;n keer toe en koppel ze daarna aan &eacute;&eacute;n of meer plots via het kopje "Bijlagen" bij een plot. Elke bijlage verschijnt achterin het plotboek.
+        </small>
+
+        <div id="bijlagen-container" data-readonly="@(Model.IsPlotboekReadOnly ? "true" : "false")">
+            @for (var i = 0; i < Model.EditableBijlagen.Count; i++)
+            {
+                var b = Model.EditableBijlagen[i];
+                @* The toggle's only content is an icon font glyph, which wins name-from-content over
+                   title and leaves the control effectively unnamed for screen readers. Name it
+                   explicitly, and per bijlage — a plotboek can hold a long list of these. *@
+                var toggleLabel = string.IsNullOrWhiteSpace(b.Naam)
+                    ? "Inhoud tonen of verbergen"
+                    : $"Inhoud van {b.Naam} tonen of verbergen";
+                @* A row that came back rejected for having content but no name must not render folded
+                   away — that would hide the very text the warning above is asking about. *@
+                var startOpen = string.IsNullOrWhiteSpace(b.Naam) && PlotboekModel.HasBijlageInhoud(b.InhoudHtml ?? string.Empty);
+                <div class="bijlage-row border rounded p-2 mb-2" data-index="@i">
+                    <input type="hidden" name="EditableBijlagen.Index" value="@i" />
+                    <div class="d-flex align-items-center">
+                        <span class="bijlage-toggle me-1" role="button" tabindex="0"
+                              data-bs-toggle="collapse" data-bs-target="#bijlage-body-@i"
+                              aria-expanded="@(startOpen ? "true" : "false")" aria-controls="bijlage-body-@i"
+                              aria-label="@toggleLabel" title="@toggleLabel">
+                            <i class="fas fa-chevron-down bijlage-toggle-chevron" aria-hidden="true"></i>
+                        </span>
+                        <input type="hidden" name="EditableBijlagen[@i].Id" value="@b.Id" />
+                        <input type="text" name="EditableBijlagen[@i].Naam" class="form-control form-control-sm me-2"
+                               placeholder="Naam van de bijlage (bv. Brazen Bull prijslijst)" value="@b.Naam" />
+                        <button type="button" class="btn btn-outline-danger btn-sm" onclick="removeBijlage(this)" title="Bijlage verwijderen">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                    <input type="hidden" id="bijlage-inhoud-hidden-@i" name="EditableBijlagen[@i].InhoudHtml" value="@b.InhoudHtml" />
+                    @* The pt-2 sits on an inner wrapper rather than on the editor itself: Quill mounts
+                       its toolbar as a sibling just before the editor div, so a margin there would land
+                       between toolbar and editor instead of below the name row. *@
+                    <div class="collapse bijlage-body @(startOpen ? "show" : "")" id="bijlage-body-@i">
+                        <div class="pt-2">
+                            <div class="bijlage-inhoud-editor" data-target="bijlage-inhoud-hidden-@i">@Html.Raw(b.InhoudHtml)</div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+
+        @if (!Model.IsPlotboekReadOnly)
+        {
+            <button type="button" class="btn btn-outline-secondary btn-sm" onclick="addBijlage()">
+                <i class="fas fa-plus me-1"></i> Bijlage toevoegen
+            </button>
+        }
+    </div>
+</div>
+
+<template id="bijlage-row-template">
+    <div class="bijlage-row border rounded p-2 mb-2" data-index="__INDEX__">
+        <input type="hidden" name="EditableBijlagen.Index" value="__INDEX__" />
+        <div class="d-flex align-items-center">
+            <span class="bijlage-toggle me-1" role="button" tabindex="0"
+                  data-bs-toggle="collapse" data-bs-target="#bijlage-body-__INDEX__"
+                  aria-expanded="true" aria-controls="bijlage-body-__INDEX__"
+                  aria-label="Inhoud tonen of verbergen" title="Inhoud tonen of verbergen">
+                <i class="fas fa-chevron-down bijlage-toggle-chevron" aria-hidden="true"></i>
+            </span>
+            <input type="hidden" name="EditableBijlagen[__INDEX__].Id" value="" />
+            <input type="text" name="EditableBijlagen[__INDEX__].Naam" class="form-control form-control-sm me-2"
+                   placeholder="Naam van de bijlage (bv. Brazen Bull prijslijst)" value="" />
+            <button type="button" class="btn btn-outline-danger btn-sm" onclick="removeBijlage(this)" title="Bijlage verwijderen">
+                <i class="fas fa-trash"></i>
+            </button>
+        </div>
+        <input type="hidden" id="bijlage-inhoud-hidden-__INDEX__" name="EditableBijlagen[__INDEX__].InhoudHtml" value="" />
+        @* A freshly added bijlage opens straight away — you added it in order to type in it. *@
+        <div class="collapse show bijlage-body" id="bijlage-body-__INDEX__">
+            <div class="pt-2">
+                <div class="bijlage-inhoud-editor" data-target="bijlage-inhoud-hidden-__INDEX__"></div>
+            </div>
+        </div>
+    </div>
+</template>
+
+<script>
+    (function () {
+        var container = document.getElementById('bijlagen-container');
+        if (!container) return;
+
+        var readOnly = container.dataset.readonly === 'true';
+        var nextIndex = @Model.EditableBijlagen.Count;
+
+        function toolbar() {
+            return (typeof richTextToolbarOptions !== 'undefined') ? richTextToolbarOptions : true;
+        }
+
+        function initEditor(editorEl) {
+            if (!editorEl || editorEl.dataset.quillInitialized === 'true') return;
+            if (!window.Quill) {
+                window.setTimeout(function () { initEditor(editorEl); }, 50);
+                return;
+            }
+
+            // Recover content previously saved with Quill's own wrapper markup.
+            var embedded = editorEl.querySelector('.ql-editor');
+            if (embedded) {
+                editorEl.innerHTML = embedded.innerHTML;
+            }
+
+            var quill = new Quill(editorEl, {
+                theme: 'snow',
+                readOnly: readOnly,
+                modules: { toolbar: toolbar() }
+            });
+            editorEl.dataset.quillInitialized = 'true';
+
+            if (typeof registerQuillColorSanitizer === 'function') registerQuillColorSanitizer(quill);
+            if (typeof normalizeQuillContent === 'function') normalizeQuillContent(quill);
+
+            var getHtml = function () {
+                return (typeof getSanitizedQuillSemanticHtml === 'function')
+                    ? getSanitizedQuillSemanticHtml(quill)
+                    : quill.root.innerHTML;
+            };
+            // Capture the initial content so an untouched bijlage re-posts its stored value on unrelated
+            // settings saves, instead of a Quill re-serialization (which would append a spurious event).
+            var initialHtml = getHtml();
+
+            var syncHidden = function () {
+                var hidden = document.getElementById(editorEl.dataset.target);
+                if (!hidden) return;
+                var html = getHtml();
+                if (html !== initialHtml) {
+                    hidden.value = html;
+                }
+            };
+
+            // Sync on every keystroke, not only on submit: the unsaved-changes guard diffs the form's
+            // own fields, and a Quill editor contributes nothing to that until its hidden input is
+            // updated. Only 'user' edits count — normalizeQuillContent above rewrites the document
+            // through the API, and treating that as a change would post a re-serialization on every
+            // unrelated settings save.
+            quill.on('text-change', function (delta, oldDelta, source) {
+                if (source !== 'user') return;
+                syncHidden();
+            });
+
+            var form = editorEl.closest('form');
+            if (form) {
+                form.addEventListener('submit', syncHidden);
+            }
+        }
+
+        // Mirrors PlotboekModel.HasBijlageInhoud on the server: wrapper markup left behind by an editor
+        // that was opened but never typed in does not count as content.
+        function hasMeaningfulHtml(html) {
+            if (!html) return false;
+            if (/<(?:img|table|hr|iframe|video)\b/i.test(html)) return true;
+            // A textarea decodes entities without executing anything: its content parses as raw text.
+            // JS trim() already treats the resulting U+00A0 (&nbsp;) as whitespace.
+            var decoder = document.createElement('textarea');
+            decoder.innerHTML = html.replace(/<[^>]+>/g, '');
+            return decoder.value.trim().length > 0;
+        }
+
+        // Prefer the live editor over the hidden input: a row whose content was typed before Quill's
+        // sync ran would otherwise read as empty.
+        function rowInhoudHtml(row) {
+            var editorEl = row.querySelector('.bijlage-inhoud-editor');
+            if (editorEl && window.Quill && typeof Quill.find === 'function') {
+                var quill = Quill.find(editorEl);
+                if (quill) {
+                    return (typeof getSanitizedQuillSemanticHtml === 'function')
+                        ? getSanitizedQuillSemanticHtml(quill)
+                        : quill.root.innerHTML;
+                }
+            }
+            var hidden = row.querySelector('input[name$=".InhoudHtml"]');
+            return hidden ? hidden.value : '';
+        }
+
+        function markRowInvalid(row, invalid) {
+            var naam = row.querySelector('input[name$=".Naam"]');
+            if (naam) naam.classList.toggle('is-invalid', invalid);
+
+            var feedback = row.querySelector('.bijlage-naam-feedback');
+            var naamRij = row.querySelector('.d-flex');
+            if (invalid && !feedback && naamRij) {
+                feedback = document.createElement('div');
+                feedback.className = 'invalid-feedback d-block bijlage-naam-feedback';
+                feedback.textContent = 'Deze bijlage heeft inhoud maar nog geen naam. Vul een naam in, anders wordt de inhoud niet opgeslagen.';
+                naamRij.insertAdjacentElement('afterend', feedback);
+            } else if (!invalid && feedback) {
+                feedback.remove();
+            }
+        }
+
+        // Bootstrap's collapse data API handles the actual show/hide; this only hangs the lazy
+        // Quill init off it. The listener goes straight on each collapse element rather than
+        // delegating on the container, so no filtering of foreign collapse events is needed.
+        //
+        // 'show', not 'shown': Bootstrap fires 'show' before it measures scrollHeight to pick the
+        // height it animates to, and 'shown' only after. Mounting Quill on 'shown' would animate to
+        // the pre-editor height and then snap open by ~200px once the toolbar and the 150px-min
+        // editor appear. On 'show' the panel is still display:none — which is exactly the state the
+        // old eager init ran in, since the whole settings accordion starts collapsed.
+        function wireRow(row) {
+            var body = row.querySelector('.bijlage-body');
+            if (body && body.dataset.wired !== 'true') {
+                body.dataset.wired = 'true';
+                body.addEventListener('show.bs.collapse', function () {
+                    // A row deleted between the click and this handler would otherwise get a Quill
+                    // instance built on a detached subtree.
+                    if (!body.isConnected) return;
+                    initEditor(body.querySelector('.bijlage-inhoud-editor'));
+                });
+
+                // A row that renders already expanded — freshly added, or bounced back by the
+                // no-name-but-content check — will never fire 'show', so mount its editor now.
+                if (body.classList.contains('show')) {
+                    initEditor(body.querySelector('.bijlage-inhoud-editor'));
+                }
+            }
+
+            var toggle = row.querySelector('.bijlage-toggle');
+            if (toggle && toggle.dataset.wired !== 'true') {
+                toggle.dataset.wired = 'true';
+                // role="button" inherits click handling from Bootstrap, but not the keyboard
+                // activation a real <button> would have. It cannot be a button: on a read-only
+                // plotboek this block renders inside <fieldset disabled>, and a disabled form
+                // control dispatches no click at all, so Bootstrap's delegated handler never runs.
+                // (Bootstrap also kills anything with .btn there via fieldset:disabled .btn.)
+                // Native buttons fire on Space *keyup*; guard e.repeat so holding Space does not
+                // flap the row open and shut.
+                toggle.addEventListener('keydown', function (e) {
+                    if (e.repeat) return;
+                    if (e.key === 'Enter' || e.key === ' ' || e.key === 'Spacebar') {
+                        e.preventDefault();
+                        toggle.click();
+                    }
+                });
+            }
+
+            var naam = row.querySelector('input[name$=".Naam"]');
+            if (naam && naam.dataset.wired !== 'true') {
+                naam.dataset.wired = 'true';
+                // Clear the flag as soon as the user starts naming the row, rather than making them
+                // submit again to find out whether the name was accepted.
+                naam.addEventListener('input', function () {
+                    if (naam.value.trim().length > 0) markRowInvalid(row, false);
+                });
+            }
+        }
+
+        // A bijlage without a name is dropped server-side, so submitting one that has content would
+        // throw that content away. The server rejects it too (PlotboekModel.ValidateEditableBijlagen),
+        // but only after a round trip that resets the form — catching it here keeps the text in place.
+        function blockSubmitOnNamelessContent(e) {
+            if (readOnly) return;
+
+            var eerste = null;
+            container.querySelectorAll('.bijlage-row').forEach(function (row) {
+                var naam = row.querySelector('input[name$=".Naam"]');
+                var heeftNaam = naam && naam.value.trim().length > 0;
+                var ongeldig = !heeftNaam && hasMeaningfulHtml(rowInhoudHtml(row));
+                markRowInvalid(row, ongeldig);
+                if (ongeldig && !eerste) eerste = row;
+            });
+
+            if (!eerste) return;
+
+            // stopImmediatePropagation as well as preventDefault: later submit listeners on this form
+            // flip the global isFormSubmitting flag, which would disarm the unsaved-changes guard for
+            // a submit that never happens.
+            e.preventDefault();
+            e.stopImmediatePropagation();
+            if (typeof window.isFormSubmitting !== 'undefined') window.isFormSubmitting = false;
+
+            // Unfold the row so the content it is about actually shows — folding a bijlage away is
+            // exactly how you end up submitting one you forgot to name. toggle:false, because the
+            // Collapse constructor toggles by default and would fold an already-open row instead.
+            var body = eerste.querySelector('.bijlage-body');
+            if (body && !body.classList.contains('show') && window.bootstrap && window.bootstrap.Collapse) {
+                window.bootstrap.Collapse.getOrCreateInstance(body, { toggle: false }).show();
+            }
+            var naam = eerste.querySelector('input[name$=".Naam"]');
+            if (naam) {
+                naam.scrollIntoView({ block: 'center' });
+                naam.focus();
+            }
+        }
+
+        window.addBijlage = function () {
+            var tpl = document.getElementById('bijlage-row-template');
+            if (!tpl) return;
+            var i = nextIndex++;
+            var html = tpl.innerHTML.replace(/__INDEX__/g, i);
+            container.insertAdjacentHTML('beforeend', html);
+            var row = container.lastElementChild;
+            // The template renders this row expanded, so wireRow initialises its editor right away
+            // instead of waiting for a 'show' event that will never come.
+            if (row) wireRow(row);
+        };
+
+        window.removeBijlage = function (btn) {
+            var row = btn.closest('.bijlage-row');
+            if (!row) return;
+            // Bootstrap keeps component instances in a strong Map, so dropping the row without
+            // disposing would pin its Collapse instance — and through it the whole detached
+            // subtree, Quill editor included — for the rest of the page's life.
+            var body = row.querySelector('.bijlage-body');
+            if (body && window.bootstrap && window.bootstrap.Collapse) {
+                var instance = window.bootstrap.Collapse.getInstance(body);
+                if (instance) instance.dispose();
+            }
+            row.remove();
+        };
+
+        container.querySelectorAll('.bijlage-row').forEach(wireRow);
+
+        // Registered here, at parse time, so it runs ahead of every other submit listener on this
+        // form — the Quill syncs and the unsaved-changes flag are both attached later.
+        var settingsForm = container.closest('form');
+        if (settingsForm) {
+            settingsForm.addEventListener('submit', blockSubmitOnNamelessContent);
+        }
+    })();
+</script>

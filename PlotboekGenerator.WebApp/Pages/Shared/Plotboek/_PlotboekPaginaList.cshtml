@@ -1,0 +1,951 @@
+@model PlotboekModel
+
+@functions {
+    // Space-separated token lists read back by the client-side filter at the bottom of this file.
+    // A pagina matches the SL filter on its hoofd-SL as well as on any extra SL.
+    private static string SlFilterTokens(PlotboekModel.PlotboekPaginaInfo pagina)
+    {
+        var ids = new List<string>();
+        if (!string.IsNullOrEmpty(pagina.VerantwoordelijkeSlId))
+        {
+            ids.Add(pagina.VerantwoordelijkeSlId);
+        }
+
+        if (pagina.ExtraSlIds != null)
+        {
+            ids.AddRange(pagina.ExtraSlIds.Where(id => !string.IsNullOrEmpty(id)));
+        }
+
+        return string.Join(' ', ids.Distinct(StringComparer.Ordinal));
+    }
+
+    // The feedback badge shown next to the klaar/niet-klaar icon. Deliberately a different SHAPE and
+    // COLOUR from the ⚠ "niet volledig klaar" icon, so the two never read as the same signal.
+    // fa-comment-dots exists in Font Awesome 6 Free; fa-comment-exclamation is Pro-only.
+    private static string FeedbackIconHtml(PlotboekModel model, PlotboekModel.PlotboekPaginaInfo pagina)
+    {
+        // NPCs never see internal work traffic.
+        if (model.IsNpc)
+        {
+            return string.Empty;
+        }
+
+        if (pagina.HeeftOpenstaandeFeedback)
+        {
+            var aantal = pagina.Feedback.Count(f => f.Status == FeedbackStatus.Open);
+            var tekst = aantal == 1 ? "1 open feedbackpunt" : $"{aantal} open feedbackpunten";
+            return $"<i class=\"fas fa-comment-dots text-danger me-1\" title=\"{tekst}\"></i>";
+        }
+
+        if (pagina.WachtOpAfhandeling)
+        {
+            return "<i class=\"fas fa-comment-dots text-info me-1\" title=\"Wacht op afhandeling door de HSL\"></i>";
+        }
+
+        return string.Empty;
+    }
+
+    // The status icon at the start of every row. A plot is in exactly one state. The bell marks a plot
+    // with every required field filled in but the "Plot volledig klaar" tick not yet set: the SL's last
+    // step. It is neither the ⚠ (work left) nor a flag (Gedraaid) nor a tick (klaar), so it can't be
+    // mistaken for any of them.
+    private static string KlaarIconHtml(PlotboekModel model, PlotboekModel.PlotboekPaginaInfo pagina)
+    {
+        if (pagina.IsGedraaid)
+        {
+            return "<i class=\"fas fa-flag-checkered text-warning me-1\" title=\"Gedraaid (Ran)\"></i>";
+        }
+
+        if (pagina.IsVolledigKlaar)
+        {
+            return "<i class=\"fas fa-check-circle text-success me-1\" title=\"Plot is volledig klaar\"></i>";
+        }
+
+        // NPCs only ever see finished plotboeken, but keep the reminder to the people who can act on it.
+        if (!model.IsNpc && PlotboekModel.IsAlleenVinkjeNog(pagina, model.IsEvergreen))
+        {
+            return "<i class=\"fas fa-bell text-primary me-1\" title=\"Alles ingevuld: alleen 'Plot volledig klaar' nog aanvinken\"></i>";
+        }
+
+        return "<i class=\"fas fa-exclamation-triangle text-warning me-1\" title=\"Plot is nog niet volledig klaar\"></i>";
+    }
+
+    // True when the techniek instruction field holds actual content. The stored value is Quill HTML
+    // that is normalised on save, but older rows can still carry leftover empty-editor markup.
+    private static bool HasInstructiePentagon(PlotboekModel.PlotboekPaginaInfo pagina)
+        => !string.IsNullOrWhiteSpace(core.TextNormalization.Normalize(pagina.InstructiePentagon ?? string.Empty));
+
+    private static bool HasMuziekOfLichtVanuitTechniek(PlotboekModel.PlotboekPaginaInfo pagina)
+        => pagina.Iconen.HasFlag(PlotboekPaginaIcons.MuziekVanuitTechniek)
+        || pagina.Iconen.HasFlag(PlotboekPaginaIcons.LichtOfRookVanuitTechniek);
+
+    // "techniek" is the umbrella token (instructie and/or muziek/licht/rook), so the dropdown can
+    // offer both the combined and the two specific filters through the same token matcher.
+    private static string TechniekFilterTokens(PlotboekModel.PlotboekPaginaInfo pagina)
+    {
+        var tokens = new List<string>();
+        if (HasInstructiePentagon(pagina))
+        {
+            tokens.Add("instructie");
+        }
+
+        if (HasMuziekOfLichtVanuitTechniek(pagina))
+        {
+            tokens.Add("muzieklicht");
+        }
+
+        if (tokens.Count > 0)
+        {
+            tokens.Insert(0, "techniek");
+        }
+
+        return string.Join(' ', tokens);
+    }
+
+    // Major and minor types both count, so filtering on "Vechten" also finds encounters
+    // where vechten is only a mogelijk-type.
+    private static string SoortFilterTokens(PlotboekModel.PlotboekPaginaInfo pagina)
+    {
+        var major = pagina.EncounterTypeIds.Major ?? [];
+        var minor = pagina.EncounterTypeIds.Minor ?? [];
+
+        return string.Join(' ', major
+            .Concat(minor)
+            .Where(id => !string.IsNullOrEmpty(id))
+            .Distinct(StringComparer.Ordinal));
+    }
+}
+
+@{
+    // Only offer filter values that actually occur in this plotboek, so the dropdowns stay short.
+    var usedSlIds = Model.PlotboekPaginas
+        .SelectMany(p => (p.ExtraSlIds ?? []).Append(p.VerantwoordelijkeSlId ?? string.Empty))
+        .Where(id => !string.IsNullOrEmpty(id))
+        .ToHashSet(StringComparer.Ordinal);
+    var slFilterOptions = Model.AvailableSls
+        .Where(sl => usedSlIds.Contains(sl.Id))
+        .OrderBy(sl => sl.DisplayName, StringComparer.CurrentCulture)
+        .ToList();
+
+    var usedDomainIds = Model.PlotboekPaginas.Select(p => p.DomainId).ToHashSet();
+    var domainFilterOptions = Model.AvailableDomains
+        .Where(d => usedDomainIds.Contains(d.Id))
+        .OrderBy(d => d.Order)
+        .ToList();
+
+    var usedSoortIds = Model.PlotboekPaginas
+        .SelectMany(p => (p.EncounterTypeIds.Major ?? []).Concat(p.EncounterTypeIds.Minor ?? []))
+        .Where(id => !string.IsNullOrEmpty(id))
+        .ToHashSet(StringComparer.Ordinal);
+    var soortFilterOptions = Model.AvailableSoortEncounterConfigs
+        .Where(c => !c.IsNone && usedSoortIds.Contains(c.Id))
+        .OrderBy(c => c.Order)
+        .ToList();
+
+    // Only offer the specific techniek options that actually occur, and drop the whole dropdown
+    // when no encounter asks anything of the techniek.
+    var hasInstructiePentagon = Model.PlotboekPaginas.Any(HasInstructiePentagon);
+    var hasMuziekOfLichtTechniek = Model.PlotboekPaginas.Any(HasMuziekOfLichtVanuitTechniek);
+    var showTechniekFilter = hasInstructiePentagon || hasMuziekOfLichtTechniek;
+
+    var showFilters = slFilterOptions.Count > 0 || domainFilterOptions.Count > 0 || soortFilterOptions.Count > 0 || showTechniekFilter;
+}
+
+<!-- Left side: Plotboek Paginas List -->
+<div class="col-md-6">
+    <div class="card" id="plotboek-paginas-card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <div class="d-flex align-items-center gap-3">
+                <h5 class="mb-0">Plotboek Paginas</h5>
+                <div class="dropdown" id="view-options">
+                    <button type="button" class="btn btn-outline-secondary btn-sm" id="view-options-toggle"
+                            data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false"
+                            aria-label="Weergave-opties"
+                            title="Weergave: kies welke onderdelen zichtbaar zijn en in welke volgorde">
+                        <i class="fas fa-sliders-h"></i>
+                    </button>
+                    <div class="dropdown-menu p-2 shadow-sm" style="min-width: 15rem;" aria-labelledby="view-options-toggle">
+                        <h6 class="dropdown-header px-1 pt-0 pb-1">Weergave onderdelen</h6>
+                        <p class="text-muted small px-1 mb-2">Sleep of gebruik Alt+pijltjes om te ordenen; vink aan om te tonen.</p>
+                        <ul class="list-unstyled mb-2" id="view-options-list">
+                            <li class="view-option-item" draggable="true" data-part="name" tabindex="0"
+                                title="Sleep om te verplaatsen (of Alt+pijltjes)" aria-keyshortcuts="Alt+ArrowUp Alt+ArrowDown">
+                                <i class="fas fa-grip-vertical text-muted view-option-grip" aria-hidden="true"></i>
+                                <div class="form-check flex-grow-1">
+                                    <input class="form-check-input" type="checkbox" id="view-opt-name" checked>
+                                    <label class="form-check-label" for="view-opt-name">SL-naam</label>
+                                </div>
+                            </li>
+                            <li class="view-option-item" draggable="true" data-part="icons" tabindex="0"
+                                title="Sleep om te verplaatsen (of Alt+pijltjes)" aria-keyshortcuts="Alt+ArrowUp Alt+ArrowDown">
+                                <i class="fas fa-grip-vertical text-muted view-option-grip" aria-hidden="true"></i>
+                                <div class="form-check flex-grow-1">
+                                    <input class="form-check-input" type="checkbox" id="view-opt-icons" checked>
+                                    <label class="form-check-label" for="view-opt-icons">Iconen</label>
+                                </div>
+                            </li>
+                            <li class="view-option-item" draggable="true" data-part="npc" tabindex="0"
+                                title="Sleep om te verplaatsen (of Alt+pijltjes)" aria-keyshortcuts="Alt+ArrowUp Alt+ArrowDown">
+                                <i class="fas fa-grip-vertical text-muted view-option-grip" aria-hidden="true"></i>
+                                <div class="form-check flex-grow-1">
+                                    <input class="form-check-input" type="checkbox" id="view-opt-npc" checked>
+                                    <label class="form-check-label" for="view-opt-npc">NPC-aantal</label>
+                                </div>
+                            </li>
+                        </ul>
+                        <div class="dropdown-divider"></div>
+                        <button type="button" class="btn btn-link btn-sm text-decoration-none px-1" id="view-options-reset">
+                            <i class="fas fa-rotate-left me-1"></i>Standaard herstellen
+                        </button>
+                    </div>
+                </div>
+                @if (showFilters)
+                {
+                    <button type="button" class="btn btn-outline-secondary btn-sm position-relative" id="filter-toggle" title="Filters tonen/verbergen" aria-expanded="false" aria-controls="plotboek-filters">
+                        <i class="fas fa-filter"></i>
+                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-primary d-none" id="filter-active-dot" style="padding: 0.3em;">
+                            <span class="visually-hidden">Filters actief</span>
+                        </span>
+                    </button>
+                }
+            </div>
+            @if (!Model.IsPlotboekReadOnly)
+            {
+            <form method="post" class="mb-0">
+                <input type="hidden" name="Jaar" value="@Model.Jaar" />
+                <input type="hidden" name="Event" value="@Model.EventId" />
+                <button type="button" class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#newPaginaModal">
+                    <i class="fas fa-plus me-1"></i> Nieuwe Pagina
+                </button>
+            </form>
+            }
+        </div>
+        @if (showFilters)
+        {
+            <div class="card-body border-bottom py-2 d-none" id="plotboek-filters">
+                <div class="row g-2 align-items-center">
+                    @if (slFilterOptions.Count > 0)
+                    {
+                        <div class="col-12 col-xl">
+                            <select class="form-select form-select-sm" id="filter-sl" aria-label="Filter op SL">
+                                <option value="">Alle SL's</option>
+                                @foreach (var sl in slFilterOptions)
+                                {
+                                    <option value="@sl.Id">@sl.DisplayName</option>
+                                }
+                            </select>
+                        </div>
+                    }
+                    @if (domainFilterOptions.Count > 0)
+                    {
+                        <div class="col-12 col-xl">
+                            <select class="form-select form-select-sm" id="filter-domain" aria-label="Filter op domein">
+                                <option value="">Alle domeinen</option>
+                                @foreach (var domain in domainFilterOptions)
+                                {
+                                    <option value="@domain.Id">@domain.DisplayName</option>
+                                }
+                            </select>
+                        </div>
+                    }
+                    @if (soortFilterOptions.Count > 0)
+                    {
+                        <div class="col-12 col-xl">
+                            <select class="form-select form-select-sm" id="filter-soort" aria-label="Filter op soort encounter">
+                                <option value="">Alle soorten</option>
+                                @foreach (var soort in soortFilterOptions)
+                                {
+                                    <option value="@soort.Id">@soort.DisplayName</option>
+                                }
+                            </select>
+                        </div>
+                    }
+                    @if (showTechniekFilter)
+                    {
+                        <div class="col-12 col-xl">
+                            <select class="form-select form-select-sm" id="filter-techniek" aria-label="Filter op @Terminologie.TechniekInzet">
+                                <option value="">Alle @Terminologie.TechniekInzet</option>
+                                <option value="techniek">Met @Terminologie.TechniekInzet</option>
+                                @if (hasInstructiePentagon)
+                                {
+                                    <option value="instructie">Met @Terminologie.TechniekInstructie</option>
+                                }
+                                @if (hasMuziekOfLichtTechniek)
+                                {
+                                    <option value="muzieklicht">Met muziek/licht/rook</option>
+                                }
+                            </select>
+                        </div>
+                    }
+                    <div class="col-auto">
+                        <button type="button" class="btn btn-outline-secondary btn-sm" id="filter-reset" title="Filters wissen" disabled>
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="small text-muted mt-1 d-none" id="filter-status"></div>
+            </div>
+        }
+        <div class="card-body">
+            @if (Model.PlotboekPaginas.Any())
+            {
+                @if (Model.IsEvergreen)
+                {
+                    <!-- Evergreen: flat list ordered by Order, no day/time grouping -->
+                    <div class="list-group mb-2">
+                        @foreach (var pagina in Model.PlotboekPaginas.OrderBy(p => p.Order))
+                        {
+                            <a href="@Url.Page("/Plotboek", new { Jaar = Model.Jaar, Event = Model.EventId, PaginaId = pagina.Id })"
+                               class="pagina-filter-item list-group-item list-group-item-action d-flex align-items-center @(Model.PaginaId == pagina.Id ? "active" : "")"
+                               data-filter-sl="@SlFilterTokens(pagina)"
+                               data-filter-domain="@pagina.DomainId"
+                               data-filter-soort="@SoortFilterTokens(pagina)"
+                               data-filter-techniek="@TechniekFilterTokens(pagina)">
+                                @Html.Raw(KlaarIconHtml(Model, pagina))
+                                @Html.Raw(FeedbackIconHtml(Model, pagina))
+                                @if (!string.IsNullOrEmpty(pagina.DomainShorthand))
+                                {
+                                    <span class="badge bg-secondary me-2" title="@pagina.DomainDescription">@pagina.DomainShorthand</span>
+                                }
+                                <span class="flex-grow-1 @(pagina.IsGedraaid ? "text-decoration-line-through" : "")">@pagina.Title</span>
+                                @if (pagina.AantalBlokkenId is "TweeBlokken" or "DrieBlokken")
+                                {
+                                    var blokLabel = pagina.AantalBlokkenId == "TweeBlokken" ? "2b" : "3b";
+                                    var aantalBlokkenLabel = Model.AvailableAantalBlokkenConfigs.GetDisplayName(pagina.AantalBlokkenId);
+                                    <span class="badge text-bg-warning ms-1 text-nowrap" title="@aantalBlokkenLabel"><i class="fas fa-layer-group me-1"></i>@blokLabel</span>
+                                }
+                                @await Html.PartialAsync("Plotboek/_PaginaIconen", pagina)
+                                <small class="npc-count pagina-part pagina-part-npc ms-2 text-nowrap text-start" style="min-width: 2.5rem;" title="@pagina.AantalNpcs">@pagina.AantalNpcs.ToCountDisplayString()</small>
+                            </a>
+                        }
+                    </div>
+                }
+                else
+                {
+                foreach (var dag in Model.AvailableDays.Where(d => d != core.Enums.Dag.None))
+                {
+                    var paginasForDay = Model.PlotboekPaginas.Where(p => p.Dag == dag && !p.IsSpelerGedreven).ToList();
+
+                    // Every slot the day offers is rendered, plot or no plot, so the planning shows the
+                    // whole grid up front and an empty block reads as a gap instead of being invisible.
+                    // Which slots a day offers depends on its position in the range, so ask the same
+                    // helper the starttijd picker uses rather than re-deriving it here.
+                    var starttijdIds = PlotboekModel.GetAvailableStarttijden(
+                            dag,
+                            Model.PlotboekSettings?.StartDag ?? core.Enums.Dag.None,
+                            Model.PlotboekSettings?.EindDag ?? core.Enums.Dag.None,
+                            Model.AvailableStarttijdConfigs)
+                        .ToHashSet(StringComparer.Ordinal);
+
+                    // A plot parked in a slot the day no longer offers (the day range moved after
+                    // planning), or NPCs spilling into one, must stay visible: union those back in.
+                    starttijdIds.UnionWith(paginasForDay.Select(p => p.StarttijdId));
+                    starttijdIds.UnionWith(Model.BlokNpcTotalen
+                        .Where(kv => kv.Key.Item1 == dag && kv.Value.HasValue)
+                        .Select(kv => kv.Key.Item2));
+
+                    var starttijdConfigs = Model.AvailableStarttijdConfigs
+                        .Where(s => !s.IsNone && starttijdIds.Contains(s.Id))
+                        .OrderBy(s => s.Order);
+                    var unassignedStarttijdPaginas = paginasForDay.Where(p => p.StarttijdId == "None").OrderBy(p => p.Order).ToList();
+
+                    <div class="pagina-group">
+                        <h6 class="mt-3 mb-2 text-secondary">@dag</h6>
+                        @foreach (var starttijdCfg in starttijdConfigs)
+                        {
+                            var starttijdId = starttijdCfg.Id;
+                            var paginasForStarttijd = paginasForDay.Where(p => p.StarttijdId == starttijdId).OrderBy(p => p.Order).ToList();
+                            var hasOverflowOnly = !paginasForStarttijd.Any() && Model.BlokNpcTotalen.TryGetValue((dag, starttijdId), out var overflowTotaal) && overflowTotaal.HasValue;
+
+                            var npcTotaal = Model.BlokNpcTotalen.GetValueOrDefault((dag, starttijdId));
+                            <div class="ms-2 mb-2 pagina-subgroup">
+                                <div class="d-flex align-items-center">
+                                    @{
+                                        var starttijdMainLabel = Model.AvailableStarttijdConfigs.GetDisplayName(starttijdId);
+                                        var starttijdBlockLabel = PlotboekModel.GetStarttijdBlokLabel(
+                                            dag,
+                                            starttijdId,
+                                            Model.PlotboekSettings?.StartDag ?? core.Enums.Dag.None,
+                                            Model.PlotboekSettings?.EindDag ?? core.Enums.Dag.None,
+                                            Model.AvailableStarttijdConfigs);
+                                    }
+                                    <small class="flex-grow-1">
+                                        <span class="fw-semibold">@starttijdMainLabel</span>
+                                        @if (!string.IsNullOrEmpty(starttijdBlockLabel))
+                                        {
+                                            <span class="text-muted fw-normal ms-1">· @starttijdBlockLabel</span>
+                                        }
+                                    </small>
+                                    <div class="d-flex justify-content-end" style="width: 70px;">
+                                        @if (npcTotaal != null && npcTotaal.HasValue)
+                                        {
+                                            var verwacht = Model.DagNpcVerwacht.GetValueOrDefault(dag, 0);
+                                            var (npcCss, npcArrow) = npcTotaal.GetNpcStatus(verwacht);
+                                            var badgeCss = npcCss;
+                                            if (string.IsNullOrEmpty(npcCss))
+                                            {
+                                                if (npcTotaal.HeeftAlleNpcs)
+                                                {
+                                                    badgeCss = "text-bg-danger";
+                                                }
+                                                else
+                                                {
+                                                    badgeCss = "text-bg-secondary";
+                                                }
+                                            }
+                                            <span class="badge @badgeCss small text-nowrap"
+                                                  title="@npcTotaal.ToDisplayString()@(verwacht > 0 ? $" (verwacht: {verwacht})" : "")">
+                                                @if (!string.IsNullOrEmpty(npcArrow))
+                                                {
+                                                    <span>@npcArrow</span>
+                                                }
+                                                @npcTotaal.ToShortString() NPC
+                                            </span>
+                                        }
+                                    </div>
+                                    <div class="d-flex justify-content-start" style="width: 50px;">
+                                        @if (npcTotaal != null && npcTotaal.HasOverflow)
+                                        {
+                                            <span class="badge text-bg-info small ms-1 text-nowrap"
+                                                  title="Doorlopende encounters van vorige blokken">
+                                                <i class="fas fa-clock"></i> @npcTotaal.GetOverflowString()
+                                            </span>
+                                        }
+                                    </div>
+                                </div>
+                                @* The dropzone renders even for an empty slot, so every block stays a drop
+                                   target and a plot can be dragged into a slot that holds nothing yet. *@
+                                <div class="list-group mt-1 pagina-dropzone"
+                                     data-dag="@dag"
+                                     data-starttijd="@starttijdId"
+                                      ondragover="@(Model.IsPlotboekReadOnly ? null : "handleDragOver(event)")"
+                                      ondragleave="@(Model.IsPlotboekReadOnly ? null : "handleDragLeave(event)")"
+                                      ondrop="@(Model.IsPlotboekReadOnly ? null : "handleDrop(event)")">
+                                    @foreach (var pagina in paginasForStarttijd)
+                                    {
+                                        <a href="@Url.Page("/Plotboek", new { Jaar = Model.Jaar, Event = Model.EventId, PaginaId = pagina.Id })"
+                                           class="pagina-filter-item list-group-item list-group-item-action d-flex align-items-center @(Model.PaginaId == pagina.Id ? "active" : "")"
+                                           draggable="@(!Model.IsPlotboekReadOnly)"
+                                           data-pagina-id="@pagina.Id"
+                                           data-pagina-order="@pagina.Order"
+                                           data-filter-sl="@SlFilterTokens(pagina)"
+                                           data-filter-domain="@pagina.DomainId"
+                                           data-filter-soort="@SoortFilterTokens(pagina)"
+                                           data-filter-techniek="@TechniekFilterTokens(pagina)"
+                                           ondragstart="@(Model.IsPlotboekReadOnly ? null : "handleDragStart(event)")"
+                                           ondragend="@(Model.IsPlotboekReadOnly ? null : "handleDragEnd(event)")">
+                                            @if (!Model.IsPlotboekReadOnly)
+                                            {
+                                                <i class="fas fa-grip-vertical me-2 drag-handle text-muted"></i>
+                                            }
+                                            @Html.Raw(KlaarIconHtml(Model, pagina))
+                                            @Html.Raw(FeedbackIconHtml(Model, pagina))
+                                            @if (!string.IsNullOrEmpty(pagina.DomainShorthand))
+                                            {
+                                                var plotlijnDisplay = !string.IsNullOrEmpty(pagina.PlotlijnNummer)
+                                                    ? $"{pagina.DomainShorthand} {pagina.PlotlijnNummer}"
+                                                    : pagina.DomainShorthand;
+                                                <span class="badge bg-secondary me-2" title="@pagina.DomainDescription">@plotlijnDisplay</span>
+                                            }
+                                            <span class="flex-grow-1">@pagina.Title</span>
+                                            @if (pagina.AantalBlokkenId is "TweeBlokken" or "DrieBlokken")
+                                            {
+                                                var blokLabel = pagina.AantalBlokkenId == "TweeBlokken" ? "2b" : "3b";
+                                                var aantalBlokkenLabel = Model.AvailableAantalBlokkenConfigs.GetDisplayName(pagina.AantalBlokkenId);
+                                                <span class="badge text-bg-warning ms-1 text-nowrap" title="@aantalBlokkenLabel"><i class="fas fa-layer-group me-1"></i>@blokLabel</span>
+                                            }
+                                            @await Html.PartialAsync("Plotboek/_PaginaIconen", pagina)
+                                            <small class="npc-count pagina-part pagina-part-npc ms-2 text-nowrap text-start" style="min-width: 2.5rem;" title="@pagina.AantalNpcs">@pagina.AantalNpcs.ToCountDisplayString()</small>
+                                        </a>
+                                    }
+                                    @if (paginasForStarttijd.Count == 0)
+                                    {
+                                        if (hasOverflowOnly && npcTotaal != null)
+                                        {
+                                            <small class="d-block px-2 py-1 text-muted fst-italic">
+                                                <i class="fas fa-clock me-1"></i>Doorlopend: @npcTotaal.ToDisplayString()
+                                            </small>
+                                        }
+                                        else
+                                        {
+                                            <small class="d-block px-2 py-1 text-muted fst-italic">Geen plots ingedeeld</small>
+                                        }
+                                    }
+                                </div>
+                            </div>
+                        }
+                        @if (unassignedStarttijdPaginas.Any())
+                        {
+                            <div class="ms-2 mb-2 pagina-subgroup">
+                                <small class="text-muted fw-semibold">Starttijd niet ingedeeld</small>
+                                <div class="list-group mt-1">
+                                    @foreach (var pagina in unassignedStarttijdPaginas)
+                                    {
+                                        <a href="@Url.Page("/Plotboek", new { Jaar = Model.Jaar, Event = Model.EventId, PaginaId = pagina.Id })"
+                                           class="pagina-filter-item list-group-item list-group-item-action d-flex align-items-center @(Model.PaginaId == pagina.Id ? "active" : "")"
+                                           draggable="@(!Model.IsPlotboekReadOnly)"
+                                           data-pagina-id="@pagina.Id"
+                                           data-pagina-order="@pagina.Order"
+                                           data-filter-sl="@SlFilterTokens(pagina)"
+                                           data-filter-domain="@pagina.DomainId"
+                                           data-filter-soort="@SoortFilterTokens(pagina)"
+                                           data-filter-techniek="@TechniekFilterTokens(pagina)"
+                                           ondragstart="@(Model.IsPlotboekReadOnly ? null : "handleDragStart(event)")"
+                                           ondragend="@(Model.IsPlotboekReadOnly ? null : "handleDragEnd(event)")">
+                                            @if (!Model.IsPlotboekReadOnly)
+                                            {
+                                                <i class="fas fa-grip-vertical me-2 drag-handle text-muted"></i>
+                                            }
+                                            @Html.Raw(KlaarIconHtml(Model, pagina))
+                                            @Html.Raw(FeedbackIconHtml(Model, pagina))
+                                            @if (!string.IsNullOrEmpty(pagina.DomainShorthand))
+                                            {
+                                                var plotlijnDisplay = !string.IsNullOrEmpty(pagina.PlotlijnNummer)
+                                                    ? $"{pagina.DomainShorthand} {pagina.PlotlijnNummer}"
+                                                    : pagina.DomainShorthand;
+                                                <span class="badge bg-secondary me-2" title="@pagina.DomainDescription">@plotlijnDisplay</span>
+                                            }
+                                            <span class="flex-grow-1">@pagina.Title</span>
+                                            @if (pagina.AantalBlokkenId is "TweeBlokken" or "DrieBlokken")
+                                            {
+                                                var blokLabel = pagina.AantalBlokkenId == "TweeBlokken" ? "2b" : "3b";
+                                                var aantalBlokkenLabel = Model.AvailableAantalBlokkenConfigs.GetDisplayName(pagina.AantalBlokkenId);
+                                                <span class="badge text-bg-warning ms-1 text-nowrap" title="@aantalBlokkenLabel"><i class="fas fa-layer-group me-1"></i>@blokLabel</span>
+                                            }
+                                            @await Html.PartialAsync("Plotboek/_PaginaIconen", pagina)
+                                            <small class="npc-count pagina-part pagina-part-npc ms-2 text-nowrap text-start" style="min-width: 2.5rem;" title="@pagina.AantalNpcs">@pagina.AantalNpcs.ToCountDisplayString()</small>
+                                        </a>
+                                    }
+                                </div>
+                            </div>
+                        }
+                    </div>
+                }
+                var unassignedPaginas = Model.PlotboekPaginas.Where(p => p.Dag == core.Enums.Dag.None && !p.IsSpelerGedreven).OrderBy(p => p.Order).ToList();
+                if (unassignedPaginas.Any())
+                {
+                    <div class="pagina-group">
+                        <h6 class="mt-3 mb-2 text-secondary">Nog niet ingedeeld</h6>
+                        <div class="list-group mb-2">
+                            @foreach (var pagina in unassignedPaginas)
+                            {
+                                <a href="@Url.Page("/Plotboek", new { Jaar = Model.Jaar, Event = Model.EventId, PaginaId = pagina.Id })"
+                                   class="pagina-filter-item list-group-item list-group-item-action d-flex align-items-center @(Model.PaginaId == pagina.Id ? "active" : "")"
+                                   draggable="@(!Model.IsPlotboekReadOnly)"
+                                   data-pagina-id="@pagina.Id"
+                                   data-pagina-order="@pagina.Order"
+                                   data-filter-sl="@SlFilterTokens(pagina)"
+                                   data-filter-domain="@pagina.DomainId"
+                                   data-filter-soort="@SoortFilterTokens(pagina)"
+                                   data-filter-techniek="@TechniekFilterTokens(pagina)"
+                                   ondragstart="@(Model.IsPlotboekReadOnly ? null : "handleDragStart(event)")"
+                                   ondragend="@(Model.IsPlotboekReadOnly ? null : "handleDragEnd(event)")">
+                                    @if (!Model.IsPlotboekReadOnly)
+                                    {
+                                        <i class="fas fa-grip-vertical me-2 drag-handle text-muted"></i>
+                                    }
+                                    @Html.Raw(KlaarIconHtml(Model, pagina))
+                                    @Html.Raw(FeedbackIconHtml(Model, pagina))
+                                    @if (!string.IsNullOrEmpty(pagina.DomainShorthand))
+                                    {
+                                        var plotlijnDisplay = !string.IsNullOrEmpty(pagina.PlotlijnNummer)
+                                            ? $"{pagina.DomainShorthand} {pagina.PlotlijnNummer}"
+                                            : pagina.DomainShorthand;
+                                        <span class="badge bg-secondary me-2" title="@pagina.DomainDescription">@plotlijnDisplay</span>
+                                    }
+                                    <span class="flex-grow-1">@pagina.Title</span>
+                                    @if (pagina.AantalBlokkenId is "TweeBlokken" or "DrieBlokken")
+                                    {
+                                        var blokLabel = pagina.AantalBlokkenId == "TweeBlokken" ? "2b" : "3b";
+                                        var aantalBlokkenLabel = Model.AvailableAantalBlokkenConfigs.GetDisplayName(pagina.AantalBlokkenId);
+                                        <span class="badge text-bg-warning ms-1 text-nowrap" title="@aantalBlokkenLabel"><i class="fas fa-layer-group me-1"></i>@blokLabel</span>
+                                    }
+                                    @await Html.PartialAsync("Plotboek/_PaginaIconen", pagina)
+                                    <small class="npc-count pagina-part pagina-part-npc ms-2 text-nowrap text-start" style="min-width: 2.5rem;" title="@pagina.AantalNpcs">@pagina.AantalNpcs.ToCountDisplayString()</small>
+                                </a>
+                            }
+                        </div>
+                    </div>
+                }
+                var spelerGedrevenPaginas = Model.PlotboekPaginas.Where(p => p.IsSpelerGedreven).OrderBy(p => p.Dag).ThenBy(p => p.StarttijdId).ThenBy(p => p.Order).ToList();
+                if (spelerGedrevenPaginas.Any())
+                {
+                    <div class="pagina-group">
+                        <h6 class="mt-3 mb-2 text-secondary"><i class="fas fa-users me-1"></i>Speler Gedreven</h6>
+                        <div class="list-group mb-2">
+                            @foreach (var pagina in spelerGedrevenPaginas)
+                            {
+                                <a href="@Url.Page("/Plotboek", new { Jaar = Model.Jaar, Event = Model.EventId, PaginaId = pagina.Id })"
+                                   class="pagina-filter-item list-group-item list-group-item-action d-flex align-items-center @(Model.PaginaId == pagina.Id ? "active" : "")"
+                                   data-filter-sl="@SlFilterTokens(pagina)"
+                                   data-filter-domain="@pagina.DomainId"
+                                   data-filter-soort="@SoortFilterTokens(pagina)"
+                                   data-filter-techniek="@TechniekFilterTokens(pagina)">
+                                    @Html.Raw(KlaarIconHtml(Model, pagina))
+                                    @Html.Raw(FeedbackIconHtml(Model, pagina))
+                                    @if (!string.IsNullOrEmpty(pagina.DomainShorthand))
+                                    {
+                                        var plotlijnDisplay = !string.IsNullOrEmpty(pagina.PlotlijnNummer)
+                                            ? $"{pagina.DomainShorthand} {pagina.PlotlijnNummer}"
+                                            : pagina.DomainShorthand;
+                                        <span class="badge bg-secondary me-2" title="@pagina.DomainDescription">@plotlijnDisplay</span>
+                                    }
+                                    <span class="flex-grow-1">@pagina.Title</span>
+                                    @if (pagina.AantalBlokkenId is "TweeBlokken" or "DrieBlokken")
+                                    {
+                                        var blokLabel = pagina.AantalBlokkenId == "TweeBlokken" ? "2b" : "3b";
+                                        var aantalBlokkenLabel = Model.AvailableAantalBlokkenConfigs.GetDisplayName(pagina.AantalBlokkenId);
+                                        <span class="badge text-bg-warning ms-1 text-nowrap" title="@aantalBlokkenLabel"><i class="fas fa-layer-group me-1"></i>@blokLabel</span>
+                                    }
+                                    @await Html.PartialAsync("Plotboek/_PaginaIconen", pagina)
+                                    <small class="npc-count pagina-part pagina-part-npc ms-2 text-nowrap text-start" style="min-width: 2.5rem;" title="@pagina.AantalNpcs">@pagina.AantalNpcs.ToCountDisplayString()</small>
+                                </a>
+                            }
+                        </div>
+                    </div>
+                }
+                } @* end else (non-Evergreen day-based list) *@
+                <p class="text-muted d-none" id="filter-no-results">Geen encounters gevonden met dit filter.</p>
+            }
+            else
+            {
+                <p class="text-muted">No paginas available for this plotboek.</p>
+            }
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Draggable rows inside the "Weergave" (display-parts) dropdown. */
+    #view-options-list .view-option-item {
+        display: flex;
+        align-items: center;
+        gap: .5rem;
+        padding: .25rem;
+        border-radius: .375rem;
+        cursor: default;
+    }
+    #view-options-list .view-option-item:hover { background-color: var(--bs-tertiary-bg); }
+    #view-options-list .view-option-item.dragging { opacity: .5; }
+    #view-options-list .view-option-grip { cursor: grab; }
+    #view-options-list .form-check { min-height: auto; margin-bottom: 0; }
+
+</style>
+<script>
+    // Display-parts controller: which of the trailing row parts (SL-naam / iconen / NPC-aantal)
+    // are shown and in which order. The parts are direct flex children of each row, so we reorder
+    // them purely with CSS `order` (values >= 1 keep them after the title/blok badge, which stay at
+    // the default order 0) and hide them with `display:none`. The preference is global (per user,
+    // like the SL-namen toggle it replaces), not per plotboek.
+    (function () {
+        var card = document.getElementById('plotboek-paginas-card');
+        var list = document.getElementById('view-options-list');
+        if (!card || !list) { return; }
+
+        var DEFAULT_ORDER = ['name', 'icons', 'npc'];
+        var storageKey = 'plotboek.viewParts';
+        var resetButton = document.getElementById('view-options-reset');
+        var toggleButton = document.getElementById('view-options-toggle');
+
+        // One <style> element holds the generated order/visibility rules for the part classes.
+        var styleEl = document.getElementById('pagina-parts-style');
+        if (!styleEl) {
+            styleEl = document.createElement('style');
+            styleEl.id = 'pagina-parts-style';
+            document.head.appendChild(styleEl);
+        }
+
+        function checkbox(part) { return document.getElementById('view-opt-' + part); }
+        function itemFor(part) { return list.querySelector('.view-option-item[data-part="' + part + '"]'); }
+
+        function readState() {
+            var order = DEFAULT_ORDER.slice();
+            var hidden = [];
+            var raw = null;
+            try { raw = localStorage.getItem(storageKey); } catch (e) { raw = null; }
+            if (raw) {
+                var parsed = null;
+                try { parsed = JSON.parse(raw); } catch (e) { parsed = null; }
+                if (parsed) {
+                    if (Array.isArray(parsed.order)) {
+                        // Keep only known parts, then append any default part missing from storage so a
+                        // newly introduced part appears instead of silently vanishing.
+                        var known = parsed.order.filter(function (p) { return DEFAULT_ORDER.indexOf(p) !== -1; });
+                        DEFAULT_ORDER.forEach(function (p) { if (known.indexOf(p) === -1) { known.push(p); } });
+                        order = known;
+                    }
+                    if (Array.isArray(parsed.hidden)) {
+                        hidden = parsed.hidden.filter(function (p) { return DEFAULT_ORDER.indexOf(p) !== -1; });
+                    }
+                }
+            } else {
+                // Migrate the old standalone "SL-namen" toggle: off -> start with the name part hidden.
+                var legacy = null;
+                try { legacy = localStorage.getItem('plotboek.showSlNamen'); } catch (e) { legacy = null; }
+                if (legacy === 'false') { hidden = ['name']; }
+            }
+            return { order: order, hidden: hidden };
+        }
+
+        function currentState() {
+            var order = [];
+            var hidden = [];
+            list.querySelectorAll('.view-option-item').forEach(function (item) {
+                var part = item.getAttribute('data-part');
+                order.push(part);
+                var cb = checkbox(part);
+                if (cb && !cb.checked) { hidden.push(part); }
+            });
+            return { order: order, hidden: hidden };
+        }
+
+        function applyStyles(state) {
+            var css = '';
+            state.order.forEach(function (part, index) {
+                css += '#plotboek-paginas-card .pagina-part-' + part + '{order:' + (index + 1) + ';}';
+            });
+            state.hidden.forEach(function (part) {
+                css += '#plotboek-paginas-card .pagina-part-' + part + '{display:none !important;}';
+            });
+            // The npc part reserves a fixed 2.5rem left-aligned box (a tidy trailing column). Once it
+            // is no longer the last visible part that reserved width reads as a mid-row gap, so collapse it.
+            var visible = state.order.filter(function (p) { return state.hidden.indexOf(p) === -1; });
+            var npcPos = visible.indexOf('npc');
+            if (npcPos !== -1 && npcPos !== visible.length - 1) {
+                css += '#plotboek-paginas-card .pagina-part-npc{min-width:0 !important;}';
+            }
+            styleEl.textContent = css;
+            if (toggleButton) { toggleButton.classList.toggle('active', state.hidden.length > 0); }
+        }
+
+        function saveState(state) {
+            try { localStorage.setItem(storageKey, JSON.stringify(state)); } catch (e) { /* ignore */ }
+            try { localStorage.removeItem('plotboek.showSlNamen'); } catch (e) { /* ignore */ }
+        }
+
+        function persistAndApply() {
+            var state = currentState();
+            saveState(state);
+            applyStyles(state);
+        }
+
+        // Render the stored state into the checklist, then apply it to the page.
+        var initial = readState();
+        initial.order.forEach(function (part) {
+            var item = itemFor(part);
+            if (item) { list.appendChild(item); }
+        });
+        DEFAULT_ORDER.forEach(function (part) {
+            var cb = checkbox(part);
+            if (cb) { cb.checked = initial.hidden.indexOf(part) === -1; }
+        });
+        applyStyles(initial);
+        // Persist once so a migrated legacy value is normalised under the new key.
+        saveState(currentState());
+
+        list.querySelectorAll('.form-check-input').forEach(function (cb) {
+            cb.addEventListener('change', persistAndApply);
+        });
+
+        if (resetButton) {
+            resetButton.addEventListener('click', function () {
+                DEFAULT_ORDER.forEach(function (part) {
+                    var item = itemFor(part);
+                    if (item) { list.appendChild(item); }
+                    var cb = checkbox(part);
+                    if (cb) { cb.checked = true; }
+                });
+                persistAndApply();
+            });
+        }
+
+        // Drag to reorder: the list is small, so we live-insert the dragged row on dragover and
+        // persist once on dragend.
+        var dragItem = null;
+        list.querySelectorAll('.view-option-item').forEach(function (item) {
+            item.addEventListener('dragstart', function (e) {
+                dragItem = item;
+                item.classList.add('dragging');
+                if (e.dataTransfer) {
+                    e.dataTransfer.effectAllowed = 'move';
+                    try { e.dataTransfer.setData('text/plain', item.getAttribute('data-part')); } catch (ex) { /* older browsers */ }
+                }
+            });
+            item.addEventListener('dragend', function () {
+                item.classList.remove('dragging');
+                dragItem = null;
+                persistAndApply();
+            });
+            item.addEventListener('dragover', function (e) {
+                e.preventDefault();
+                if (e.dataTransfer) { e.dataTransfer.dropEffect = 'move'; }
+                if (!dragItem || dragItem === item) { return; }
+                var rect = item.getBoundingClientRect();
+                var after = (e.clientY - rect.top) > rect.height / 2;
+                list.insertBefore(dragItem, after ? item.nextSibling : item);
+            });
+            item.addEventListener('drop', function (e) { e.preventDefault(); });
+
+            // Keyboard reorder for accessibility.
+            item.addEventListener('keydown', function (e) {
+                if (!e.altKey) { return; }
+                if (e.key === 'ArrowUp' && item.previousElementSibling) {
+                    e.preventDefault();
+                    list.insertBefore(item, item.previousElementSibling);
+                    item.focus();
+                    persistAndApply();
+                } else if (e.key === 'ArrowDown' && item.nextElementSibling) {
+                    e.preventDefault();
+                    list.insertBefore(item.nextElementSibling, item);
+                    item.focus();
+                    persistAndApply();
+                }
+            });
+        });
+    })();
+
+    (function () {
+        var card = document.getElementById('plotboek-paginas-card');
+        var filters = document.getElementById('plotboek-filters');
+        if (!card || !filters) { return; }
+
+        // Scope the stored filter and panel state per plotboek so a filter set on one plotboek
+        // does not silently carry over to another.
+        var plotboekKey = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.PlotboekId.ToString()));
+        var storageKey = 'plotboek.filters:' + plotboekKey;
+        var openKey = 'plotboek.filtersOpen:' + plotboekKey;
+        var resetButton = document.getElementById('filter-reset');
+        var status = document.getElementById('filter-status');
+        var noResults = document.getElementById('filter-no-results');
+        var toggleButton = document.getElementById('filter-toggle');
+        var activeDot = document.getElementById('filter-active-dot');
+
+        // Keys match the data-filter-* attribute suffix on each list item.
+        var selects = {
+            sl: document.getElementById('filter-sl'),
+            domain: document.getElementById('filter-domain'),
+            soort: document.getElementById('filter-soort'),
+            techniek: document.getElementById('filter-techniek')
+        };
+
+        function eachSelect(callback) {
+            Object.keys(selects).forEach(function (key) {
+                if (selects[key]) { callback(key, selects[key]); }
+            });
+        }
+
+        function matches(item) {
+            var ok = true;
+            eachSelect(function (key, select) {
+                if (!ok || !select.value) { return; }
+                var tokens = (item.getAttribute('data-filter-' + key) || '').split(' ');
+                if (tokens.indexOf(select.value) === -1) { ok = false; }
+            });
+            return ok;
+        }
+
+        function apply() {
+            var active = 0;
+            eachSelect(function (key, select) {
+                if (select.value) { active++; }
+                select.classList.toggle('border-primary', !!select.value);
+            });
+
+            var items = card.querySelectorAll('.pagina-filter-item');
+            var visible = 0;
+            items.forEach(function (item) {
+                // Never hide the currently-open pagina: it stays selected on the right, so it must
+                // remain in the list even if an edit made it stop matching the active filter.
+                var show = matches(item) || item.classList.contains('active');
+                item.classList.toggle('d-none', !show);
+                if (show) { visible++; }
+            });
+
+            // Collapse day headers and tijdblokken that no longer hold a visible encounter.
+            card.querySelectorAll('.pagina-subgroup, .pagina-group').forEach(function (group) {
+                var hide = active > 0 && group.querySelector('.pagina-filter-item:not(.d-none)') === null;
+                group.classList.toggle('d-none', hide);
+            });
+
+            if (resetButton) { resetButton.disabled = active === 0; }
+            if (activeDot) { activeDot.classList.toggle('d-none', active === 0); }
+            if (noResults) { noResults.classList.toggle('d-none', visible > 0); }
+            if (status) {
+                status.classList.toggle('d-none', active === 0);
+                status.textContent = visible + ' van ' + items.length + ' encounters';
+            }
+        }
+
+        function save() {
+            var state = {};
+            eachSelect(function (key, select) { state[key] = select.value; });
+            localStorage.setItem(storageKey, JSON.stringify(state));
+        }
+
+        function hasOption(select, value) {
+            for (var i = 0; i < select.options.length; i++) {
+                if (select.options[i].value === value) { return true; }
+            }
+            return false;
+        }
+
+        function setPanelOpen(open) {
+            filters.classList.toggle('d-none', !open);
+            if (toggleButton) {
+                toggleButton.setAttribute('aria-expanded', open ? 'true' : 'false');
+                toggleButton.classList.toggle('active', open);
+            }
+        }
+
+        function anyActive() {
+            var active = false;
+            eachSelect(function (key, select) { if (select.value) { active = true; } });
+            return active;
+        }
+
+        function restore() {
+            var raw = localStorage.getItem(storageKey);
+            if (!raw) { return; }
+            var state;
+            try {
+                state = JSON.parse(raw);
+            } catch (e) {
+                return;
+            }
+            if (!state) { return; }
+            // A stored value can be stale after switching plotboek, so only restore live options.
+            eachSelect(function (key, select) {
+                if (state[key] && hasOption(select, state[key])) { select.value = state[key]; }
+            });
+        }
+
+        eachSelect(function (key, select) {
+            select.addEventListener('change', function () {
+                save();
+                apply();
+            });
+        });
+
+        if (resetButton) {
+            resetButton.addEventListener('click', function () {
+                eachSelect(function (key, select) { select.value = ''; });
+                save();
+                apply();
+            });
+        }
+
+        if (toggleButton) {
+            toggleButton.addEventListener('click', function () {
+                var open = filters.classList.contains('d-none');
+                setPanelOpen(open);
+                localStorage.setItem(openKey, open ? 'true' : 'false');
+            });
+        }
+
+        restore();
+        apply();
+        // Reveal the panel when a filter is active (so hidden results are always explained),
+        // otherwise honour the last open/closed choice.
+        setPanelOpen(anyActive() || localStorage.getItem(openKey) === 'true');
+    })();
+</script>

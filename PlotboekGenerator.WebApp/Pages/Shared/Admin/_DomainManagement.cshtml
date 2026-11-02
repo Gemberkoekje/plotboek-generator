@@ -1,0 +1,116 @@
+@model AdminModel
+
+<!-- Domain Management Section -->
+<div class="card mb-4">
+    <div class="card-header text-bg-success">
+        <h5 class="mb-0">
+            <i class="fas fa-globe"></i> Domain Management
+        </h5>
+    </div>
+    <div class="card-body">
+        <p class="text-muted mb-3">
+            Manage the domains/categories used for plotboek pagina classification.
+            The domain shorthand will be prefixed to the title in exports (e.g., "Ti - Hier komt de handelaar").
+        </p>
+
+        <!-- Add/Edit Domain Form -->
+        <form method="post" class="mb-4">
+            <input type="hidden" name="Action" value="saveDomain" />
+            <input type="hidden" name="Section" value="domains" />
+            <input type="hidden" name="EditDomainId" id="editDomainId" value="" />
+            <div class="row g-3 align-items-end">
+                <div class="col-md-2">
+                    <label for="editDomainShorthand" class="form-label">Afkorting</label>
+                    <input type="text"
+                           class="form-control"
+                           id="editDomainShorthand"
+                           name="EditDomainShorthand"
+                           maxlength="10"
+                           required />
+                </div>
+                <div class="col-md-6">
+                    <label for="editDomainDescription" class="form-label">Beschrijving</label>
+                    <input type="text"
+                           class="form-control"
+                           id="editDomainDescription"
+                           name="EditDomainDescription"
+                           required />
+                </div>
+                <div class="col-md-4">
+                    <button type="submit" class="btn btn-success" id="saveDomainBtn">
+                        <i class="fas fa-plus"></i> Domein Toevoegen
+                    </button>
+                    <button type="button" class="btn btn-outline-secondary" id="cancelEditDomainBtn" style="display: none;" onclick="cancelEditDomain()">
+                        <i class="fas fa-times"></i> Annuleren
+                    </button>
+                </div>
+            </div>
+        </form>
+
+        <!-- Domains List -->
+        @if (Model.Domains.Count > 0)
+        {
+            <div class="table-responsive">
+                <table class="table table-hover" id="domainsTable">
+                    <thead>
+                        <tr>
+                            <th style="width: 50px;">Volgorde</th>
+                            <th style="width: 100px;">Afkorting</th>
+                            <th>Beschrijving</th>
+                            <th style="width: 150px;">Acties</th>
+                        </tr>
+                    </thead>
+                    <tbody id="domainsTbody">
+                        @foreach (var domain in Model.Domains)
+                        {
+                            <tr data-domain-id="@domain.Id" data-domain-order="@domain.Order">
+                                <td class="drag-handle" style="cursor: grab;">
+                                    <i class="fas fa-grip-vertical text-muted"></i>
+                                    <span class="order-display ms-2">@domain.Order</span>
+                                </td>
+                                <td><strong>@domain.Shorthand</strong></td>
+                                <td>@domain.Description</td>
+                                <td>
+                                    <button type="button"
+                                            class="btn btn-sm btn-outline-primary me-1"
+                                            onclick="editDomain('@domain.Id', '@domain.Shorthand', '@domain.Description')">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <form method="post" style="display: inline;">
+                                        <input type="hidden" name="Action" value="deleteDomain" />
+                                        <input type="hidden" name="Section" value="domains" />
+                                        <input type="hidden" name="DeleteDomainId" value="@domain.Id" />
+                                        <button type="submit"
+                                                class="btn btn-sm btn-outline-danger"
+                                                onclick="return confirm('Weet je zeker dat je domein \'@domain.Shorthand\' wilt verwijderen?');">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Reorder Save Button (hidden by default) -->
+            <form method="post" id="reorderForm" style="display: none;">
+                <input type="hidden" name="Action" value="reorderDomains" />
+                <input type="hidden" name="Section" value="domains" />
+                <input type="hidden" name="DomainReorderData" id="domainReorderData" value="" />
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save"></i> Volgorde Opslaan
+                </button>
+                <button type="button" class="btn btn-outline-secondary" onclick="cancelReorder()">
+                    <i class="fas fa-times"></i> Annuleren
+                </button>
+            </form>
+        }
+        else
+        {
+            <div class="alert alert-info">
+                <i class="fas fa-info-circle"></i> Geen domeinen gevonden. Voeg een domein toe om te beginnen.
+            </div>
+        }
+    </div>
+</div>

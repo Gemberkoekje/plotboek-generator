@@ -1,0 +1,45 @@
+<Project Sdk="Microsoft.NET.Sdk.Razor">
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="PlotboekGenerator.test" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <RootNamespace>PlotboekGenerator.WebApp</RootNamespace>
+    <Nullable>enable</Nullable>
+    <AddRazorSupportForMvc>true</AddRazorSupportForMvc>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" />
+    <PackageReference Include="Microsoft.AspNetCore.Identity.UI" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="../PlotboekGenerator.infrastructure/PlotboekGenerator.infrastructure.csproj" />
+  </ItemGroup>
+
+  <!--
+    Work around RZ1007 on CLI/CI builds ("More than one scoped css files were found ...").
+    DotNetProjectFile.Analyzers' SonarQube integration re-adds every @(None) file (including
+    Razor scoped-css *.cshtml.css / *.razor.css) as @(Content) whenever SonarQubeIntegration=true
+    and the build is NOT inside Visual Studio / Rider. Razor then discovers each scoped-css file
+    twice (once from None, once from the injected Content) and fails with RZ1007. Visual Studio and
+    Rider builds are unaffected because the analyzer skips the injection there.
+    Remove the injected scoped-css Content before Razor's ResolveScopedCssInputs runs its discovery.
+    Real files, wwwroot CSS, and SonarQube analysis of all non-scoped-css files are left untouched.
+  -->
+  <Target Name="_RemoveSonarQubeScopedCssDuplicates"
+          BeforeTargets="ResolveScopedCssInputs"
+          Condition="'$(SonarQubeIntegration)' == 'true'">
+    <ItemGroup>
+      <Content Remove="@(Content->WithMetadataValue('SonarQubeContent', 'true')->WithMetadataValue('Extension', '.css'))" />
+    </ItemGroup>
+  </Target>
+
+</Project>

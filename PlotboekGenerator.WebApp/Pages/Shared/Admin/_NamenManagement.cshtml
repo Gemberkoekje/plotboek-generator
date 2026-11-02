@@ -1,0 +1,88 @@
+@model AdminModel
+
+<!-- Character Name Management Section -->
+<div class="card mb-4">
+    <div class="card-header text-bg-info">
+        <h5 class="mb-0">
+            <i class="fas fa-user-tag"></i> Namen Management
+        </h5>
+    </div>
+    <div class="card-body">
+        <p class="text-muted mb-3">
+            Beheer de karakternamen die worden afgedrukt in de plotboek export.
+            Namen worden altijd op alfabetische volgorde weergegeven.
+        </p>
+
+        <!-- Add/Edit Character Name Form -->
+        <form method="post" class="mb-4">
+            <input type="hidden" name="Action" value="saveCharacterName" />
+            <input type="hidden" name="Section" value="namen" />
+            <input type="hidden" name="EditCharacterNameId" id="editCharacterNameId" value="" />
+            <div class="row g-3 align-items-end">
+                <div class="col-md-6">
+                    <label for="editCharacterNameNaam" class="form-label">Naam</label>
+                    <input type="text"
+                           class="form-control"
+                           id="editCharacterNameNaam"
+                           name="EditCharacterNameNaam"
+                           required />
+                </div>
+                <div class="col-md-6">
+                    <button type="submit" class="btn btn-info" id="saveCharacterNameBtn">
+                        <i class="fas fa-plus"></i> Naam Toevoegen
+                    </button>
+                    <button type="button" class="btn btn-outline-secondary" id="cancelEditCharacterNameBtn" style="display: none;" onclick="cancelEditCharacterName()">
+                        <i class="fas fa-times"></i> Annuleren
+                    </button>
+                </div>
+            </div>
+        </form>
+
+        <!-- Character Names List -->
+        @if (Model.CharacterNames.Count > 0)
+        {
+            <p class="text-muted small mb-2">@Model.CharacterNames.Count namen</p>
+            <div class="table-responsive" style="max-height: 500px; overflow-y: auto;">
+                <table class="table table-hover table-sm">
+                    <thead class="sticky-top bg-body-tertiary">
+                        <tr>
+                            <th>Naam</th>
+                            <th style="width: 150px;">Acties</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var name in Model.CharacterNames)
+                        {
+                            <tr>
+                                <td>@name.Naam</td>
+                                <td>
+                                    <button type="button"
+                                            class="btn btn-sm btn-outline-primary me-1"
+                                            onclick="editCharacterName('@name.Id', '@name.Naam')">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <form method="post" style="display: inline;">
+                                        <input type="hidden" name="Action" value="deleteCharacterName" />
+                                        <input type="hidden" name="Section" value="namen" />
+                                        <input type="hidden" name="DeleteCharacterNameId" value="@name.Id" />
+                                        <button type="submit"
+                                                class="btn btn-sm btn-outline-danger"
+                                                onclick="return confirm('Weet je zeker dat je naam \'@name.Naam\' wilt verwijderen?');">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+        else
+        {
+            <div class="alert alert-info">
+                <i class="fas fa-info-circle"></i> Geen namen gevonden. Voeg een naam toe om te beginnen.
+            </div>
+        }
+    </div>
+</div>

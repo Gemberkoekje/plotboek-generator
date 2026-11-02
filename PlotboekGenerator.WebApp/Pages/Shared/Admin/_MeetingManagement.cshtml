@@ -1,0 +1,138 @@
+@model AdminModel
+@using PlotboekGenerator.core.Enums
+
+<!-- Meeting Management Section -->
+<div class="card mb-4">
+    <div class="card-header text-bg-info">
+        <h5 class="mb-0">
+            <i class="fas fa-calendar-alt"></i> Meeting Management
+        </h5>
+    </div>
+    <div class="card-body">
+        <p class="text-muted mb-3">
+            Beheer de standaard meetings per dagtype. Deze worden gebruikt als basis voor de tijdschema's.
+        </p>
+
+        <!-- Add/Edit Meeting Form -->
+        <form method="post" class="mb-4">
+            <input type="hidden" name="Action" value="saveMeeting" />
+            <input type="hidden" name="Section" value="meetings" />
+            <input type="hidden" name="EditMeetingId" id="editMeetingId" value="" />
+            <div class="row g-3 align-items-end">
+                <div class="col-md-2">
+                    <label for="editMeetingDagType" class="form-label">Dagtype</label>
+                    <select class="form-select" id="editMeetingDagType" name="EditMeetingDagType" required>
+                        <option value="0">Eerste dag</option>
+                        <option value="1">Tussendag</option>
+                        <option value="2">Laatste dag</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label for="editMeetingTijd" class="form-label">Tijd</label>
+                    <input type="text"
+                           class="form-control"
+                           id="editMeetingTijd"
+                           name="EditMeetingTijd"
+                           placeholder="bijv. 14:00"
+                           maxlength="10"
+                           required />
+                </div>
+                <div class="col-md-5">
+                    <label for="editMeetingNaam" class="form-label">Naam</label>
+                    <input type="text"
+                           class="form-control"
+                           id="editMeetingNaam"
+                           name="EditMeetingNaam"
+                           required />
+                </div>
+                <div class="col-md-3">
+                    <button type="submit" class="btn btn-info" id="saveMeetingBtn">
+                        <i class="fas fa-plus"></i> Meeting Toevoegen
+                    </button>
+                    <button type="button" class="btn btn-outline-secondary" id="cancelEditMeetingBtn" style="display: none;" onclick="cancelEditMeeting()">
+                        <i class="fas fa-times"></i> Annuleren
+                    </button>
+                </div>
+            </div>
+        </form>
+
+        @{
+            var sections = new[]
+            {
+                (Title: "Eerste dag", DagType: MeetingDagType.EersteDag, Key: "EersteDag", Meetings: Model.EersteDagMeetings),
+                (Title: "Tussendag", DagType: MeetingDagType.Tussendag, Key: "Tussendag", Meetings: Model.TussendagMeetings),
+                (Title: "Laatste dag", DagType: MeetingDagType.LaatseDag, Key: "LaatseDag", Meetings: Model.LaatseDagMeetings),
+            };
+        }
+
+        @foreach (var dagSection in sections)
+        {
+            <h5 class="mt-4 mb-3"><i class="fas fa-sun me-1"></i> @dagSection.Title</h5>
+
+            if (dagSection.Meetings.Count > 0)
+            {
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th style="width: 50px;">Volgorde</th>
+                                <th style="width: 120px;">Tijd</th>
+                                <th>Naam</th>
+                                <th style="width: 150px;">Acties</th>
+                            </tr>
+                        </thead>
+                        <tbody id="meetingsTbody_@dagSection.Key">
+                            @foreach (var meeting in dagSection.Meetings)
+                            {
+                                <tr data-meeting-id="@meeting.Id" data-meeting-order="@meeting.Order">
+                                    <td class="drag-handle" style="cursor: grab;">
+                                        <i class="fas fa-grip-vertical text-muted"></i>
+                                        <span class="meeting-order-display ms-2">@meeting.Order</span>
+                                    </td>
+                                    <td><strong>@meeting.Tijd</strong></td>
+                                    <td>@meeting.Naam</td>
+                                    <td>
+                                        <button type="button"
+                                                class="btn btn-sm btn-outline-primary me-1"
+                                                onclick="editMeeting('@meeting.Id', '@meeting.Tijd', '@Html.Raw(meeting.Naam.Replace("'", "\\'"))', '@((int)meeting.DagType)')">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <form method="post" style="display: inline;">
+                                            <input type="hidden" name="Action" value="deleteMeeting" />
+                                            <input type="hidden" name="Section" value="meetings" />
+                                            <input type="hidden" name="DeleteMeetingId" value="@meeting.Id" />
+                                            <button type="submit"
+                                                    class="btn btn-sm btn-outline-danger"
+                                                    onclick="return confirm('Weet je zeker dat je deze meeting wilt verwijderen?');">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Reorder Save Button (hidden by default) -->
+                <form method="post" id="meetingReorderForm_@dagSection.Key" style="display: none;">
+                    <input type="hidden" name="Action" value="reorderMeetings" />
+                    <input type="hidden" name="Section" value="meetings" />
+                    <input type="hidden" name="MeetingReorderData" id="meetingReorderData_@dagSection.Key" value="" />
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i> Volgorde Opslaan
+                    </button>
+                    <button type="button" class="btn btn-outline-secondary" onclick="cancelMeetingReorder('@dagSection.Key')">
+                        <i class="fas fa-times"></i> Annuleren
+                    </button>
+                </form>
+            }
+            else
+            {
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle"></i> Geen meetings gevonden voor @dagSection.Title.ToLowerInvariant().
+                </div>
+            }
+        }
+    </div>
+</div>

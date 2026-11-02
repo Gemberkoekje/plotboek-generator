@@ -1,0 +1,124 @@
+@model AdminModel
+
+<!-- Standaard-NPC Management Section -->
+<div class="card mb-4">
+    <div class="card-header text-bg-info">
+        <h5 class="mb-0">
+            <i class="fas fa-bookmark"></i> Standaard-NPC's
+        </h5>
+    </div>
+    <div class="card-body">
+        <p class="text-muted mb-3">
+            NPC-rollen die vaak terugkomen, zoals een stadswacht of een bandiet. SL's bewaren ze vanuit een plot
+            en voegen ze in een volgend plot toe als ingevulde rol. Een plot houdt zijn eigen kopie: wijzigen of
+            verwijderen hier verandert geen bestaand plot.
+        </p>
+
+        <!-- Add/Edit Standaard-NPC Form -->
+        <form method="post" class="mb-4">
+            <input type="hidden" name="Action" value="saveStandaardNpc" />
+            <input type="hidden" name="Section" value="standaardnpcs" />
+            <input type="hidden" name="EditStandaardNpcId" id="editStandaardNpcId" value="" />
+            <div class="row g-3">
+                <div class="col-md-4">
+                    <label for="editStandaardNpcRol" class="form-label">Rol</label>
+                    <input type="text"
+                           class="form-control"
+                           id="editStandaardNpcRol"
+                           name="EditStandaardNpcRol"
+                           placeholder="bijv. Stadswacht"
+                           required />
+                </div>
+                <div class="col-md-4">
+                    <label for="editStandaardNpcKledingEnSchmink" class="form-label">Kleding &amp; Schmink</label>
+                    <textarea class="form-control"
+                              id="editStandaardNpcKledingEnSchmink"
+                              name="EditStandaardNpcKledingEnSchmink"
+                              rows="2"></textarea>
+                </div>
+                <div class="col-md-4">
+                    <label for="editStandaardNpcCastingInstructie" class="form-label">Casting-instructie</label>
+                    <textarea class="form-control"
+                              id="editStandaardNpcCastingInstructie"
+                              name="EditStandaardNpcCastingInstructie"
+                              rows="2"></textarea>
+                </div>
+                <div class="col-12">
+                    <button type="submit" class="btn btn-info" id="saveStandaardNpcBtn">
+                        <i class="fas fa-plus"></i> Standaard-NPC Toevoegen
+                    </button>
+                    <button type="button" class="btn btn-outline-secondary" id="cancelEditStandaardNpcBtn" style="display: none;" onclick="cancelEditStandaardNpc()">
+                        <i class="fas fa-times"></i> Annuleren
+                    </button>
+                </div>
+            </div>
+        </form>
+
+        <!-- Standaard-NPC List -->
+        @if (Model.StandaardNpcs.Count > 0)
+        {
+            <p class="text-muted small mb-2">@Model.StandaardNpcs.Count standaard-NPC's</p>
+            <div class="table-responsive">
+                <table class="table table-hover table-sm align-middle">
+                    <thead>
+                        <tr>
+                            <th>Rol</th>
+                            <th>Kleding &amp; Schmink</th>
+                            <th>Casting-instructie</th>
+                            <th>Laatst bewaard</th>
+                            <th style="width: 110px;">Acties</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var standaardNpc in Model.StandaardNpcs)
+                        {
+                            <tr>
+                                <td class="fw-semibold">@standaardNpc.Rol</td>
+                                <td class="small" style="white-space: pre-wrap;">@standaardNpc.KledingEnSchmink</td>
+                                <td class="small" style="white-space: pre-wrap;">@standaardNpc.CastingInstructie</td>
+                                <td class="small text-muted text-nowrap">
+                                    @if (!string.IsNullOrEmpty(standaardNpc.GewijzigdDoor))
+                                    {
+                                        @standaardNpc.GewijzigdDoor<br />
+                                    }
+                                    <span data-utc="@standaardNpc.GewijzigdOp.ToString("o")">@standaardNpc.GewijzigdOp.ToString("dd-MM-yyyy HH:mm")</span>
+                                </td>
+                                <td class="text-nowrap">
+                                    <button type="button"
+                                            class="btn btn-sm btn-outline-primary me-1"
+                                            title="Bewerken"
+                                            data-npc-id="@standaardNpc.Id"
+                                            data-npc-rol="@standaardNpc.Rol"
+                                            data-npc-kleding="@standaardNpc.KledingEnSchmink"
+                                            data-npc-casting="@standaardNpc.CastingInstructie"
+                                            onclick="editStandaardNpc(this)">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <form method="post" class="d-inline">
+                                        <input type="hidden" name="Action" value="deleteStandaardNpc" />
+                                        <input type="hidden" name="Section" value="standaardnpcs" />
+                                        <input type="hidden" name="DeleteStandaardNpcId" value="@standaardNpc.Id" />
+                                        <button type="submit"
+                                                class="btn btn-sm btn-outline-danger"
+                                                title="Verwijderen"
+                                                data-confirm="Weet je zeker dat je standaard-NPC '@standaardNpc.Rol' wilt verwijderen? Bestaande plots houden hun eigen kopie."
+                                                onclick="return confirm(this.dataset.confirm);">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+        else
+        {
+            <div class="alert alert-info">
+                <i class="fas fa-info-circle"></i> Nog geen standaard-NPC's. Voeg er hier een toe, of bewaar een rol
+                vanuit een plot met <strong>Bewaar als standaard</strong>.
+            </div>
+        }
+    </div>
+</div>

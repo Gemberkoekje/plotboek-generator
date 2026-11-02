@@ -1,0 +1,8 @@
+<Solution>
+  <Project Path="PlotboekGenerator.application/PlotboekGenerator.Application.csproj" />
+  <Project Path="PlotboekGenerator.core/PlotboekGenerator.core.csproj" />
+  <Project Path="PlotboekGenerator.Host/PlotboekGenerator.Host.csproj" />
+  <Project Path="PlotboekGenerator.infrastructure/PlotboekGenerator.infrastructure.csproj" />
+  <Project Path="PlotboekGenerator.test/PlotboekGenerator.test.csproj" />
+  <Project Path="PlotboekGenerator.WebApp/PlotboekGenerator.WebApp.csproj" />
+</Solution>

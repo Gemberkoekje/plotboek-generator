@@ -1,0 +1,122 @@
+@model PlotboekModel
+
+@*
+    Feedback on a plot: the HSL raises points, whoever writes the plot responds, the HSL signs them off,
+    reopens or withdraws them.
+
+    Deliberately rendered OUTSIDE #pagina-details-form and outside the #pagina-fields fieldset, each
+    action on its own little form. Responding has to keep working while the plot itself is content-locked
+    (a "volledig klaar" pagina, or a closed plotboek) — otherwise an SL could never unblock their own plot.
+
+    Text is plain, not Quill: these are short internal remarks. The .feedback-tekst class keeps the line
+    breaks (white-space: pre-wrap) and Razor encodes the value, so no @@Html.Raw here.
+*@
+
+@{
+    var openFeedback = Model.OpenFeedback;
+    var beantwoordeFeedback = Model.BeantwoordeFeedback;
+    var afgehandeldeFeedback = Model.AfgehandeldeFeedback;
+    var heeftFeedback = Model.SelectedPaginaFeedback.Count > 0;
+
+    // A blocking point must not need looking for: open feedback springs the section open, while every
+    // other section on the detail panel starts collapsed.
+    var standaardOpen = openFeedback.Count > 0;
+
+    var samenvattingDelen = new List<string>();
+    if (openFeedback.Count > 0)
+    {
+        samenvattingDelen.Add($"{openFeedback.Count} open");
+    }
+    if (beantwoordeFeedback.Count > 0)
+    {
+        samenvattingDelen.Add($"{beantwoordeFeedback.Count} beantwoord");
+    }
+    if (afgehandeldeFeedback.Count > 0)
+    {
+        samenvattingDelen.Add($"{afgehandeldeFeedback.Count} afgehandeld");
+    }
+}
+
+@if (Model.CanSeeFeedback && (heeftFeedback || Model.CanManageFeedback))
+{
+    <div class="detail-section">
+        <div class="detail-section-header"
+             role="button"
+             data-bs-toggle="collapse"
+             data-bs-target="#section-feedback"
+             aria-expanded="@(standaardOpen ? "true" : "false")"
+             aria-controls="section-feedback">
+            <div class="d-flex justify-content-between align-items-center">
+                <span class="detail-section-label">
+                    <i class="fas fa-comment-dots me-1 @(openFeedback.Count > 0 ? "text-danger" : "")"></i>Feedback
+                    @if (openFeedback.Count > 0)
+                    {
+                        <i class="fas fa-exclamation-triangle text-danger ms-1"></i>
+                        <small class="text-danger ms-1">blokkeert "volledig klaar"</small>
+                    }
+                </span>
+                <i class="fas fa-chevron-down detail-section-chevron"></i>
+            </div>
+            <div class="detail-section-summary mt-1">
+                @if (samenvattingDelen.Count > 0)
+                {
+                    @string.Join(" · ", samenvattingDelen)
+                }
+                else
+                {
+                    <span class="text-muted fst-italic">Geen feedback</span>
+                }
+            </div>
+        </div>
+        <div class="collapse @(standaardOpen ? "show" : "")" id="section-feedback">
+            <div class="detail-section-body">
+
+                @if (!heeftFeedback)
+                {
+                    <p class="text-muted fst-italic mb-3">Er is nog geen feedback op dit plot.</p>
+                }
+
+                @foreach (var punt in openFeedback.Concat(beantwoordeFeedback))
+                {
+                    <partial name="Shared/Plotboek/_PlotboekPaginaFeedbackKaart" model="new PlotboekModel.FeedbackKaart { Page = Model, Punt = punt }" />
+                }
+
+                @if (afgehandeldeFeedback.Count > 0)
+                {
+                    <details class="feedback-afgehandeld mb-3">
+                        <summary class="text-muted small">
+                            <i class="fas fa-check me-1"></i>Afgehandelde feedback (@afgehandeldeFeedback.Count)
+                        </summary>
+                        <div class="mt-2">
+                            @foreach (var punt in afgehandeldeFeedback)
+                            {
+                                <partial name="Shared/Plotboek/_PlotboekPaginaFeedbackKaart" model="new PlotboekModel.FeedbackKaart { Page = Model, Punt = punt }" />
+                            }
+                        </div>
+                    </details>
+                }
+
+                @if (Model.CanManageFeedback)
+                {
+                    <form method="post" class="feedback-toevoegen border-top pt-3">
+                        <input type="hidden" name="Jaar" value="@Model.Jaar" />
+                        <input type="hidden" name="Event" value="@Model.EventId" />
+                        <input type="hidden" name="PaginaId" value="@Model.PaginaId" />
+                        <label for="nieuwe-feedback-tekst" class="form-label fw-bold small">Feedback toevoegen:</label>
+                        <textarea id="nieuwe-feedback-tekst"
+                                  name="NieuweFeedbackTekst"
+                                  class="form-control form-control-sm"
+                                  rows="3"
+                                  placeholder="Wat moet er aan dit plot gebeuren?"></textarea>
+                        <small class="form-text text-muted d-block mb-2">
+                            Het plot kan niet op "volledig klaar" zolang dit punt openstaat. De SL krijgt het te zien op het plot zelf.
+                        </small>
+                        <button type="submit" name="Action" value="addFeedback" class="btn btn-primary btn-sm">
+                            <i class="fas fa-comment-medical me-1"></i>Feedback toevoegen
+                        </button>
+                    </form>
+                }
+            </div>
+        </div>
+    </div>
+}

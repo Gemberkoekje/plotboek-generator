@@ -1,0 +1,54 @@
+@page
+@model PlotboekGenerator.WebApp.Areas.Identity.Pages.Account.LoginModel
+
+@{
+    ViewData["Title"] = "Log in";
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-6 col-lg-4">
+        <div class="card">
+            <div class="card-body">
+                <h2 class="card-title text-center">Welcome</h2>
+                <p class="text-center text-muted mb-4">Sign in with your account</p>
+
+                @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+                {
+                    <div class="alert alert-danger" role="alert">
+                        @Model.ErrorMessage
+                    </div>
+                }
+
+                @{
+                    var externalLogins = Model.ExternalLogins;
+                    if ((externalLogins?.Count ?? 0) == 0)
+                    {
+                        <div class="alert alert-warning">
+                            <p>
+                                No external authentication services are configured.
+                                Please contact the administrator.
+                            </p>
+                        </div>
+                    }
+                    else
+                    {
+                        @* The providers in the order they are configured; the first is the main way in. *@
+                        <form method="post" asp-route-returnUrl="@Model.ReturnUrl">
+                            @Html.AntiForgeryToken()
+                            <div class="d-grid gap-2">
+                                @for (var i = 0; i < externalLogins!.Count; i++)
+                                {
+                                    var provider = externalLogins[i];
+                                    <button type="submit" class="btn @(i == 0 ? "btn-primary btn-lg" : "btn-outline-secondary")" name="provider" value="@provider.Name" title="Log in using your @provider.DisplayName account">
+                                        <i class="fas fa-sign-in-alt me-2"></i>
+                                        Sign in with @provider.DisplayName
+                                    </button>
+                                }
+                            </div>
+                        </form>
+                    }
+                }
+            </div>
+        </div>
+    </div>
+</div>

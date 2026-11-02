@@ -1,0 +1,12 @@
+global using Qowaiv;
+global using Qowaiv.DomainModel;
+global using Qowaiv.Validation.Abstractions;
+global using System;
+global using System.Collections.Generic;
+global using System.Linq;
+global using System.Threading;
+global using System.Threading.Tasks;
+global using PlotboekGenerator.core.Enums;
+global using PlotboekGenerator.core.Models;
+global using PlotboekGenerator.core.Models.ReferenceData;
+global using PlotboekGenerator.infrastructure.Models;
