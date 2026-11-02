@@ -1,3 +1,6 @@
+using System.Globalization;
+using PlotboekGenerator.WebApp.Resources;
+
 namespace PlotboekGenerator.WebApp.Pages;
 
 /// <summary>
@@ -41,14 +44,14 @@ public sealed partial class PlotboekModel
         if (string.IsNullOrEmpty(StandaardNpc.IdVoor(StandaardNpcRol ?? string.Empty)))
         {
             logger.LogWarning("Standaard-NPC not saved from pagina {PaginaId}: the role has no usable name", PaginaId);
-            StandaardNpcFout = "Vul eerst een naam voor de rol in.";
+            StandaardNpcFout = PaginaUi.StandaardNpcRolZonderNaam;
             return Page();
         }
 
         if (!PaginaId.HasValue || string.IsNullOrWhiteSpace(EditableTitle))
         {
             logger.LogWarning("Standaard-NPC not saved from pagina {PaginaId}: the pagina has no title, so it was not saved", PaginaId);
-            StandaardNpcFout = "Geef het plot eerst een naam; de rol is nog niet bewaard.";
+            StandaardNpcFout = PaginaUi.StandaardNpcPlotZonderNaam;
             return Page();
         }
 
@@ -79,7 +82,7 @@ public sealed partial class PlotboekModel
             .Where(s => s.Id != standaardNpc.Id)
             .Append(standaardNpc)
             .OrderBy(s => s.Rol, StringComparer.CurrentCultureIgnoreCase)];
-        StandaardNpcMelding = $"'{standaardNpc.Rol}' is bewaard als standaard-NPC.";
+        StandaardNpcMelding = string.Format(CultureInfo.CurrentCulture, PaginaUi.StandaardNpcBewaard, standaardNpc.Rol);
         return Page();
     }
 }

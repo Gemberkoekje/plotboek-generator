@@ -30,33 +30,33 @@ function addNpcRol(prefill) {
         <div class="npc-rol-item border rounded p-3 mb-2" data-index="${i}">
             <div class="row g-2 mb-2">
                 <div class="col-md-6">
-                    <label class="form-label small text-muted">Rol/Type NPC</label>
+                    <label class="form-label small text-muted">${escapeTekst(pbT('NpcRolLabel'))}</label>
                     <input type="text"
                            name="EditableNpcRollen[${i}].Rol"
                            value="${rol}"
                            class="form-control form-control-sm">
                 </div>
                 <div class="col-md-3">
-                    <label class="form-label small text-muted npc-count-label">Minimum</label>
+                    <label class="form-label small text-muted npc-count-label">${escapeTekst(pbT('NpcMinimum'))}</label>
                     <input type="number"
                            name="EditableNpcRollen[${i}].MinimumAantal"
                            value="${defaultMin}"
                            class="form-control form-control-sm npc-min-input"
                            min="0"
-                           placeholder="Min">
+                           placeholder="${escapeTekst(pbT('NpcMinPlaceholder'))}">
                 </div>
                 <div class="col-md-3">
-                    <label class="form-label small text-muted npc-count-label">Maximum</label>
+                    <label class="form-label small text-muted npc-count-label">${escapeTekst(pbT('NpcMaximum'))}</label>
                     <input type="number"
                            name="EditableNpcRollen[${i}].MaximumAantal"
                            class="form-control form-control-sm npc-max-input"
                            min="0"
-                           placeholder="Max (optioneel)">
+                           placeholder="${escapeTekst(pbT('NpcMaxPlaceholder'))}">
                 </div>
             </div>
             <div class="row g-2 mb-2">
                 <div class="col-md-12">
-                    <label class="form-label small text-muted">Kleding & Schmink</label>
+                    <label class="form-label small text-muted">${escapeTekst(pbT('NpcKledingEnSchmink'))}</label>
                     <input type="text"
                            name="EditableNpcRollen[${i}].KledingEnSchmink"
                            value="${kleding}"
@@ -65,12 +65,12 @@ function addNpcRol(prefill) {
             </div>
             <div class="row g-2 mb-2">
                 <div class="col-md-12">
-                    <label class="form-label small text-muted">Casting &mdash; wat voor figurant zoeken we?</label>
+                    <label class="form-label small text-muted">${escapeTekst(pbT('NpcCastingLabel'))}</label>
                     <input type="text"
                            name="EditableNpcRollen[${i}].CastingInstructie"
                            value="${casting}"
                            class="form-control form-control-sm"
-                           placeholder="bv. vrouwelijk uiterlijk, goede roleplayer, stevig postuur">
+                           placeholder="${escapeTekst(pbT('NpcCastingPlaceholder'))}">
                 </div>
             </div>
             <div class="row g-2 mb-2">
@@ -84,15 +84,15 @@ function addNpcRol(prefill) {
                                data-target="npc-afstemming-toelichting-${i}"
                                onchange="toggleNpcTextField(this)">
                         <label class="form-check-label small" for="npc-afstemming-${i}">
-                            &#x1F91D; Vereist afstemming vooraf (bv. marteling, intimiteit, heftige angstinhoud)
+                            &#x1F91D; ${escapeTekst(pbT('NpcAfstemmingLabel'))}
                         </label>
-                        <small class="text-muted d-block">De MSL stemt dit vooraf af met de figurant.</small>
+                        <small class="text-muted d-block">${escapeTekst(pbT('NpcAfstemmingUitleg'))}</small>
                     </div>
                     <input type="text"
                            name="EditableNpcRollen[${i}].AfstemmingToelichting"
                            id="npc-afstemming-toelichting-${i}"
                            class="form-control form-control-sm mt-1"
-                           placeholder="Waarover moet afgestemd worden?"
+                           placeholder="${escapeTekst(pbT('NpcAfstemmingPlaceholder'))}"
                            style="display: none;">
                 </div>
             </div>
@@ -105,7 +105,7 @@ function addNpcRol(prefill) {
                                value="true"
                                id="npc-terugkerend-${i}">
                         <label class="form-check-label small" for="npc-terugkerend-${i}">
-                            Terugkerend na dit plot
+                            ${escapeTekst(pbT('NpcTerugkerend'))}
                         </label>
                     </div>
                 </div>
@@ -119,14 +119,14 @@ function addNpcRol(prefill) {
                                data-target="npc-eerder-door-${i}"
                                onchange="toggleNpcTextField(this, 'npc-eerder-door-${i}')">
                         <label class="form-check-label small" for="npc-eerder-${i}">
-                            Eerder gespeeld
+                            ${escapeTekst(pbT('NpcEerderGespeeld'))}
                         </label>
                     </div>
                     <input type="text"
                            name="EditableNpcRollen[${i}].GespeeldDoor"
                            id="npc-eerder-door-${i}"
                            class="form-control form-control-sm mt-1"
-                           placeholder="Door wie?"
+                           placeholder="${escapeTekst(pbT('NpcDoorWie'))}"
                            style="display: none;">
                 </div>
                 <div class="col-md-4">
@@ -140,29 +140,29 @@ function addNpcRol(prefill) {
                                data-warning="npc-gekozen-warning-${i}"
                                onchange="toggleNpcGekozen(this)">
                         <label class="form-check-label small" for="npc-gekozen-${i}">
-                            Al gekozen/gebriefd
+                            ${escapeTekst(pbT('NpcAlGekozen'))}
                         </label>
                     </div>
                     <input type="text"
                            name="EditableNpcRollen[${i}].GekozenPersoon"
                            id="npc-gekozen-persoon-${i}"
                            class="form-control form-control-sm mt-1"
-                           placeholder="Wie?"
+                           placeholder="${escapeTekst(pbT('NpcWie'))}"
                            style="display: none;">
                 </div>
             </div>
             <div id="npc-gekozen-warning-${i}"
                  class="alert alert-warning py-2 small mb-2"
                  style="display: none;">
-                <i class="fas fa-triangle-exclamation me-1"></i><strong>LET OP:</strong> De MSL kiezen de NPC's. Gebruik deze optie alleen voor rollen waarbij een hele lange briefing nodig is die niet op het event zelf gegeven kan worden.
+                <i class="fas fa-triangle-exclamation me-1"></i><strong>${escapeTekst(pbT('NpcLetOp'))}</strong> ${escapeTekst(pbT('NpcGekozenWaarschuwing'))}
             </div>
             <button type="button" class="btn btn-outline-danger btn-sm" onclick="removeNpcRol(this)">
-                <i class="fas fa-trash me-1"></i>Verwijderen
+                <i class="fas fa-trash me-1"></i>${escapeTekst(pbT('NpcVerwijderen'))}
             </button>
             <button type="button" class="btn btn-outline-secondary btn-sm ms-1"
-                    title="Slaat het plot op en bewaart deze rol (naam, kleding &amp; schmink, casting) als standaard-NPC."
+                    title="${escapeTekst(pbT('NpcBewaarAlsStandaardTitel'))}"
                     onclick="bewaarNpcRolAlsStandaard(this)">
-                <i class="fas fa-bookmark me-1"></i>Bewaar als standaard
+                <i class="fas fa-bookmark me-1"></i>${escapeTekst(pbT('NpcBewaarAlsStandaard'))}
             </button>
         </div>
     `;
@@ -222,13 +222,13 @@ function bewaarNpcRolAlsStandaard(button) {
     const rol = waarde('Rol');
     const id = standaardNpcId(rol);
     if (!id) {
-        alert('Vul eerst een naam voor de rol in.');
+        alert(pbT('NpcRolNaamEerst'));
         return;
     }
 
     const bestaand = Array.from(document.querySelectorAll('#standaard-npc-select option'))
         .find(option => option.value === id);
-    if (bestaand && !confirm(`Er bestaat al een standaard-NPC '${bestaand.dataset.rol}'. Overschrijven?`)) {
+    if (bestaand && !confirm(pbT('NpcStandaardOverschrijven', bestaand.dataset.rol))) {
         return;
     }
 
@@ -351,28 +351,31 @@ function toggleAlleNpcsMode() {
 
     if (isAlleNpcs) {
         // Add visual indication that counts are optional
+        const optioneel = pbT('NpcOptioneelAchtervoegsel');
         countLabels.forEach(label => {
-            if (!label.textContent.includes('(optioneel)')) {
-                label.textContent = label.textContent.replace('Minimum', 'Minimum (optioneel)');
-                label.textContent = label.textContent.replace('Maximum', 'Maximum (optioneel)');
+            if (!label.textContent.endsWith(optioneel)) {
+                label.textContent = label.textContent.trimEnd() + optioneel;
             }
         });
         minInputs.forEach(input => {
-            input.placeholder = 'Optioneel';
+            input.placeholder = pbT('NpcOptioneel');
         });
         maxInputs.forEach(input => {
-            input.placeholder = 'Optioneel';
+            input.placeholder = pbT('NpcOptioneel');
         });
     } else {
         // Restore normal labels
+        const optioneel = pbT('NpcOptioneelAchtervoegsel');
         countLabels.forEach(label => {
-            label.textContent = label.textContent.replace(' (optioneel)', '');
+            if (label.textContent.endsWith(optioneel)) {
+                label.textContent = label.textContent.slice(0, -optioneel.length);
+            }
         });
         minInputs.forEach(input => {
-            input.placeholder = 'Min';
+            input.placeholder = pbT('NpcMinPlaceholder');
         });
         maxInputs.forEach(input => {
-            input.placeholder = 'Max (optioneel)';
+            input.placeholder = pbT('NpcMaxPlaceholder');
         });
     }
 }

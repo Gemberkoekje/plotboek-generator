@@ -1,3 +1,6 @@
+using System.Globalization;
+using PlotboekGenerator.WebApp.Resources;
+
 namespace PlotboekGenerator.WebApp.Pages;
 
 /// <summary>
@@ -35,14 +38,14 @@ public sealed partial class AdminModel
     {
         if (string.IsNullOrWhiteSpace(EditStandaardNpcRol))
         {
-            ErrorMessage = "Rol is verplicht.";
+            ErrorMessage = AdminUi.RolVerplicht;
             return;
         }
 
         var nieuwId = StandaardNpc.IdVoor(EditStandaardNpcRol);
         if (string.IsNullOrEmpty(nieuwId))
         {
-            ErrorMessage = "Uit deze naam kan geen geldige sleutel worden afgeleid. Gebruik letters of cijfers.";
+            ErrorMessage = AdminUi.GeenGeldigeSleutel;
             return;
         }
 
@@ -60,7 +63,7 @@ public sealed partial class AdminModel
         {
             if (await session.LoadAsync<StandaardNpc>(nieuwId) != null)
             {
-                ErrorMessage = $"Er bestaat al een standaard-NPC '{standaardNpc.Rol}'.";
+                ErrorMessage = string.Format(CultureInfo.CurrentCulture, AdminUi.StandaardNpcBestaat, standaardNpc.Rol);
                 return;
             }
 
@@ -68,13 +71,13 @@ public sealed partial class AdminModel
             // silently overwrite the first one's record.
             session.Insert(standaardNpc);
             logger.LogInformation("Admin {AdminUser} created standaard-NPC {StandaardNpcId}", User.Identity?.Name, nieuwId);
-            SuccessMessage = $"Standaard-NPC '{standaardNpc.Rol}' aangemaakt.";
+            SuccessMessage = string.Format(CultureInfo.CurrentCulture, AdminUi.StandaardNpcAangemaakt, standaardNpc.Rol);
         }
         else
         {
             if (await session.LoadAsync<StandaardNpc>(origineelId) == null)
             {
-                ErrorMessage = "Standaard-NPC niet gevonden.";
+                ErrorMessage = AdminUi.StandaardNpcNietGevonden;
                 return;
             }
 
@@ -89,7 +92,7 @@ public sealed partial class AdminModel
                 // now called "Wachter".
                 if (await session.LoadAsync<StandaardNpc>(nieuwId) != null)
                 {
-                    ErrorMessage = $"Er bestaat al een standaard-NPC '{standaardNpc.Rol}'.";
+                    ErrorMessage = string.Format(CultureInfo.CurrentCulture, AdminUi.StandaardNpcBestaat, standaardNpc.Rol);
                     return;
                 }
 
@@ -98,7 +101,7 @@ public sealed partial class AdminModel
             }
 
             logger.LogInformation("Admin {AdminUser} updated standaard-NPC {StandaardNpcId} (was {OrigineelId})", User.Identity?.Name, nieuwId, origineelId);
-            SuccessMessage = $"Standaard-NPC '{standaardNpc.Rol}' bijgewerkt.";
+            SuccessMessage = string.Format(CultureInfo.CurrentCulture, AdminUi.StandaardNpcBijgewerkt, standaardNpc.Rol);
         }
 
         await session.SaveChangesAsync();
@@ -113,7 +116,7 @@ public sealed partial class AdminModel
     {
         if (string.IsNullOrWhiteSpace(DeleteStandaardNpcId))
         {
-            ErrorMessage = "Geen standaard-NPC geselecteerd om te verwijderen.";
+            ErrorMessage = AdminUi.StandaardNpcNietGeselecteerd;
             return;
         }
 
@@ -121,7 +124,7 @@ public sealed partial class AdminModel
         var standaardNpc = await session.LoadAsync<StandaardNpc>(DeleteStandaardNpcId);
         if (standaardNpc == null)
         {
-            ErrorMessage = "Standaard-NPC niet gevonden.";
+            ErrorMessage = AdminUi.StandaardNpcNietGevonden;
             return;
         }
 
@@ -129,6 +132,6 @@ public sealed partial class AdminModel
         await session.SaveChangesAsync();
 
         logger.LogInformation("Admin {AdminUser} deleted standaard-NPC {StandaardNpcId}", User.Identity?.Name, DeleteStandaardNpcId);
-        SuccessMessage = $"Standaard-NPC '{standaardNpc.Rol}' verwijderd.";
+        SuccessMessage = string.Format(CultureInfo.CurrentCulture, AdminUi.StandaardNpcVerwijderd, standaardNpc.Rol);
     }
 }

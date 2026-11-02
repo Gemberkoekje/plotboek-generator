@@ -37,6 +37,8 @@ services:
       ASPNETCORE_ENVIRONMENT: Production
       ConnectionStrings__Postgres: "Host=postgres;Port=5432;Database=${POSTGRES_DB:-plotboek};Username=${POSTGRES_USER:-plotboek};Password=${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}"
       Hosting__PathBase: ${PATH_BASE:-}
+      Localization__DefaultCulture: ${DEFAULT_CULTURE:-nl}
+      Localization__SupportedCultures: ${SUPPORTED_CULTURES:-nl,en}
       Authentication__Oidc__Providers__0__Scheme: ${OIDC_SCHEME:?Set OIDC_SCHEME in .env}
       Authentication__Oidc__Providers__0__DisplayName: ${OIDC_DISPLAY_NAME:-}
       Authentication__Oidc__Providers__0__Authority: ${OIDC_AUTHORITY:?Set OIDC_AUTHORITY in .env}
@@ -46,9 +48,14 @@ services:
       Authentication__Admins: ${ADMIN_EMAILS:-}
       Authentication__Roles__Admin: ${ROLE_ADMIN:-}
       Authentication__Roles__User: ${ROLE_USER:-}
+      Authentication__Roles__Reader: ${ROLE_READER:-}
       Authentication__Roles__NPC: ${ROLE_NPC:-}
+      Authentication__DefaultRole: ${DEFAULT_ROLE:-}
       Branding__Name: ${BRANDING_NAME:-}
       Branding__ThemeColor: ${BRANDING_THEME_COLOR:-}
+      Branding__ContactUrl: ${CONTACT_URL:-}
+      Demo__Enabled: ${DEMO_ENABLED:-false}
+      Demo__ResetApiKey: ${DEMO_RESET_API_KEY:-}
       Gemini__ApiKey: ${GEMINI_API_KEY:-}
       Authentication__Google__ClientId: ${GOOGLE_CLIENT_ID:-}
       Authentication__Google__ClientSecret: ${GOOGLE_CLIENT_SECRET:-}

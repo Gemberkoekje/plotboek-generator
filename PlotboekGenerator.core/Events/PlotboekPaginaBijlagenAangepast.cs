@@ -1,3 +1,5 @@
+using PlotboekGenerator.core.Resources;
+
 namespace PlotboekGenerator.core.Events;
 
 /// <summary>
@@ -8,7 +10,7 @@ public sealed record PlotboekPaginaBijlagenAangepast : AuditTrailEvent
 {
     required public IReadOnlyList<BijlageId> BijlageIds { get; init; }
 
-    public override string What => "<strong>Gekoppelde bijlagen aangepast</strong>";
+    public override string What => $"<strong>{CoreTekst.GekoppeldeBijlagenAangepast}</strong>";
 
     public override string Details => BijlageIds.Count == 0
         ? null

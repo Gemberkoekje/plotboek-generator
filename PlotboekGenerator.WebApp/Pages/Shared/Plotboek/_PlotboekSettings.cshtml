@@ -1,4 +1,5 @@
 @model PlotboekModel
+@using System.Globalization
 
 <!-- Plotboek Settings Accordion -->
 <div class="row mb-4">
@@ -7,7 +8,7 @@
             <div class="accordion-item">
                 <h2 class="accordion-header" id="plotboekSettingsHeader">
                     <button class="accordion-button @(string.IsNullOrEmpty(Model.GoogleDriveUploadMessage) ? "collapsed" : "")" type="button" data-bs-toggle="collapse" data-bs-target="#plotboekSettingsContent" aria-expanded="@(!string.IsNullOrEmpty(Model.GoogleDriveUploadMessage) ? "true" : "false")" aria-controls="plotboekSettingsContent">
-                        <i class="fas fa-cog me-2"></i>Plotboek Instellingen & Acties
+                        <i class="fas fa-cog me-2"></i>@PlotboekUi.SettingsTitel
                     </button>
                 </h2>
                 <div id="plotboekSettingsContent" class="accordion-collapse collapse @(!string.IsNullOrEmpty(Model.GoogleDriveUploadMessage) ? "show" : "")" aria-labelledby="plotboekSettingsHeader" data-bs-parent="#plotboekSettingsAccordion">
@@ -17,36 +18,36 @@
                             <div class="alert @(Model.GoogleDriveUploadSuccess ? "alert-success" : "alert-danger") alert-dismissible fade show" role="alert">
                                 <i class="fas @(Model.GoogleDriveUploadSuccess ? "fa-check-circle" : "fa-exclamation-circle") me-1"></i>
                                 @Model.GoogleDriveUploadMessage
-                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="@PlotboekUi.Sluiten"></button>
                             </div>
                         }
 
-                        @if (Model.IsNpc)
+                        @if (Model.IsReadOnlyRole)
                         {
-                            <h6 class="text-secondary mb-3">Plotboek Overzicht</h6>
+                            <h6 class="text-secondary mb-3">@PlotboekUi.SettingsOverzicht</h6>
 
                             <div class="row">
                                 <div class="col-md-6 mb-3">
-                                    <label class="form-label fw-bold">Voorblad Afbeelding:</label>
+                                    <label class="form-label fw-bold">@PlotboekUi.VoorbladAfbeeldingLabel</label>
                                     @if (Model.HasVoorblad)
                                     {
                                         <div>
                                             <img src="@Url.Page("/Plotboek", "VoorbladAfbeelding", new { Jaar = Model.Jaar, Event = Model.EventId })"
-                                                 alt="Voorblad"
+                                                 alt="@PlotboekUi.VoorbladAlt"
                                                  class="img-thumbnail"
                                                  style="max-height: 200px;" />
                                         </div>
                                     }
                                     else
                                     {
-                                        <div class="text-muted fst-italic">Er is geen voorbladafbeelding ingesteld.</div>
+                                        <div class="text-muted fst-italic">@PlotboekUi.GeenVoorblad</div>
                                     }
                                 </div>
                             </div>
 
                             <div class="row">
                                 <div class="col-12 mb-1">
-                                    <label class="form-label fw-bold">Samenvatting Algemeen Plot:</label>
+                                    <label class="form-label fw-bold">@PlotboekUi.SamenvattingAlgemeenPlotLabel</label>
                                 </div>
                                 <div class="col-12">
                                     @if (!string.IsNullOrWhiteSpace(Model.PlotboekSettings?.SamenvattingAlgemeenPlot))
@@ -55,7 +56,7 @@
                                     }
                                     else
                                     {
-                                        <div class="text-muted fst-italic">Er is nog geen algemene samenvatting beschikbaar.</div>
+                                        <div class="text-muted fst-italic">@PlotboekUi.GeenAlgemeneSamenvatting</div>
                                     }
                                 </div>
                             </div>
@@ -64,7 +65,7 @@
                         {
                         <!-- Action Buttons -->
                         <div class="mb-4">
-                            <h6 class="text-secondary mb-3">Acties</h6>
+                            <h6 class="text-secondary mb-3">@PlotboekUi.Acties</h6>
                             <div class="d-flex flex-wrap gap-2 align-items-center">
                                 @if (!Model.IsEvergreen)
                                 {
@@ -73,7 +74,7 @@
                                     <input type="hidden" name="Event" value="@Model.EventId" />
                                     <input type="hidden" name="Action" value="exportDocx" />
                                     <button type="submit" class="btn btn-outline-primary">
-                                        <i class="fas fa-file-word me-1"></i> Export DOCX
+                                        <i class="fas fa-file-word me-1"></i> @PlotboekUi.ExportDocx
                                     </button>
                                 </form>
                                     @if (!Model.IsPlotboekReadOnly && !string.IsNullOrWhiteSpace(Model.PlotboekSettings?.GoogleDriveFolderUrl))
@@ -83,32 +84,32 @@
                                     <input type="hidden" name="Event" value="@Model.EventId" />
                                     <input type="hidden" name="PaginaId" value="@Model.PaginaId" />
                                     <input type="hidden" name="Action" value="uploadToDrive" />
-                                    <button type="submit" class="btn btn-outline-success" @(!Model.GoogleDriveConfigured ? "disabled" : "") title="@(!Model.GoogleDriveConfigured ? "Google Drive service account is niet geconfigureerd op de server." : "")">
-                                        <i class="fab fa-google-drive me-1"></i> Upload naar Google Drive
+                                    <button type="submit" class="btn btn-outline-success" @(!Model.GoogleDriveConfigured ? "disabled" : "") title="@(!Model.GoogleDriveConfigured ? PlotboekUi.GoogleDriveNietGeconfigureerd : "")">
+                                        <i class="fab fa-google-drive me-1"></i> @PlotboekUi.UploadNaarGoogleDrive
                                     </button>
                                 </form>
                                         @if (!string.IsNullOrWhiteSpace(Model.PlotboekSettings?.GoogleDriveFileUrl))
                                         {
                                 <a href="@Model.PlotboekSettings.GoogleDriveFileUrl" target="_blank" rel="noopener noreferrer"
                                    class="btn btn-outline-info"
-                                   title="Open het laatst geüploade bestand in Google Drive">
-                                    <i class="fab fa-google-drive me-1"></i> Bekijk in Google Drive
+                                   title="@PlotboekUi.BekijkInGoogleDriveTitel">
+                                    <i class="fab fa-google-drive me-1"></i> @PlotboekUi.BekijkInGoogleDrive
                                 </a>
                                         }
                                     }
                                 }
                                 <a href="@Url.Page("/Plotboek", new { Jaar = Model.Jaar, Event = Model.EventId, PaginaId = Model.PaginaId, ShowPlotboekAuditTrail = true })"
                                    class="btn btn-outline-secondary">
-                                    <i class="fas fa-history me-1"></i> Wijzigingen
+                                    <i class="fas fa-history me-1"></i> @PlotboekUi.Wijzigingen
                                 </a>
                                 <button type="button" class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#slOverzichtModal">
-                                    <i class="fas fa-user-check me-1"></i> SL-overzicht
+                                    <i class="fas fa-user-check me-1"></i> @PlotboekUi.SlOverzicht
                                 </button>
                             </div>
                             @if (Model.PlotboekSettings?.GoogleDriveLastSyncedAt is { } lastSynced)
                             {
                             <small class="text-muted mt-2 d-block">
-                                <i class="fas fa-clock me-1"></i>Google Drive laatste update:
+                                <i class="fas fa-clock me-1"></i>@PlotboekUi.GoogleDriveLaatsteUpdate
                                 <time data-utc="@lastSynced.ToString("o")">@lastSynced.ToString("dd-MM-yyyy HH:mm") UTC</time>
                             </small>
                             }
@@ -130,12 +131,12 @@
                             @if (!string.IsNullOrEmpty(Model.ConcurrencyError))
                             {
                                 <div class="alert alert-danger fade show" role="alert">
-                                    <strong><i class="fas fa-exclamation-triangle"></i> Let op!</strong> @Model.ConcurrencyError
-                                    <br /><small>Het formulier toont nu de huidige waarden.</small>
+                                    <strong><i class="fas fa-exclamation-triangle"></i> @PlotboekUi.LetOpUitroep</strong> @Model.ConcurrencyError
+                                    <br /><small>@PlotboekUi.FormulierToontHuidigeWaarden</small>
                                     @if (Model.AttemptedSettingsChanges.Count > 0)
                                     {
                                         <details class="mt-2">
-                                            <summary><strong>Jouw niet-opgeslagen wijzigingen</strong></summary>
+                                            <summary><strong>@PlotboekUi.NietOpgeslagenWijzigingen</strong></summary>
                                             <div class="mt-2">
                                                 @foreach (var change in Model.AttemptedSettingsChanges)
                                                 {
@@ -162,12 +163,12 @@
                             @if (!string.IsNullOrEmpty(Model.BijlagenValidationError))
                             {
                                 <div class="alert alert-warning fade show" role="alert">
-                                    <strong><i class="fas fa-exclamation-triangle"></i> Let op!</strong> @Model.BijlagenValidationError
-                                    <br /><small>Je wijzigingen staan nog in het formulier hieronder.</small>
+                                    <strong><i class="fas fa-exclamation-triangle"></i> @PlotboekUi.LetOpUitroep</strong> @Model.BijlagenValidationError
+                                    <br /><small>@PlotboekUi.WijzigingenStaanNogInFormulier</small>
                                 </div>
                             }
 
-                            <h6 class="text-secondary mb-3">Plotboek Bewerken</h6>
+                            <h6 class="text-secondary mb-3">@PlotboekUi.PlotboekBewerken</h6>
                             @{
                                 var nietKlarePaginas = Model.GetNietKlarePlotboekPaginaNames();
                                 var plotboekVolledigKlaarDisabled = !Model.IsAdmin || (nietKlarePaginas.Count > 0 && Model.PlotboekSettings?.IsVolledigKlaar != true);
@@ -180,23 +181,23 @@
                                            id="editable-plotboek-is-volledig-klaar"
                                            disabled="@plotboekVolledigKlaarDisabled">
                                     <label class="form-check-label fw-bold @(Model.PlotboekSettings?.IsVolledigKlaar == true ? "text-success" : "")" for="editable-plotboek-is-volledig-klaar">
-                                        <i class="fas @(Model.PlotboekSettings?.IsVolledigKlaar == true ? "fa-check-circle" : "fa-circle") me-1"></i>Plotboek volledig klaar
+                                        <i class="fas @(Model.PlotboekSettings?.IsVolledigKlaar == true ? "fa-check-circle" : "fa-circle") me-1"></i>@PlotboekUi.PlotboekVolledigKlaar
                                     </label>
                                 </div>
                                 @if (!Model.IsAdmin)
                                 {
-                                    <small class="text-muted d-block mt-1">Alleen admins kunnen deze status aanpassen.</small>
+                                    <small class="text-muted d-block mt-1">@PlotboekUi.AlleenAdminsKunnenStatusAanpassen</small>
                                 }
                                 else if (nietKlarePaginas.Count > 5)
                                 {
                                     <div class="alert alert-warning py-2 mt-2 mb-0" role="alert">
-                                        <div>Dit plotboek kan nog niet volledig klaar worden gezet. Er zijn nog <strong>@nietKlarePaginas.Count</strong> pagina's niet klaar.</div>
+                                        <div>@Html.Raw(string.Format(CultureInfo.CurrentCulture, PlotboekUi.PlotboekNietKlaarAantalHtml, Html.Encode(nietKlarePaginas.Count)))</div>
                                     </div>
                                 }
                                 else if (nietKlarePaginas.Count > 0)
                                 {
                                     <div class="alert alert-warning py-2 mt-2 mb-0" role="alert">
-                                        <div>Dit plotboek kan nog niet volledig klaar worden gezet. De volgende pagina's zijn nog niet klaar:</div>
+                                        <div>@PlotboekUi.PlotboekNietKlaarLijst</div>
                                         <ul class="mb-0 mt-1">
                                             @foreach (var paginaNaam in nietKlarePaginas)
                                             {
@@ -207,13 +208,13 @@
                                 }
                                 else
                                 {
-                                    <small class="text-muted d-block mt-1">Zet dit aan wanneer het volledige plotboek gecontroleerd is en zichtbaar mag worden voor NPC's.</small>
+                                    <small class="text-muted d-block mt-1">@PlotboekUi.PlotboekVolledigKlaarUitleg</small>
                                 }
                             </div>
                             <fieldset @(Model.IsPlotboekReadOnly ? "disabled" : "")>
                             <div class="row">
                                 <div class="col-md-6 mb-3">
-                                    <label for="plotboek-titel" class="form-label fw-bold">Titel:</label>
+                                    <label for="plotboek-titel" class="form-label fw-bold">@PlotboekUi.TitelLabel</label>
                                     <input type="text"
                                            id="plotboek-titel"
                                            asp-for="EditablePlotboekTitel"
@@ -223,17 +224,17 @@
 
                             <div class="row">
                                 <div class="col-md-6 mb-3">
-                                    <label for="VoorbladAfbeelding" class="form-label fw-bold">Voorblad Afbeelding:</label>
+                                    <label for="VoorbladAfbeelding" class="form-label fw-bold">@PlotboekUi.VoorbladAfbeeldingLabel</label>
                                     @if (Model.HasVoorblad)
                                     {
                                         <div class="mb-2">
                                             <img src="@Url.Page("/Plotboek", "VoorbladAfbeelding", new { Jaar = Model.Jaar, Event = Model.EventId })"
-                                                 alt="Voorblad" class="img-thumbnail" style="max-height: 200px;" />
+                                                 alt="@PlotboekUi.VoorbladAlt" class="img-thumbnail" style="max-height: 200px;" />
                                         </div>
                                         <div class="form-check mb-2">
                                             <input type="checkbox" class="form-check-input" asp-for="VerwijderVoorblad" id="VerwijderVoorblad" />
                                             <label class="form-check-label text-danger" for="VerwijderVoorblad">
-                                                <i class="fas fa-trash-alt me-1"></i>Huidige afbeelding verwijderen
+                                                <i class="fas fa-trash-alt me-1"></i>@PlotboekUi.VoorbladVerwijderen
                                             </label>
                                         </div>
                                     }
@@ -241,7 +242,7 @@
                                            asp-for="VoorbladAfbeelding"
                                            class="form-control"
                                            accept="image/*" />
-                                    <small class="text-muted">Upload een afbeelding voor het voorblad van het plotboek (DOCX export).</small>
+                                    <small class="text-muted">@PlotboekUi.VoorbladUploadUitleg</small>
                                 </div>
                             </div>
 
@@ -249,36 +250,36 @@
                             {
                             <div class="row">
                                 <div class="col-md-3 mb-3">
-                                    <label for="EditablePlotboekStartDatumString" class="form-label fw-bold">Start Datum:</label>
+                                    <label for="EditablePlotboekStartDatumString" class="form-label fw-bold">@PlotboekUi.StartDatumLabel</label>
                                     <input type="date"
                                            asp-for="EditablePlotboekStartDatumString"
                                            class="form-control"
                                            onchange="toggleDagFields()">
                                 </div>
                                 <div class="col-md-3 mb-3">
-                                    <label for="EditablePlotboekEindDatumString" class="form-label fw-bold">Eind Datum:</label>
+                                    <label for="EditablePlotboekEindDatumString" class="form-label fw-bold">@PlotboekUi.EindDatumLabel</label>
                                     <input type="date"
                                            asp-for="EditablePlotboekEindDatumString"
                                            class="form-control"
                                            onchange="toggleDagFields()">
                                 </div>
                                 <div class="col-md-3 mb-3">
-                                    <label for="EditablePlotboekStartDag" class="form-label fw-bold">Start Dag:</label>
+                                    <label for="EditablePlotboekStartDag" class="form-label fw-bold">@PlotboekUi.StartDagLabel</label>
                                     <select asp-for="EditablePlotboekStartDag"
                                             class="form-select">
                                         @foreach (var dag in Enum.GetValues<core.Enums.Dag>())
                                         {
-                                            <option value="@dag" selected="@(Model.EditablePlotboekStartDag == dag)">@dag</option>
+                                            <option value="@dag" selected="@(Model.EditablePlotboekStartDag == dag)">@dag.Naam()</option>
                                         }
                                     </select>
                                 </div>
                                 <div class="col-md-3 mb-3">
-                                    <label for="EditablePlotboekEindDag" class="form-label fw-bold">Eind Dag:</label>
+                                    <label for="EditablePlotboekEindDag" class="form-label fw-bold">@PlotboekUi.EindDagLabel</label>
                                     <select asp-for="EditablePlotboekEindDag"
                                             class="form-select">
                                         @foreach (var dag in Enum.GetValues<core.Enums.Dag>())
                                         {
-                                            <option value="@dag" selected="@(Model.EditablePlotboekEindDag == dag)">@dag</option>
+                                            <option value="@dag" selected="@(Model.EditablePlotboekEindDag == dag)">@dag.Naam()</option>
                                         }
                                     </select>
                                 </div>
@@ -286,24 +287,24 @@
 
                             <div class="alert alert-info py-2 small" role="alert">
                                 <i class="fas fa-info-circle me-1"></i>
-                                Als Start Datum en Eind Datum zijn ingevuld, worden de Start Dag en Eind Dag automatisch bepaald.
-                                Leeg de datums om de dagen handmatig te kunnen aanpassen.
+                                @PlotboekUi.DatumsBepalenDagen
+                                @PlotboekUi.DatumsLegenOmDagenTeKiezen
                             </div>
                             }
                             else
                             {
                             <div class="alert alert-info py-2 small" role="alert">
                                 <i class="fas fa-seedling me-1"></i>
-                                Dit is het Evergreen plotboek. Encounters hierin zijn niet gebonden aan een specifiek evenement.
-                                Voltooide encounters worden automatisch toegevoegd aan de export van reguliere plotboeken.
+                                @PlotboekUi.EvergreenUitleg
+                                @PlotboekUi.EvergreenExportUitleg
                             </div>
                             }
 
                             <div class="row">
                                 <div class="col-12 mb-3">
-                                    <label class="form-label fw-bold">Samenvatting Algemeen Plot:</label>
+                                    <label class="form-label fw-bold">@PlotboekUi.SamenvattingAlgemeenPlotLabel</label>
                                     <small class="form-text text-muted d-block mb-2">
-                                        Optioneel. Algemene samenvatting van het overkoepelende plot voor dit plotboek.
+                                        @PlotboekUi.SamenvattingAlgemeenPlotUitleg
                                     </small>
                                     @* data-target pairs the editor with its hidden input, the same convention the
                                        bijlage editors use, so form-state.js can keep the posted value in step with
@@ -316,14 +317,14 @@
                             <div class="row">
                                 <div class="col-md-8 mb-3">
                                     <label for="EditableGoogleDriveFolderUrl" class="form-label fw-bold">
-                                        <i class="fab fa-google-drive me-1"></i>Google Drive Folder URL:
+                                        <i class="fab fa-google-drive me-1"></i>@PlotboekUi.GoogleDriveFolderUrlLabel
                                     </label>
                                     <input type="url"
                                            asp-for="EditableGoogleDriveFolderUrl"
                                            class="form-control"
                                            placeholder="https://drive.google.com/drive/folders/...">
                                     <small class="text-muted">
-                                        Optioneel. De Google Drive folder waar het gegenereerde DOCX bestand naar wordt geüpload.
+                                        @PlotboekUi.GoogleDriveFolderUitleg
                                     </small>
                                 </div>
                             </div>
@@ -333,14 +334,14 @@
                         <div class="row">
                             <div class="col-12 mb-3">
                                 <label class="form-label fw-bold">
-                                    <i class="fas fa-users me-1"></i>Verwacht aantal NPCs per dag:
+                                    <i class="fas fa-users me-1"></i>@PlotboekUi.VerwachtNpcsLabel
                                 </label>
                                 <small class="form-text text-muted d-block mb-2">
-                                    Optioneel. Vul in hoeveel NPCs beschikbaar zijn per dag.
-                                    De NPC-totalen per tijdblok kleuren dan groen/geel/rood.
+                                    @PlotboekUi.VerwachtNpcsUitleg
+                                    @PlotboekUi.VerwachtNpcsKleurenUitleg
                                 </small>
                                 <div class="d-flex flex-wrap gap-3">
-                                    @{ 
+                                    @{
                                         var startDag = Model.PlotboekSettings?.StartDag ?? core.Enums.Dag.None;
                                         var eindDag  = Model.PlotboekSettings?.EindDag  ?? core.Enums.Dag.None;
                                         var dagVolgorde = new[] { core.Enums.Dag.Donderdag, core.Enums.Dag.Vrijdag, core.Enums.Dag.Zaterdag, core.Enums.Dag.Zondag };
@@ -362,7 +363,7 @@
                                         if (!string.IsNullOrEmpty(inputId))
                                         {
                                             <div style="min-width: 120px;">
-                                                <label for="@inputId" class="form-label">@dag</label>
+                                                <label for="@inputId" class="form-label">@dag.Naam()</label>
                                                 @if (dag == core.Enums.Dag.Donderdag)
                                                 {
                                                     <input type="number" id="@inputId" asp-for="EditableNpcsDonderdag"
@@ -390,7 +391,7 @@
                                 @if (zichtbareDagen.Count == 0)
                                 {
                                     <small class="text-muted fst-italic">
-                                        Stel eerst de start- en einddagen in om NPC-aantallen per dag te kunnen invoeren.
+                                        @PlotboekUi.VerwachtNpcsEerstDagen
                                     </small>
                                 }
                             </div>
@@ -402,7 +403,7 @@
                             @if (!Model.IsPlotboekReadOnly)
                             {
                                 <button type="submit" class="btn btn-primary">
-                                    <i class="fas fa-save me-1"></i> Plotboek Opslaan
+                                    <i class="fas fa-save me-1"></i> @PlotboekUi.PlotboekOpslaan
                                 </button>
                             }
                         </form>

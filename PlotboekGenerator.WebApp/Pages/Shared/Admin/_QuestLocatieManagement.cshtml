@@ -1,4 +1,5 @@
 @model AdminModel
+@using System.Globalization
 
 @{
     var categorieLookup = Model.QuestLocatieCategorieen.ToDictionary(c => c.Id, c => c.DisplayName, StringComparer.Ordinal);
@@ -9,14 +10,12 @@
 <div class="card mb-4">
     <div class="card-header text-bg-warning">
         <h5 class="mb-0">
-            <i class="fas fa-layer-group"></i> Questlocatie Categorieën
+            <i class="fas fa-layer-group"></i> @AdminUi.QuestLocatieCategorieenKop
         </h5>
     </div>
     <div class="card-body">
         <p class="text-muted mb-3">
-            Categorieën vormen de groepen in de questlocatie-keuzelijst. De notitie verschijnt onder het veld
-            zodra iemand een locatie uit deze categorie kiest; de ernst bepaalt of dat een blauwe of een oranje
-            melding is. Categorieën worden nooit verwijderd — de sleutel moet opzoekbaar blijven voor oude plots.
+            @AdminUi.QuestLocatieCategorieenUitleg
         </p>
 
         <form method="post" class="mb-4">
@@ -25,32 +24,32 @@
             <input type="hidden" name="EditQuestLocatieCategorieId" id="editQuestLocatieCategorieId" value="" />
             <div class="row g-3 align-items-end">
                 <div class="col-md-4">
-                    <label for="editQuestLocatieCategorieNaam" class="form-label">Naam</label>
+                    <label for="editQuestLocatieCategorieNaam" class="form-label">@AdminUi.NaamLabel</label>
                     <input type="text" class="form-control" id="editQuestLocatieCategorieNaam" name="EditQuestLocatieCategorieNaam" required />
                 </div>
                 <div class="col-md-4">
-                    <label for="editQuestLocatieCategorieNotitie" class="form-label">Notitie</label>
+                    <label for="editQuestLocatieCategorieNotitie" class="form-label">@AdminUi.NotitieLabel</label>
                     <input type="text" class="form-control" id="editQuestLocatieCategorieNotitie" name="EditQuestLocatieCategorieNotitie" />
                 </div>
                 <div class="col-md-2">
-                    <label for="editQuestLocatieCategorieErnst" class="form-label">Ernst</label>
+                    <label for="editQuestLocatieCategorieErnst" class="form-label">@AdminUi.ErnstLabel</label>
                     <select class="form-select" id="editQuestLocatieCategorieErnst" name="EditQuestLocatieCategorieErnst">
                         @foreach (var ernst in ernstOpties)
                         {
-                            <option value="@ernst">@ernst</option>
+                            <option value="@ernst">@ernst.Naam()</option>
                         }
                     </select>
                 </div>
                 <div class="col-md-2">
-                    <label for="editQuestLocatieCategorieOrder" class="form-label">Volgorde</label>
+                    <label for="editQuestLocatieCategorieOrder" class="form-label">@AdminUi.Volgorde</label>
                     <input type="number" class="form-control" id="editQuestLocatieCategorieOrder" name="EditQuestLocatieCategorieOrder" min="0" value="0" />
                 </div>
                 <div class="col-12">
                     <button type="submit" class="btn btn-warning" id="saveQuestLocatieCategorieBtn">
-                        <i class="fas fa-plus"></i> Categorie Toevoegen
+                        <i class="fas fa-plus"></i> @AdminUi.CategorieToevoegenButton
                     </button>
                     <button type="button" class="btn btn-outline-secondary" id="cancelEditQuestLocatieCategorieBtn" style="display: none;" onclick="cancelEditQuestLocatieCategorie()">
-                        <i class="fas fa-times"></i> Annuleren
+                        <i class="fas fa-times"></i> @AdminUi.AnnulerenButton
                     </button>
                     <small class="text-muted ms-2" id="questLocatieCategorieIdHint"></small>
                 </div>
@@ -64,10 +63,10 @@
                     <thead>
                         <tr>
                             <th style="width: 60px;">#</th>
-                            <th>Naam</th>
-                            <th>Notitie</th>
-                            <th style="width: 110px;">Ernst</th>
-                            <th style="width: 70px;">Acties</th>
+                            <th>@AdminUi.NaamLabel</th>
+                            <th>@AdminUi.NotitieLabel</th>
+                            <th style="width: 110px;">@AdminUi.ErnstLabel</th>
+                            <th style="width: 70px;">@AdminUi.KolomActies</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -83,15 +82,15 @@
                                 <td>
                                     @if (categorie.Ernst == core.Enums.QuestLocatieErnst.Afgeraden)
                                     {
-                                        <span class="badge text-bg-warning">@categorie.Ernst</span>
+                                        <span class="badge text-bg-warning">@categorie.Ernst.Naam()</span>
                                     }
                                     else if (categorie.Ernst == core.Enums.QuestLocatieErnst.LetOp)
                                     {
-                                        <span class="badge text-bg-info">@categorie.Ernst</span>
+                                        <span class="badge text-bg-info">@categorie.Ernst.Naam()</span>
                                     }
                                     else
                                     {
-                                        <span class="badge bg-secondary">@categorie.Ernst</span>
+                                        <span class="badge bg-secondary">@categorie.Ernst.Naam()</span>
                                     }
                                 </td>
                                 <td>
@@ -115,7 +114,7 @@
         else
         {
             <div class="alert alert-info">
-                <i class="fas fa-info-circle"></i> Nog geen categorieën. Voeg er een toe om te beginnen.
+                <i class="fas fa-info-circle"></i> @AdminUi.GeenCategorieen
             </div>
         }
     </div>
@@ -125,17 +124,15 @@
 <div class="card mb-4">
     <div class="card-header text-bg-warning">
         <h5 class="mb-0">
-            <i class="fas fa-map-location-dot"></i> Questlocaties
+            <i class="fas fa-map-location-dot"></i> @AdminUi.SectieQuestLocaties
         </h5>
     </div>
     <div class="card-body">
         <p class="text-muted mb-3">
-            De locaties die bij een questveld gekozen kunnen worden. Hernoemen mag altijd — de sleutel blijft
-            staan, dus de nieuwe naam verschijnt overal, ook bij oude plots. Verwijderen kan niet: zet
-            <em>Actief</em> uit om een locatie uit de keuzelijst te halen zonder de historie te breken.
+            @AdminUi.QuestLocatiesUitleg
+            @Html.Raw(string.Format(CultureInfo.CurrentCulture, AdminUi.QuestLocatiesVerwijderenHtml, "<em>" + Html.Encode(AdminUi.ActiefLabel) + "</em>"))
             <br />
-            <em>Overlapt met</em> hoeft maar aan één kant ingevuld te worden; de omgekeerde relatie wordt
-            automatisch afgeleid.
+            @Html.Raw(string.Format(CultureInfo.CurrentCulture, AdminUi.QuestLocatiesOverlapHtml, "<em>" + Html.Encode(AdminUi.OverlaptMetLabel) + "</em>"))
         </p>
 
         <form method="post" class="mb-4">
@@ -144,13 +141,13 @@
             <input type="hidden" name="EditQuestLocatieId" id="editQuestLocatieId" value="" />
             <div class="row g-3 align-items-end">
                 <div class="col-md-4">
-                    <label for="editQuestLocatieNaam" class="form-label">Naam</label>
+                    <label for="editQuestLocatieNaam" class="form-label">@AdminUi.NaamLabel</label>
                     <input type="text" class="form-control" id="editQuestLocatieNaam" name="EditQuestLocatieNaam" required />
                 </div>
                 <div class="col-md-4">
-                    <label for="editQuestLocatieCategorie" class="form-label">Categorie</label>
+                    <label for="editQuestLocatieCategorie" class="form-label">@AdminUi.CategorieLabel</label>
                     <select class="form-select" id="editQuestLocatieCategorie" name="EditQuestLocatieCategorie" required>
-                        <option value="">-- Kies een categorie --</option>
+                        <option value="">@AdminUi.CategorieKiezen</option>
                         @foreach (var categorie in Model.QuestLocatieCategorieen)
                         {
                             <option value="@categorie.Id">@categorie.DisplayName</option>
@@ -158,22 +155,22 @@
                     </select>
                 </div>
                 <div class="col-md-2">
-                    <label for="editQuestLocatieOrder" class="form-label">Volgorde</label>
+                    <label for="editQuestLocatieOrder" class="form-label">@AdminUi.Volgorde</label>
                     <input type="number" class="form-control" id="editQuestLocatieOrder" name="EditQuestLocatieOrder" min="0" value="0" />
                 </div>
                 <div class="col-md-2">
                     <div class="form-check mt-4">
                         <input class="form-check-input" type="checkbox" id="editQuestLocatieIsActief" name="EditQuestLocatieIsActief" value="true" checked />
                         <input type="hidden" name="EditQuestLocatieIsActief" value="false" />
-                        <label class="form-check-label" for="editQuestLocatieIsActief">Actief</label>
+                        <label class="form-check-label" for="editQuestLocatieIsActief">@AdminUi.ActiefLabel</label>
                     </div>
                 </div>
                 <div class="col-md-6">
-                    <label for="editQuestLocatieNotitie" class="form-label">Notitie</label>
+                    <label for="editQuestLocatieNotitie" class="form-label">@AdminUi.NotitieLabel</label>
                     <input type="text" class="form-control" id="editQuestLocatieNotitie" name="EditQuestLocatieNotitie" />
                 </div>
                 <div class="col-md-6">
-                    <label for="editQuestLocatieConflicteertMet" class="form-label">Overlapt met (meerdere mogelijk)</label>
+                    <label for="editQuestLocatieConflicteertMet" class="form-label">@AdminUi.OverlaptMetMeerdereLabel</label>
                     <select class="form-select" id="editQuestLocatieConflicteertMet" name="EditQuestLocatieConflicteertMet" multiple size="4">
                         @foreach (var locatie in Model.QuestLocaties)
                         {
@@ -183,10 +180,10 @@
                 </div>
                 <div class="col-12">
                     <button type="submit" class="btn btn-warning" id="saveQuestLocatieBtn">
-                        <i class="fas fa-plus"></i> Questlocatie Toevoegen
+                        <i class="fas fa-plus"></i> @AdminUi.QuestLocatieToevoegenButton
                     </button>
                     <button type="button" class="btn btn-outline-secondary" id="cancelEditQuestLocatieBtn" style="display: none;" onclick="cancelEditQuestLocatie()">
-                        <i class="fas fa-times"></i> Annuleren
+                        <i class="fas fa-times"></i> @AdminUi.AnnulerenButton
                     </button>
                     <small class="text-muted ms-2" id="questLocatieIdHint"></small>
                 </div>
@@ -195,18 +192,18 @@
 
         @if (Model.QuestLocaties.Count > 0)
         {
-            <p class="text-muted small mb-2">@Model.QuestLocaties.Count questlocaties</p>
+            <p class="text-muted small mb-2">@string.Format(CultureInfo.CurrentCulture, Model.QuestLocaties.Count == 1 ? AdminUi.QuestLocatiesAantalOne : AdminUi.QuestLocatiesAantalMany, Model.QuestLocaties.Count)</p>
             <div class="table-responsive" style="max-height: 600px; overflow-y: auto;">
                 <table class="table table-hover table-sm align-middle">
                     <thead class="sticky-top bg-body-tertiary">
                         <tr>
                             <th style="width: 60px;">#</th>
-                            <th>Naam</th>
-                            <th>Categorie</th>
-                            <th>Notitie</th>
-                            <th>Overlapt met</th>
-                            <th style="width: 80px;">Actief</th>
-                            <th style="width: 70px;">Acties</th>
+                            <th>@AdminUi.NaamLabel</th>
+                            <th>@AdminUi.CategorieLabel</th>
+                            <th>@AdminUi.NotitieLabel</th>
+                            <th>@AdminUi.OverlaptMetLabel</th>
+                            <th style="width: 80px;">@AdminUi.ActiefLabel</th>
+                            <th style="width: 70px;">@AdminUi.KolomActies</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -229,11 +226,11 @@
                                 <td>
                                     @if (locatie.IsActief)
                                     {
-                                        <span class="badge bg-success">Ja</span>
+                                        <span class="badge bg-success">@AdminUi.Ja</span>
                                     }
                                     else
                                     {
-                                        <span class="badge bg-secondary">Nee</span>
+                                        <span class="badge bg-secondary">@AdminUi.Nee</span>
                                     }
                                 </td>
                                 <td>
@@ -259,7 +256,7 @@
         else
         {
             <div class="alert alert-info">
-                <i class="fas fa-info-circle"></i> Nog geen questlocaties. Voeg er een toe om te beginnen.
+                <i class="fas fa-info-circle"></i> @AdminUi.GeenQuestLocaties
             </div>
         }
     </div>

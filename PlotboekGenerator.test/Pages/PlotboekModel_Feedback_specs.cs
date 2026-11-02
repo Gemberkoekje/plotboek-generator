@@ -20,7 +20,7 @@ namespace PlotboekGenerator.test.Pages;
 /// <summary>
 /// Page-model integration specs for the feedback loop: the six handlers, the rights matrix from the
 /// feature design (admin raises/signs off/reopens/withdraws, everyone with edit rights responds, NPCs
-/// see nothing), and the read model that the plot list icons are driven from.
+/// see nothing, Readers see but do nothing), and the read model that the plot list icons are driven from.
 /// </summary>
 public sealed class PlotboekModel_Feedback_specs
 {
@@ -85,6 +85,17 @@ public sealed class PlotboekModel_Feedback_specs
         model.CanManageFeedback.Should().BeFalse();
         model.CanRespondToFeedback.Should().BeFalse();
         model.CanSeeFeedback.Should().BeFalse();
+    }
+
+    [Test]
+    public void A_reader_sees_feedback_but_does_nothing_with_it()
+    {
+        var model = CreateModel(UserRoles.Reader);
+
+        model.CanManageFeedback.Should().BeFalse();
+        model.CanRespondToFeedback.Should().BeFalse();
+        model.CanSeeFeedback.Should().BeTrue("following how the plots come along is what a reader is for");
+        model.IsPlotboekReadOnly.Should().BeTrue();
     }
 
     // =======================================================================
@@ -387,6 +398,43 @@ public sealed class PlotboekModel_Feedback_specs
         after.Should().ContainSingle("an NPC may not add or withdraw a point");
         after[0].Status.Should().Be(before.Status, "an NPC may not move a point through its lifecycle");
         after[0].Reactie.Should().Be(before.Reactie, "an NPC may not respond on someone else's behalf");
+    }
+
+    /// <summary>
+    /// A Reader may open a plotboek that is not finished, unlike an NPC, so every handler is reached:
+    /// each one has to refuse on its own.
+    /// </summary>
+    /// <param name="actie">The posted Action value.</param>
+    [TestCase("addFeedback")]
+    [TestCase("answerFeedback")]
+    [TestCase("seenFeedback")]
+    [TestCase("resolveFeedback")]
+    [TestCase("reopenFeedback")]
+    [TestCase("deleteFeedback")]
+    [TestCase("save")]
+    [TestCase("newPagina")]
+    [TestCase("duplicatePagina")]
+    [TestCase("deletePagina")]
+    public async Task A_reader_changes_nothing(string actie)
+    {
+        var (pagina, feedbackId) = await SeedPaginaMetFeedbackAsync();
+        var before = Stored(pagina.Id);
+
+        var model = CreateModel(UserRoles.Reader);
+        BindTo(model, pagina.Id);
+        model.Action = actie;
+        model.SelectedFeedbackId = feedbackId;
+        model.NieuweFeedbackTekst = "Stiekem meepraten.";
+        model.FeedbackReactie = "Stiekem reageren.";
+        model.FeedbackHeropenReden = "Stiekem heropenen.";
+        model.EditableTitle = "Stiekem hernoemd";
+
+        var result = await model.OnPost();
+
+        result.Should().BeOfType<PageResult>("the reader gets the page back, not a mutation");
+        model.ModelState.IsValid.Should().BeFalse();
+        _testStore.GetAll<PlotboekPagina.ExportData>().Should().ContainSingle("a reader adds and copies no pagina")
+            .Which.Should().BeEquivalentTo(before, "a reader changes nothing about it either");
     }
 
     // =======================================================================

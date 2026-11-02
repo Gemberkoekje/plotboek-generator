@@ -1,0 +1,237 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="AccountBeheren" xml:space="preserve">
+    <value>Manage your account</value>
+  </data>
+  <data name="DemoBannerLabel" xml:space="preserve">
+    <value>Demo</value>
+  </data>
+  <data name="DemoBannerPrivacyLink" xml:space="preserve">
+    <value>What happens to your data</value>
+  </data>
+  <data name="DemoBannerSchrijfrechtenLink" xml:space="preserve">
+    <value>Ask for write access</value>
+  </data>
+  <data name="DemoBannerSchrijfrechtenVraag" xml:space="preserve">
+    <value>Want to write plots yourself?</value>
+  </data>
+  <data name="DemoBannerTekst" xml:space="preserve">
+    <value>Every night everything goes back to the example, so nothing you change here is kept. Anyone who signs in can read along.</value>
+  </data>
+  <data name="DemoBannerTitel" xml:space="preserve">
+    <value>This is a demo.</value>
+  </data>
+  <data name="ErrorKop" xml:space="preserve">
+    <value>Something went wrong.</value>
+  </data>
+  <data name="ErrorRequestId" xml:space="preserve">
+    <value>Request ID:</value>
+  </data>
+  <data name="ErrorTitel" xml:space="preserve">
+    <value>Error</value>
+  </data>
+  <data name="ErrorUitleg" xml:space="preserve">
+    <value>Your request could not be processed. Try again, or contact the administrator if it keeps happening.</value>
+  </data>
+  <data name="FooterPrivacy" xml:space="preserve">
+    <value>Privacy</value>
+  </data>
+  <data name="Gebruikersnaam" xml:space="preserve">
+    <value>Username</value>
+  </data>
+  <data name="GebruikersnaamBezet" xml:space="preserve">
+    <value>This username is already taken.</value>
+  </data>
+  <data name="GebruikersnaamLengte" xml:space="preserve">
+    <value>A username is 3 to 100 characters long.</value>
+  </data>
+  <data name="GebruikersnaamPlaceholder" xml:space="preserve">
+    <value>Enter your username</value>
+  </data>
+  <data name="GebruikersnaamVerplicht" xml:space="preserve">
+    <value>A username is required.</value>
+  </data>
+  <data name="GebruikerZonderNaam" xml:space="preserve">
+    <value>User</value>
+  </data>
+  <data name="Hoofdmenu" xml:space="preserve">
+    <value>Main menu</value>
+  </data>
+  <data name="IndexWelkomZonderRechten" xml:space="preserve">
+    <value>Welcome! This is {0}. You don't have any rights yet. Contact {1}: they can give you rights.</value>
+  </data>
+  <data name="Inloggen" xml:space="preserve">
+    <value>Sign in</value>
+  </data>
+  <data name="LoginAccountMakenMislukt" xml:space="preserve">
+    <value>Your account could not be created.</value>
+  </data>
+  <data name="LoginFoutVanDienst" xml:space="preserve">
+    <value>Error from the sign-in service: {0}</value>
+  </data>
+  <data name="LoginGeblokkeerd" xml:space="preserve">
+    <value>This account is locked out.</value>
+  </data>
+  <data name="LoginGeenEmail" xml:space="preserve">
+    <value>The sign-in service did not provide an e-mail address.</value>
+  </data>
+  <data name="LoginGeenInlogdiensten" xml:space="preserve">
+    <value>No sign-in service is configured. Please contact the administrator.</value>
+  </data>
+  <data name="LoginGegevensNietGeladen" xml:space="preserve">
+    <value>The sign-in details could not be loaded.</value>
+  </data>
+  <data name="LoginKoppelenMislukt" xml:space="preserve">
+    <value>Your sign-in could not be linked to your existing account.</value>
+  </data>
+  <data name="LoginMetDienst" xml:space="preserve">
+    <value>Sign in with {0}</value>
+  </data>
+  <data name="LoginMetDienstTitel" xml:space="preserve">
+    <value>Sign in with your {0} account</value>
+  </data>
+  <data name="LoginMethodeVerdwenen" xml:space="preserve">
+    <value>This sign-in method is no longer available. Choose one of the options below.</value>
+  </data>
+  <data name="LoginTitel" xml:space="preserve">
+    <value>Sign in</value>
+  </data>
+  <data name="LoginUitleg" xml:space="preserve">
+    <value>Sign in with your account</value>
+  </data>
+  <data name="LoginWelkom" xml:space="preserve">
+    <value>Welcome</value>
+  </data>
+  <data name="LogoutGelukt" xml:space="preserve">
+    <value>You have signed out.</value>
+  </data>
+  <data name="LogoutKlikHier" xml:space="preserve">
+    <value>Click here to sign out</value>
+  </data>
+  <data name="LogoutTitel" xml:space="preserve">
+    <value>Sign out</value>
+  </data>
+  <data name="MenuTonen" xml:space="preserve">
+    <value>Show menu</value>
+  </data>
+  <data name="NaarDeInhoud" xml:space="preserve">
+    <value>Skip to content</value>
+  </data>
+  <data name="NavAdmin" xml:space="preserve">
+    <value>Admin</value>
+  </data>
+  <data name="NavHome" xml:space="preserve">
+    <value>Home</value>
+  </data>
+  <data name="NavPlotboek" xml:space="preserve">
+    <value>Plot book</value>
+  </data>
+  <data name="PrivacyAccountKop" xml:space="preserve">
+    <value>Your account</value>
+  </data>
+  <data name="PrivacyAccountTekst" xml:space="preserve">
+    <value>You sign in with a sign-in service you choose, not with a password for this site. That service passes on your name and e-mail address; we keep those, with your role and the link to that service, so we recognise you next time. The sign-in service in turn knows that you sign in here.</value>
+  </data>
+  <data name="PrivacyContactBeheerder" xml:space="preserve">
+    <value>Contact the administrator of this site.</value>
+  </data>
+  <data name="PrivacyContactLink" xml:space="preserve">
+    <value>Contact the administrator</value>
+  </data>
+  <data name="PrivacyCookieFormulieren" xml:space="preserve">
+    <value>a cookie that protects forms against forgery</value>
+  </data>
+  <data name="PrivacyCookieInloggen" xml:space="preserve">
+    <value>a cookie that keeps you signed in while your browser is open</value>
+  </data>
+  <data name="PrivacyCookiesKop" xml:space="preserve">
+    <value>Cookies</value>
+  </data>
+  <data name="PrivacyCookieTaal" xml:space="preserve">
+    <value>a cookie that remembers the language you want, if you pick one</value>
+  </data>
+  <data name="PrivacyCookieThema" xml:space="preserve">
+    <value>a cookie that remembers whether you want the light or the dark theme</value>
+  </data>
+  <data name="PrivacyDemoTekst" xml:space="preserve">
+    <value>Every night all plots go back to the example, and the accounts of everyone who wasn't given write access are removed. Whatever you leave here is kept for a day at most.</value>
+  </data>
+  <data name="PrivacyDienstenKop" xml:space="preserve">
+    <value>Other services</value>
+  </data>
+  <data name="PrivacyGeenVolgcookies" xml:space="preserve">
+    <value>There are no advertising or tracking cookies, and we keep no visitor statistics.</value>
+  </data>
+  <data name="PrivacyGemini" xml:space="preserve">
+    <value>Asking for a short summary of a plot sends that plot's text to Google Gemini.</value>
+  </data>
+  <data name="PrivacyGoogleDrive" xml:space="preserve">
+    <value>An exported plot book can be put in a folder on Google Drive.</value>
+  </data>
+  <data name="PrivacyIntro" xml:space="preserve">
+    <value>What {0} keeps about the people who use it, and why.</value>
+  </data>
+  <data name="PrivacyInzienKop" xml:space="preserve">
+    <value>See or remove your data</value>
+  </data>
+  <data name="PrivacyInzienVraag" xml:space="preserve">
+    <value>Want to know what is kept about you, or want your account removed?</value>
+  </data>
+  <data name="PrivacySchrijvenKop" xml:space="preserve">
+    <value>What you write</value>
+  </data>
+  <data name="PrivacySchrijvenTekst" xml:space="preserve">
+    <value>Plots, notes and feedback are kept with who made each change, and when. That lets the GMs see how a plot came about and restore an earlier version.</value>
+  </data>
+  <data name="PrivacyTitel" xml:space="preserve">
+    <value>Privacy</value>
+  </data>
+  <data name="ProfielGebruikersnaamBijgewerkt" xml:space="preserve">
+    <value>Your username has been updated.</value>
+  </data>
+  <data name="ProfielGeenWijzigingen" xml:space="preserve">
+    <value>No changes were made.</value>
+  </data>
+  <data name="ProfielTitel" xml:space="preserve">
+    <value>Profile</value>
+  </data>
+  <data name="ProfielUitleg" xml:space="preserve">
+    <value>Manage your account settings</value>
+  </data>
+  <data name="Sluiten" xml:space="preserve">
+    <value>Close</value>
+  </data>
+  <data name="Taal" xml:space="preserve">
+    <value>Language</value>
+  </data>
+  <data name="TerugNaarHome" xml:space="preserve">
+    <value>Back to Home</value>
+  </data>
+  <data name="ThemaDonker" xml:space="preserve">
+    <value>Dark theme. Click to follow the system.</value>
+  </data>
+  <data name="ThemaLicht" xml:space="preserve">
+    <value>Light theme. Click for dark.</value>
+  </data>
+  <data name="ThemaVolgtSysteem" xml:space="preserve">
+    <value>Theme follows the system. Click for light.</value>
+  </data>
+  <data name="Uitloggen" xml:space="preserve">
+    <value>Sign out</value>
+  </data>
+  <data name="WijzigingenOpslaan" xml:space="preserve">
+    <value>Save changes</value>
+  </data>
+</root>

@@ -1,4 +1,6 @@
 using System.Collections.Immutable;
+using System.Globalization;
+using PlotboekGenerator.WebApp.Resources;
 
 namespace PlotboekGenerator.WebApp.Pages;
 
@@ -106,7 +108,7 @@ public sealed partial class AdminModel(
 
     public Dictionary<string, List<UserInfo>> UsersByRole { get; set; } = [];
 
-    public List<string> AvailableRoles { get; set; } = [UserRoles.Admin, UserRoles.User, UserRoles.NPC, UserRoles.Guest];
+    public List<string> AvailableRoles { get; set; } = [.. UserRoles.All];
 
     public List<UserInfo> AllUsers { get; set; } = [];
 
@@ -228,7 +230,7 @@ public sealed partial class AdminModel(
     {
         if (string.IsNullOrWhiteSpace(EditDomainShorthand) || string.IsNullOrWhiteSpace(EditDomainDescription))
         {
-            ErrorMessage = "Shorthand and description are required.";
+            ErrorMessage = AdminUi.DomainVerplicht;
             return;
         }
 
@@ -247,11 +249,11 @@ public sealed partial class AdminModel(
                 };
                 session.Store(updatedDomain);
                 logger.LogInformation("Admin {AdminUser} updated domain {DomainId}: {Shorthand} - {Description}", User.Identity?.Name, EditDomainId, EditDomainShorthand, EditDomainDescription);
-                SuccessMessage = $"Domain '{EditDomainShorthand}' updated successfully.";
+                SuccessMessage = string.Format(CultureInfo.CurrentCulture, AdminUi.DomainBijgewerkt, EditDomainShorthand);
             }
             else
             {
-                ErrorMessage = "Domain not found.";
+                ErrorMessage = AdminUi.DomainNietGevonden;
                 return;
             }
         }
@@ -264,7 +266,7 @@ public sealed partial class AdminModel(
             var newDomain = Domain.Create(EditDomainShorthand.Trim(), EditDomainDescription.Trim(), maxOrder + 1);
             session.Store(newDomain);
             logger.LogInformation("Admin {AdminUser} created domain: {Shorthand} - {Description}", User.Identity?.Name, EditDomainShorthand, EditDomainDescription);
-            SuccessMessage = $"Domain '{EditDomainShorthand}' created successfully.";
+            SuccessMessage = string.Format(CultureInfo.CurrentCulture, AdminUi.DomainAangemaakt, EditDomainShorthand);
         }
 
         await session.SaveChangesAsync();
@@ -279,7 +281,7 @@ public sealed partial class AdminModel(
     {
         if (DeleteDomainId == Guid.Empty)
         {
-            ErrorMessage = "No domain selected for deletion.";
+            ErrorMessage = AdminUi.DomainNietGeselecteerd;
             return;
         }
 
@@ -288,7 +290,7 @@ public sealed partial class AdminModel(
 
         if (domain == null)
         {
-            ErrorMessage = "Domain not found.";
+            ErrorMessage = AdminUi.DomainNietGevonden;
             return;
         }
 
@@ -296,7 +298,7 @@ public sealed partial class AdminModel(
         await session.SaveChangesAsync();
 
         logger.LogInformation("Admin {AdminUser} deleted domain {DomainId}: {Shorthand}", User.Identity?.Name, DeleteDomainId, domain.Shorthand);
-        SuccessMessage = $"Domain '{domain.Shorthand}' deleted successfully.";
+        SuccessMessage = string.Format(CultureInfo.CurrentCulture, AdminUi.DomainVerwijderd, domain.Shorthand);
     }
 
     private async Task HandleReorderDomains()
@@ -330,12 +332,12 @@ public sealed partial class AdminModel(
 
             await session.SaveChangesAsync();
             logger.LogInformation("Admin {AdminUser} reordered domains", User.Identity?.Name);
-            SuccessMessage = "Domains reordered successfully.";
+            SuccessMessage = AdminUi.DomainsHerordend;
         }
         catch (Exception ex)
         {
             logger.LogError(ex, "Failed to reorder domains");
-            ErrorMessage = "Failed to reorder domains.";
+            ErrorMessage = AdminUi.DomainsHerordenenMislukt;
         }
     }
 
@@ -375,7 +377,7 @@ public sealed partial class AdminModel(
     {
         if (string.IsNullOrWhiteSpace(EditMeetingTijd) || string.IsNullOrWhiteSpace(EditMeetingNaam))
         {
-            ErrorMessage = "Tijd en naam zijn verplicht.";
+            ErrorMessage = AdminUi.MeetingVerplicht;
             return;
         }
 
@@ -394,11 +396,11 @@ public sealed partial class AdminModel(
                 };
                 session.Store(updated);
                 logger.LogInformation("Admin {AdminUser} updated meeting {MeetingId}: {Tijd} {Naam}", User.Identity?.Name, EditMeetingId, EditMeetingTijd, EditMeetingNaam);
-                SuccessMessage = $"Meeting '{EditMeetingTijd} {EditMeetingNaam}' bijgewerkt.";
+                SuccessMessage = string.Format(CultureInfo.CurrentCulture, AdminUi.MeetingBijgewerkt, EditMeetingTijd, EditMeetingNaam);
             }
             else
             {
-                ErrorMessage = "Meeting niet gevonden.";
+                ErrorMessage = AdminUi.MeetingNietGevonden;
                 return;
             }
         }
@@ -410,7 +412,7 @@ public sealed partial class AdminModel(
             var newMeeting = Meeting.Create(EditMeetingDagType, EditMeetingTijd.Trim(), EditMeetingNaam.Trim(), maxOrder + 1);
             session.Store(newMeeting);
             logger.LogInformation("Admin {AdminUser} created meeting: {Tijd} {Naam} ({DagType})", User.Identity?.Name, EditMeetingTijd, EditMeetingNaam, EditMeetingDagType);
-            SuccessMessage = $"Meeting '{EditMeetingTijd} {EditMeetingNaam}' aangemaakt.";
+            SuccessMessage = string.Format(CultureInfo.CurrentCulture, AdminUi.MeetingAangemaakt, EditMeetingTijd, EditMeetingNaam);
         }
 
         await session.SaveChangesAsync();
@@ -424,7 +426,7 @@ public sealed partial class AdminModel(
     {
         if (DeleteMeetingId == Guid.Empty)
         {
-            ErrorMessage = "Geen meeting geselecteerd om te verwijderen.";
+            ErrorMessage = AdminUi.MeetingNietGeselecteerd;
             return;
         }
 
@@ -433,7 +435,7 @@ public sealed partial class AdminModel(
 
         if (meeting == null)
         {
-            ErrorMessage = "Meeting niet gevonden.";
+            ErrorMessage = AdminUi.MeetingNietGevonden;
             return;
         }
 
@@ -441,7 +443,7 @@ public sealed partial class AdminModel(
         await session.SaveChangesAsync();
 
         logger.LogInformation("Admin {AdminUser} deleted meeting {MeetingId}: {Tijd} {Naam}", User.Identity?.Name, DeleteMeetingId, meeting.Tijd, meeting.Naam);
-        SuccessMessage = $"Meeting '{meeting.Tijd} {meeting.Naam}' verwijderd.";
+        SuccessMessage = string.Format(CultureInfo.CurrentCulture, AdminUi.MeetingVerwijderd, meeting.Tijd, meeting.Naam);
     }
 
     private sealed record MeetingReorderItem(Guid Id, int Order);
@@ -475,12 +477,12 @@ public sealed partial class AdminModel(
 
             await session.SaveChangesAsync();
             logger.LogInformation("Admin {AdminUser} reordered meetings", User.Identity?.Name);
-            SuccessMessage = "Meetings volgorde opgeslagen.";
+            SuccessMessage = AdminUi.MeetingsHerordend;
         }
         catch (Exception ex)
         {
             logger.LogError(ex, "Failed to reorder meetings");
-            ErrorMessage = "Volgorde opslaan mislukt.";
+            ErrorMessage = AdminUi.VolgordeOpslaanMislukt;
         }
     }
 
@@ -529,7 +531,7 @@ public sealed partial class AdminModel(
     {
         if (string.IsNullOrWhiteSpace(EditCharacterNameNaam))
         {
-            ErrorMessage = "Naam is verplicht.";
+            ErrorMessage = AdminUi.NaamVerplicht;
             return;
         }
 
@@ -543,11 +545,11 @@ public sealed partial class AdminModel(
                 var updated = existing with { Naam = EditCharacterNameNaam.Trim() };
                 session.Store(updated);
                 logger.LogInformation("Admin {AdminUser} updated character name {Id}: {Naam}", User.Identity?.Name, EditCharacterNameId, EditCharacterNameNaam);
-                SuccessMessage = $"Naam '{EditCharacterNameNaam}' bijgewerkt.";
+                SuccessMessage = string.Format(CultureInfo.CurrentCulture, AdminUi.NaamBijgewerkt, EditCharacterNameNaam);
             }
             else
             {
-                ErrorMessage = "Naam niet gevonden.";
+                ErrorMessage = AdminUi.NaamNietGevonden;
                 return;
             }
         }
@@ -556,7 +558,7 @@ public sealed partial class AdminModel(
             var newName = CharacterName.Create(EditCharacterNameNaam.Trim());
             session.Store(newName);
             logger.LogInformation("Admin {AdminUser} created character name: {Naam}", User.Identity?.Name, EditCharacterNameNaam);
-            SuccessMessage = $"Naam '{EditCharacterNameNaam}' aangemaakt.";
+            SuccessMessage = string.Format(CultureInfo.CurrentCulture, AdminUi.NaamAangemaakt, EditCharacterNameNaam);
         }
 
         await session.SaveChangesAsync();
@@ -569,7 +571,7 @@ public sealed partial class AdminModel(
     {
         if (DeleteCharacterNameId == Guid.Empty)
         {
-            ErrorMessage = "Geen naam geselecteerd om te verwijderen.";
+            ErrorMessage = AdminUi.NaamNietGeselecteerd;
             return;
         }
 
@@ -578,7 +580,7 @@ public sealed partial class AdminModel(
 
         if (name == null)
         {
-            ErrorMessage = "Naam niet gevonden.";
+            ErrorMessage = AdminUi.NaamNietGevonden;
             return;
         }
 
@@ -586,7 +588,7 @@ public sealed partial class AdminModel(
         await session.SaveChangesAsync();
 
         logger.LogInformation("Admin {AdminUser} deleted character name {Id}: {Naam}", User.Identity?.Name, DeleteCharacterNameId, name.Naam);
-        SuccessMessage = $"Naam '{name.Naam}' verwijderd.";
+        SuccessMessage = string.Format(CultureInfo.CurrentCulture, AdminUi.NaamVerwijderd, name.Naam);
     }
 
     private async Task LoadCharacterNames()
@@ -620,7 +622,7 @@ public sealed partial class AdminModel(
     {
         if (string.IsNullOrWhiteSpace(EditWorldNameNaam))
         {
-            ErrorMessage = "Naam is verplicht.";
+            ErrorMessage = AdminUi.NaamVerplicht;
             return;
         }
 
@@ -634,11 +636,11 @@ public sealed partial class AdminModel(
                 var updated = existing with { Naam = EditWorldNameNaam.Trim() };
                 session.Store(updated);
                 logger.LogInformation("Admin {AdminUser} updated world name {Id}: {Naam}", User.Identity?.Name, EditWorldNameId, EditWorldNameNaam);
-                SuccessMessage = $"Wereld '{EditWorldNameNaam}' bijgewerkt.";
+                SuccessMessage = string.Format(CultureInfo.CurrentCulture, AdminUi.WereldBijgewerkt, EditWorldNameNaam);
             }
             else
             {
-                ErrorMessage = "Wereld niet gevonden.";
+                ErrorMessage = AdminUi.WereldNietGevonden;
                 return;
             }
         }
@@ -647,7 +649,7 @@ public sealed partial class AdminModel(
             var newName = WorldName.Create(EditWorldNameNaam.Trim());
             session.Store(newName);
             logger.LogInformation("Admin {AdminUser} created world name: {Naam}", User.Identity?.Name, EditWorldNameNaam);
-            SuccessMessage = $"Wereld '{EditWorldNameNaam}' aangemaakt.";
+            SuccessMessage = string.Format(CultureInfo.CurrentCulture, AdminUi.WereldAangemaakt, EditWorldNameNaam);
         }
 
         await session.SaveChangesAsync();
@@ -660,7 +662,7 @@ public sealed partial class AdminModel(
     {
         if (DeleteWorldNameId == Guid.Empty)
         {
-            ErrorMessage = "Geen wereld geselecteerd om te verwijderen.";
+            ErrorMessage = AdminUi.WereldNietGeselecteerd;
             return;
         }
 
@@ -669,7 +671,7 @@ public sealed partial class AdminModel(
 
         if (name == null)
         {
-            ErrorMessage = "Wereld niet gevonden.";
+            ErrorMessage = AdminUi.WereldNietGevonden;
             return;
         }
 
@@ -677,7 +679,7 @@ public sealed partial class AdminModel(
         await session.SaveChangesAsync();
 
         logger.LogInformation("Admin {AdminUser} deleted world name {Id}: {Naam}", User.Identity?.Name, DeleteWorldNameId, name.Naam);
-        SuccessMessage = $"Wereld '{name.Naam}' verwijderd.";
+        SuccessMessage = string.Format(CultureInfo.CurrentCulture, AdminUi.WereldVerwijderd, name.Naam);
     }
 
     private async Task LoadWorldNames()
@@ -711,7 +713,7 @@ public sealed partial class AdminModel(
     {
         if (string.IsNullOrWhiteSpace(NewDummySlUserName))
         {
-            ErrorMessage = "Please provide a username for the dummy SL.";
+            ErrorMessage = AdminUi.DummySlNaamVerplicht;
             return;
         }
 
@@ -748,7 +750,7 @@ public sealed partial class AdminModel(
         await session.SaveChangesAsync();
 
         logger.LogInformation("Admin {AdminUser} created dummy SL '{UserName}' with ID {UserId}", User.Identity?.Name, userName, dummyUser.Id);
-        SuccessMessage = $"Dummy SL '{userName}' created successfully. You can merge this account with a real user later.";
+        SuccessMessage = string.Format(CultureInfo.CurrentCulture, AdminUi.DummySlAangemaakt, userName);
 
         // Clear form fields
         NewDummySlUserName = null;
@@ -762,7 +764,7 @@ public sealed partial class AdminModel(
         var user = await userManager.FindByIdAsync(EditUserId!);
         if (user == null)
         {
-            ErrorMessage = "User not found.";
+            ErrorMessage = AdminUi.UserNietGevonden;
             return;
         }
 
@@ -776,14 +778,14 @@ public sealed partial class AdminModel(
 
         logger.LogInformation("Admin {AdminUser} updated user {UserId} - UserName: {UserName}, Role: {Role}", User.Identity?.Name, EditUserId, EditUserName, EditUserRole);
 
-        SuccessMessage = "User updated successfully.";
+        SuccessMessage = AdminUi.UserBijgewerkt;
     }
 
     internal bool ValidateEditUserSelected()
     {
         if (string.IsNullOrEmpty(EditUserId))
         {
-            ErrorMessage = "No user selected for editing.";
+            ErrorMessage = AdminUi.UserNietGeselecteerd;
             return false;
         }
         return true;
@@ -797,7 +799,7 @@ public sealed partial class AdminModel(
         var setUserNameResult = await userManager.SetUserNameAsync(user, EditUserName);
         if (!setUserNameResult.Succeeded)
         {
-            ErrorMessage = $"Failed to update username: {string.Join(", ", setUserNameResult.Errors.Select(e => e.Description))}";
+            ErrorMessage = string.Format(CultureInfo.CurrentCulture, AdminUi.UsernameBijwerkenMislukt, string.Join(", ", setUserNameResult.Errors.Select(e => e.Description)));
             return false;
         }
         return true;
@@ -823,7 +825,7 @@ public sealed partial class AdminModel(
         var newOverride = string.IsNullOrWhiteSpace(EditUserRole) ? null : EditUserRole;
         if (newOverride is not null && !AvailableRoles.Contains(newOverride))
         {
-            ErrorMessage = $"Unknown role '{newOverride}'.";
+            ErrorMessage = string.Format(CultureInfo.CurrentCulture, AdminUi.OnbekendeRol, newOverride);
             return false;
         }
 
@@ -856,13 +858,13 @@ public sealed partial class AdminModel(
     {
         if (string.IsNullOrEmpty(SourceUserId) || string.IsNullOrEmpty(TargetUserId))
         {
-            ErrorMessage = "Please select both source and target users.";
+            ErrorMessage = AdminUi.LinkAccountsKiesBeide;
             return false;
         }
 
         if (SourceUserId == TargetUserId)
         {
-            ErrorMessage = "Source and target users must be different.";
+            ErrorMessage = AdminUi.LinkAccountsZelfdeUser;
             return false;
         }
 
@@ -894,14 +896,14 @@ public sealed partial class AdminModel(
 
         logger.LogInformation("Admin {AdminUser} linked accounts: merged user {SourceUserId} ({SourceUserName}) into {TargetUserId} ({TargetUserName})", User.Identity?.Name, sourceUserId, sourceUser!.UserName, targetUserId, targetUser!.UserName);
 
-        SuccessMessage = $"Successfully merged '{sourceUser.UserName}' into '{targetUser.UserName}'. The source account has been deleted.";
+        SuccessMessage = string.Format(CultureInfo.CurrentCulture, AdminUi.AccountsSamengevoegd, sourceUser.UserName, targetUser.UserName);
     }
 
     internal bool ValidateUsersExist(PlotboekUser? sourceUser, PlotboekUser? targetUser)
     {
         if (sourceUser == null || targetUser == null)
         {
-            ErrorMessage = "One or both users not found.";
+            ErrorMessage = AdminUi.UsersNietGevonden;
             return false;
         }
         return true;
@@ -1012,7 +1014,7 @@ public sealed partial class AdminModel(
     {
         if (string.IsNullOrEmpty(LoginIdToUnlink))
         {
-            ErrorMessage = "No login selected to unlink.";
+            ErrorMessage = AdminUi.LoginNietGeselecteerd;
             return false;
         }
         return true;
@@ -1034,14 +1036,14 @@ public sealed partial class AdminModel(
 
         logger.LogInformation("Admin {AdminUser} unlinked {Provider} login from user {UserId}", User.Identity?.Name, login!.LoginProvider, login.UserId);
 
-        SuccessMessage = $"Successfully unlinked {login.LoginProvider} login.";
+        SuccessMessage = string.Format(CultureInfo.CurrentCulture, AdminUi.LoginOntkoppeld, login.LoginProvider);
     }
 
     internal bool ValidateExternalLoginExists(UserExternalLogin? login)
     {
         if (login == null)
         {
-            ErrorMessage = "External login not found.";
+            ErrorMessage = AdminUi.LoginNietGevonden;
             return false;
         }
         return true;
@@ -1053,7 +1055,7 @@ public sealed partial class AdminModel(
 
         if (userLogins.Count <= 1)
         {
-            ErrorMessage = "Cannot unlink the only external login for this user.";
+            ErrorMessage = AdminUi.LaatsteLoginOntkoppelen;
             return false;
         }
         return true;
@@ -1090,7 +1092,7 @@ public sealed partial class AdminModel(
             {
                 Id = l.Id,
                 Provider = l.LoginProvider,
-                Email = l.Email ?? l.ProviderDisplayName ?? "Unknown",
+                Email = l.Email ?? l.ProviderDisplayName ?? AdminUi.LoginEmailOnbekend,
             }).ToList());
     }
 
@@ -1211,11 +1213,11 @@ public sealed partial class AdminModel(
 
         public string FullName => $"{FirstName} {LastName}".Trim();
         public string DisplayRoles => Roles.Count != 0 ? string.Join(", ", Roles) : "Guest";
-        public string DisplayProviderRole => ProviderRole ?? "— none —";
-        public string DisplayOverrideRole => OverrideRole ?? "— none —";
+        public string DisplayProviderRole => ProviderRole ?? AdminUi.GeenRol;
+        public string DisplayOverrideRole => OverrideRole ?? AdminUi.GeenRol;
         public string DisplayLogins => ExternalLogins.Count != 0
             ? string.Join(", ", ExternalLogins.Select(l => l.Provider))
-            : "None";
+            : AdminUi.LoginsGeen;
     }
 
     public sealed record ExternalLoginInfo
@@ -1249,7 +1251,7 @@ public sealed partial class AdminModel(
     {
         if (string.IsNullOrEmpty(HerstellenPaginaId))
         {
-            ErrorMessage = "Geen pagina geselecteerd om te herstellen.";
+            ErrorMessage = AdminUi.PaginaNietGeselecteerd;
             return;
         }
 
@@ -1258,13 +1260,13 @@ public sealed partial class AdminModel(
         using var session = documentStore.OpenSession();
         if (await User.GetUserAsync(session) is not PlotboekUser user)
         {
-            ErrorMessage = "Gebruiker niet gevonden.";
+            ErrorMessage = AdminUi.GebruikerNietGevonden;
             return;
         }
 
         if (await paginaRepository.LoadAsync(paginaId) is not { } plotboekPagina || !plotboekPagina.IsValid)
         {
-            ErrorMessage = "Pagina niet gevonden.";
+            ErrorMessage = AdminUi.PaginaNietGevonden;
             return;
         }
 
@@ -1274,7 +1276,7 @@ public sealed partial class AdminModel(
         await session.SaveChangesAsync(CancellationToken.None);
 
         logger.LogInformation("Admin {AdminUser} restored deleted pagina {PaginaId}", User.Identity?.Name, paginaId);
-        SuccessMessage = $"Pagina '{plotboekPagina.Value.Titel}' is hersteld.";
+        SuccessMessage = string.Format(CultureInfo.CurrentCulture, AdminUi.PaginaHersteld, plotboekPagina.Value.Titel);
     }
 
     public sealed record DeletedPaginaInfo

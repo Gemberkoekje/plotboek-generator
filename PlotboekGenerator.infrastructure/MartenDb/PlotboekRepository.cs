@@ -1,3 +1,6 @@
+using System.Globalization;
+using PlotboekGenerator.infrastructure.Resources;
+
 namespace PlotboekGenerator.infrastructure.MartenDb;
 
 public sealed class PlotboekRepository : IAggregateRepository<PlotboekId, Plotboek>
@@ -22,11 +25,11 @@ public sealed class PlotboekRepository : IAggregateRepository<PlotboekId, Plotbo
     public async Task<Result<Plotboek>> LoadAsync(PlotboekId id, CancellationToken cancellationToken = default)
     {
         if (id == PlotboekId.Empty)
-            return Result.WithMessages<Plotboek>(ValidationMessage.Error($"Plotboek Id is empty."));
+            return Result.WithMessages<Plotboek>(ValidationMessage.Error(InfraTekst.PlotboekIdLeeg));
 
         var events = await _eventStore.LoadEventsAsync((Uuid)id, cancellationToken);
         if (events.Count == 0)
-            return Result.WithMessages<Plotboek>(ValidationMessage.Error($"Plotboek {id} not found."));
+            return Result.WithMessages<Plotboek>(ValidationMessage.Error(string.Format(CultureInfo.CurrentCulture, InfraTekst.PlotboekNietGevonden, id)));
 
         var eventbuffer = EventBuffer.FromStorage(id, events, e => e);
         var aggregate = Aggregate.FromStorage<Plotboek, PlotboekId>(eventbuffer);

@@ -80,7 +80,7 @@ public sealed class AdminModel_BuildLookups_specs
 
         var result = AdminModel.BuildExternalLoginsLookup(logins);
 
-        result["user-1"][0].Email.Should().Be("Unknown");
+        result["user-1"][0].Email.Should().Be("Onbekend");
     }
 
     [Test]
@@ -109,4 +109,3 @@ public sealed class AdminModel_BuildLookups_specs
         result["user-1"][0].Email.Should().Be("display");
     }
 }
-

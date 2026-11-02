@@ -1,3 +1,4 @@
+@using System.Globalization
 @using PlotboekGenerator.WebApp.Pages
 @model PlotboekModel.PlotboekPaginaInfo
 
@@ -25,7 +26,7 @@
 {
     <span class="pagina-part pagina-part-name pagina-sl-label badge rounded-pill pb-badge-neutral text-body-secondary fw-normal ms-1 d-inline-block text-truncate align-middle"
           style="max-width: 6rem;"
-          title="Verantwoordelijke SL: @Model.VerantwoordelijkeSlName">
+          title="@string.Format(CultureInfo.CurrentCulture, PaginaUi.IcoonVerantwoordelijkeSl, Model.VerantwoordelijkeSlName)">
         <i class="fas fa-user me-1"></i>@Model.VerantwoordelijkeSlName
     </span>
 }
@@ -33,20 +34,20 @@
 @if (hasAnyIcon)
 {
     <span class="pagina-part pagina-part-icons ms-1 text-nowrap">
-        @if (hasVechten) { <span title="Vechten">⚔️</span> }
-        @if (hasNachtPlot) { <span title="Flexibel nacht plot (hoort in een slot om 20:00 of later)">🌙</span> }
+        @if (hasVechten) { <span title="@PaginaUi.IcoonVechten">⚔️</span> }
+        @if (hasNachtPlot) { <span title="@PaginaUi.IcoonFlexibelNachtPlot">🌙</span> }
         @if (hasEventBreed) { <span title="@Terminologie.EventBreedUitleg">👯</span> }
-        @if (iconen.HasFlag(core.Enums.PlotboekPaginaIcons.TimingCruciaal)) { <span title="Timing Cruciaal">⭐</span> }
-        @if (iconen.HasFlag(core.Enums.PlotboekPaginaIcons.PlotCruciaal)) { <span title="Plot Cruciaal">❗</span> }
-        @if (iconen.HasFlag(core.Enums.PlotboekPaginaIcons.MagAlsEersteCancelled)) { <span title="Mag als eerste gecancelled worden">❓</span> }
-        @if (iconen.HasFlag(core.Enums.PlotboekPaginaIcons.UitgebreideBriefing)) { <span title="Uitgebreide briefing">📖</span> }
-        @if (hasAfstemming) { <span title="Vereist afstemming vooraf met de figurant">🤝</span> }
-        @if (hasQuestOpExternVeld) { <span title="Quest op extern veld">🪦</span> }
+        @if (iconen.HasFlag(core.Enums.PlotboekPaginaIcons.TimingCruciaal)) { <span title="@PaginaUi.TimingCruciaal">⭐</span> }
+        @if (iconen.HasFlag(core.Enums.PlotboekPaginaIcons.PlotCruciaal)) { <span title="@PaginaUi.PlotCruciaal">❗</span> }
+        @if (iconen.HasFlag(core.Enums.PlotboekPaginaIcons.MagAlsEersteCancelled)) { <span title="@PaginaUi.IcoonMagAlsEersteGecancelled">❓</span> }
+        @if (iconen.HasFlag(core.Enums.PlotboekPaginaIcons.UitgebreideBriefing)) { <span title="@PaginaUi.UitgebreideBriefing">📖</span> }
+        @if (hasAfstemming) { <span title="@PaginaUi.IcoonAfstemming">🤝</span> }
+        @if (hasQuestOpExternVeld) { <span title="@PaginaUi.IcoonQuestOpExternVeld">🪦</span> }
         @if (locatieBotsingen.Count > 0)
         {
-            <span class="text-danger" title="Locatie dubbel geboekt met: @string.Join(", ", locatieBotsingen.Select(c => c.Titel))">📍</span>
+            <span class="text-danger" title="@string.Format(CultureInfo.CurrentCulture, PaginaUi.IcoonLocatieDubbelGeboekt, string.Join(", ", locatieBotsingen.Select(c => c.Titel)))">📍</span>
         }
-        @if (iconen.HasFlag(core.Enums.PlotboekPaginaIcons.GrootPakOfKostuum)) { <span title="Groot pak of uitgebreid kostuum/schmink">❤️</span> }
+        @if (iconen.HasFlag(core.Enums.PlotboekPaginaIcons.GrootPakOfKostuum)) { <span title="@PaginaUi.GrootPakOfKostuum">❤️</span> }
         @if (iconen.HasFlag(core.Enums.PlotboekPaginaIcons.MuziekVanuitTechniek)) { <span title="@Terminologie.MuziekVanuitTechniek">🎶</span> }
         @if (iconen.HasFlag(core.Enums.PlotboekPaginaIcons.LichtOfRookVanuitTechniek)) { <span title="@Terminologie.LichtOfRookVanuitTechniek">💡</span> }
     </span>

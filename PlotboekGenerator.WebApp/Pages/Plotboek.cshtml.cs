@@ -1,6 +1,8 @@
+using PlotboekGenerator.WebApp.Resources;
+
 namespace PlotboekGenerator.WebApp.Pages;
 
-[Authorize(Roles = UserRoles.User + "," + UserRoles.Admin + "," + UserRoles.NPC)]
+[Authorize(Roles = UserRoles.User + "," + UserRoles.Admin + "," + UserRoles.Reader + "," + UserRoles.NPC)]
 public sealed partial class PlotboekModel(
     PlotboekPaginaRepository paginaRepository,
     IPlotboekRepository plotboekRepository,
@@ -13,7 +15,8 @@ public sealed partial class PlotboekModel(
     ILogger<PlotboekModel> logger,
     PlotboekGenerator.infrastructure.Services.IGeminiSummaryService? geminiSummaryService = null,
     GetPlotboekByIdQueryHandler getPlotboekByIdQueryHandler = null!,
-    GetPlotboekListQueryHandler getPlotboekListQueryHandler = null!) : PageModel
+    GetPlotboekListQueryHandler getPlotboekListQueryHandler = null!,
+    LocalizationSettings? localization = null) : PageModel
 {
     // Properties and nested record types have been moved to Plotboek.Properties.cs
     public async Task<IActionResult> OnGet()
@@ -35,9 +38,11 @@ public sealed partial class PlotboekModel(
                     });
             }
 
-            if (IsNpc && NoNpcPlotboekenAvailable)
+            if (IsReadOnlyRole && NoPlotboekenToRead)
             {
-                PlotboekAccessMessage = "Er is nog geen plotboek volledig klaar voor NPC's. Kom later terug; de spelleiding zet het plotboek open zodra alles klaar is.";
+                PlotboekAccessMessage = IsNpc
+                    ? PlotboekUi.AccessGeenPlotboekVoorNpcs
+                    : PlotboekUi.AccessGeenPlotboek;
                 return Page();
             }
         }

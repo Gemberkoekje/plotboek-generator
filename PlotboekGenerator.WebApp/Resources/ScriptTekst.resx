@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="AuditDebugTonen" xml:space="preserve">
+    <value>show debug</value>
+    <comment>A developer aid; may stay English</comment>
+  </data>
+  <data name="AuditDebugVerbergen" xml:space="preserve">
+    <value>hide debug</value>
+    <comment>A developer aid; may stay English</comment>
+  </data>
+  <data name="AuditDetailsTonen" xml:space="preserve">
+    <value>Details tonen</value>
+  </data>
+  <data name="AuditDetailsVerbergen" xml:space="preserve">
+    <value>Details verbergen</value>
+  </data>
+  <data name="DebriefVraagPlaceholder" xml:space="preserve">
+    <value>Wat wil je weten?</value>
+  </data>
+  <data name="EncounterMogelijk" xml:space="preserve">
+    <value>(mogelijk {0})</value>
+    <comment>After the main encounter types: the possible extra ones</comment>
+  </data>
+  <data name="ExtraSlKiezen" xml:space="preserve">
+    <value>-- Selecteer een SL --</value>
+  </data>
+  <data name="LootOmschrijvingPlaceholder" xml:space="preserve">
+    <value>Omschrijving loot</value>
+  </data>
+  <data name="NpcAfstemmingLabel" xml:space="preserve">
+    <value>Vereist afstemming vooraf (bv. marteling, intimiteit, heftige angstinhoud)</value>
+  </data>
+  <data name="NpcAfstemmingPlaceholder" xml:space="preserve">
+    <value>Waarover moet afgestemd worden?</value>
+  </data>
+  <data name="NpcAfstemmingUitleg" xml:space="preserve">
+    <value>De MSL stemt dit vooraf af met de figurant.</value>
+  </data>
+  <data name="NpcAlGekozen" xml:space="preserve">
+    <value>Al gekozen/gebriefd</value>
+  </data>
+  <data name="NpcBewaarAlsStandaard" xml:space="preserve">
+    <value>Bewaar als standaard</value>
+  </data>
+  <data name="NpcBewaarAlsStandaardTitel" xml:space="preserve">
+    <value>Slaat het plot op en bewaart deze rol (naam, kleding &amp; schmink, casting) als standaard-NPC.</value>
+  </data>
+  <data name="NpcCastingLabel" xml:space="preserve">
+    <value>Casting — wat voor figurant zoeken we?</value>
+  </data>
+  <data name="NpcCastingPlaceholder" xml:space="preserve">
+    <value>bv. vrouwelijk uiterlijk, goede roleplayer, stevig postuur</value>
+  </data>
+  <data name="NpcDoorWie" xml:space="preserve">
+    <value>Door wie?</value>
+  </data>
+  <data name="NpcEerderGespeeld" xml:space="preserve">
+    <value>Eerder gespeeld</value>
+  </data>
+  <data name="NpcGekozenWaarschuwing" xml:space="preserve">
+    <value>De MSL kiezen de NPC's. Gebruik deze optie alleen voor rollen waarbij een hele lange briefing nodig is die niet op het event zelf gegeven kan worden.</value>
+  </data>
+  <data name="NpcKledingEnSchmink" xml:space="preserve">
+    <value>Kleding &amp; Schmink</value>
+  </data>
+  <data name="NpcLetOp" xml:space="preserve">
+    <value>LET OP:</value>
+  </data>
+  <data name="NpcMaximum" xml:space="preserve">
+    <value>Maximum</value>
+  </data>
+  <data name="NpcMaxPlaceholder" xml:space="preserve">
+    <value>Max (optioneel)</value>
+  </data>
+  <data name="NpcMinimum" xml:space="preserve">
+    <value>Minimum</value>
+  </data>
+  <data name="NpcMinPlaceholder" xml:space="preserve">
+    <value>Min</value>
+  </data>
+  <data name="NpcOptioneel" xml:space="preserve">
+    <value>Optioneel</value>
+  </data>
+  <data name="NpcOptioneelAchtervoegsel" xml:space="preserve">
+    <value> (optioneel)</value>
+    <comment>Added to the count labels when every NPC is needed; starts with a space</comment>
+  </data>
+  <data name="NpcRolLabel" xml:space="preserve">
+    <value>Rol/Type NPC</value>
+  </data>
+  <data name="NpcRolNaamEerst" xml:space="preserve">
+    <value>Vul eerst een naam voor de rol in.</value>
+  </data>
+  <data name="NpcStandaardOverschrijven" xml:space="preserve">
+    <value>Er bestaat al een standaard-NPC '{0}'. Overschrijven?</value>
+  </data>
+  <data name="NpcTerugkerend" xml:space="preserve">
+    <value>Terugkerend na dit plot</value>
+  </data>
+  <data name="NpcVerwijderen" xml:space="preserve">
+    <value>Verwijderen</value>
+  </data>
+  <data name="NpcWie" xml:space="preserve">
+    <value>Wie?</value>
+  </data>
+  <data name="OnopgeslagenWijzigingen" xml:space="preserve">
+    <value>Je hebt nog niet opgeslagen wijzigingen. Weet je zeker dat je deze pagina wilt verlaten?</value>
+  </data>
+  <data name="PropOmschrijvingPlaceholder" xml:space="preserve">
+    <value>Omschrijving prop</value>
+  </data>
+  <data name="PropsBronAnders" xml:space="preserve">
+    <value>Anders</value>
+  </data>
+  <data name="PropsBronSl" xml:space="preserve">
+    <value>SL</value>
+  </data>
+  <data name="PropsBronSpelerOfNpc" xml:space="preserve">
+    <value>Speler of NPC</value>
+  </data>
+  <data name="PropsSlKiezen" xml:space="preserve">
+    <value>-- SL --</value>
+  </data>
+  <data name="PropsVrijeTekstPlaceholder" xml:space="preserve">
+    <value>Speler of naam</value>
+  </data>
+</root>

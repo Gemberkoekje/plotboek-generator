@@ -1,12 +1,17 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using System.Globalization;
 using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Json;
+using System.Reflection;
+using System.Resources;
+using System.Text;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
+using PlotboekGenerator.infrastructure.Resources;
 
 namespace PlotboekGenerator.infrastructure.Services;
 
@@ -46,52 +51,7 @@ public sealed partial class GeminiSummaryService : IGeminiSummaryService
 
         var requestUrl = _requestUrl;
 
-        // Construct a prompt that instructs the model to return a single-sentence elevator pitch in Dutch.
-        // The pitch should be: "1 zin die MSL gebruikt om het plot te verkopen richting de figuranten tijdens het verdelen van de rollen."
-        // Samenvatting is the main source; other fields are optional context.
-        var promptBuilder = new System.Text.StringBuilder();
-        promptBuilder.AppendLine("Geef één korte elevator pitch in één zin (geen opsommingen of meerdere opties). ");
-        promptBuilder.AppendLine("Doel: 1 zin die MSL gebruikt om het plot te verkopen richting de figuranten tijdens het verdelen van de rollen.");
-        promptBuilder.AppendLine("Gebruik de SAMENVATTING als de HOOFDbron en gebruik de overige velden alleen als extra context. Formuleer slechts ÉÉN zin als antwoord (Nederlandstalig).\n");
-        if (!string.IsNullOrWhiteSpace(titel))
-        {
-            promptBuilder.AppendLine($"Titel: {titel}\n");
-        }
-
-        promptBuilder.AppendLine("Samenvatting:");
-        promptBuilder.AppendLine(samenvattingText ?? string.Empty);
-
-        if (!string.IsNullOrWhiteSpace(npcSummary))
-        {
-            promptBuilder.AppendLine($"\nNPCs: {npcSummary}");
-        }
-
-        if (!string.IsNullOrWhiteSpace(encounterSummary))
-        {
-            promptBuilder.AppendLine($"\nEncounter: {encounterSummary}");
-        }
-
-        if (!string.IsNullOrWhiteSpace(propsAndLoot))
-        {
-            promptBuilder.AppendLine($"\nProps & Loot: {propsAndLoot}");
-        }
-
-        if (!string.IsNullOrWhiteSpace(techniekInstructions))
-        {
-            promptBuilder.AppendLine($"\n{Terminologie.Huidig.Techniek}: {techniekInstructions}");
-        }
-
-        if (!string.IsNullOrWhiteSpace(extraInformation))
-        {
-            promptBuilder.AppendLine($"\nExtra informatie: {extraInformation}");
-        }
-
-        if (!string.IsNullOrWhiteSpace(debrief))
-        {
-            promptBuilder.AppendLine($"\nDebrief: {debrief}");
-        }
-
-        var prompt = promptBuilder.ToString();
+        var prompt = BuildPrompt(titel, samenvattingText, npcSummary, encounterSummary, propsAndLoot, techniekInstructions, extraInformation, debrief);
 
         var body = new
         {
@@ -169,6 +129,87 @@ public sealed partial class GeminiSummaryService : IGeminiSummaryService
         }
 
         return string.Empty;
+    }
+
+    /// <summary>
+    /// Builds the prompt for a single-sentence elevator pitch: the sentence the GM handing out the NPC
+    /// roles uses to sell the plot. The summary is the main source; the other fields are optional
+    /// context. The prompt is written in the reader's language and asks for the answer in it, so the
+    /// pitch comes back in the language of the page that asked for it.
+    /// </summary>
+    /// <returns>The prompt text.</returns>
+    internal static string BuildPrompt(
+        string titel,
+        string samenvattingText,
+        string npcSummary,
+        string encounterSummary,
+        string propsAndLoot,
+        string techniekInstructions,
+        string extraInformation,
+        string debrief)
+    {
+        var promptBuilder = new StringBuilder();
+        promptBuilder.AppendLine(InfraTekst.GeminiPromptOpdracht);
+        promptBuilder.AppendLine(InfraTekst.GeminiPromptDoel);
+        promptBuilder.AppendLine(InfraTekst.GeminiPromptBron);
+        promptBuilder.AppendLine(string.Format(CultureInfo.CurrentCulture, InfraTekst.GeminiPromptTaal, AntwoordTaal()));
+        promptBuilder.AppendLine();
+        if (!string.IsNullOrWhiteSpace(titel))
+        {
+            promptBuilder.AppendLine(string.Format(CultureInfo.CurrentCulture, InfraTekst.GeminiPromptTitel, titel));
+            promptBuilder.AppendLine();
+        }
+
+        promptBuilder.AppendLine(InfraTekst.GeminiPromptSamenvatting);
+        promptBuilder.AppendLine(samenvattingText ?? string.Empty);
+
+        AppendVeld(promptBuilder, InfraTekst.GeminiPromptNpcs, npcSummary);
+        AppendVeld(promptBuilder, InfraTekst.GeminiPromptEncounter, encounterSummary);
+        AppendVeld(promptBuilder, InfraTekst.GeminiPromptPropsEnLoot, propsAndLoot);
+        if (!string.IsNullOrWhiteSpace(techniekInstructions))
+        {
+            // The deployment's own word for the crew, so not a format string.
+            promptBuilder.AppendLine();
+            promptBuilder.AppendLine($"{Terminologie.Huidig.Techniek}: {techniekInstructions}");
+        }
+
+        AppendVeld(promptBuilder, InfraTekst.GeminiPromptExtraInformatie, extraInformation);
+        AppendVeld(promptBuilder, InfraTekst.GeminiPromptDebrief, debrief);
+
+        return promptBuilder.ToString();
+    }
+
+    /// <summary>Adds an optional field after a blank line, or nothing when it is empty.</summary>
+    private static void AppendVeld(StringBuilder promptBuilder, string format, string waarde)
+    {
+        if (string.IsNullOrWhiteSpace(waarde))
+        {
+            return;
+        }
+
+        promptBuilder.AppendLine();
+        promptBuilder.AppendLine(string.Format(CultureInfo.CurrentCulture, format, waarde));
+    }
+
+    /// <summary>
+    /// The name of the reader's language in that language ("Nederlands", "English"): the language the
+    /// pitch has to come back in. A thread without a culture of its own gets the neutral language.
+    /// </summary>
+    private static string AntwoordTaal()
+    {
+        var taal = CultureInfo.CurrentUICulture;
+        if (string.IsNullOrEmpty(taal.Name)
+            && typeof(InfraTekst).Assembly.GetCustomAttribute<NeutralResourcesLanguageAttribute>() is { } neutraal)
+        {
+            taal = CultureInfo.GetCultureInfo(neutraal.CultureName);
+        }
+
+        if (!taal.IsNeutralCulture && !string.IsNullOrEmpty(taal.Parent.Name))
+        {
+            taal = taal.Parent;
+        }
+
+        return taal.NativeName;
     }
 
     [GeneratedRegex("\\s+")]

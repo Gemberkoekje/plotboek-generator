@@ -116,6 +116,10 @@ internal sealed class PlotboekWebApplicationFactory : WebApplicationFactory<Prog
             services.RemoveAll<IEventStore<Uuid>>();
             services.AddSingleton<IEventStore<Uuid>>(EventStore);
 
+            // A demo's reset wipes the in-memory streams instead of Marten's tables.
+            services.RemoveAll<IEventStoreWiper>();
+            services.AddSingleton<IEventStoreWiper>(EventStore);
+
             services.RemoveAll<IDocumentStore>();
             services.AddSingleton<IDocumentStore>(TestStore);
 

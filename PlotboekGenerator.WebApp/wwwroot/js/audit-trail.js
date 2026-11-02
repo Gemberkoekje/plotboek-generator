@@ -13,7 +13,7 @@ document.addEventListener('click', function (e) {
         icon.classList.toggle('fa-chevron-down', isVisible);
         icon.classList.toggle('fa-chevron-up', !isVisible);
     }
-    btn.title = isVisible ? 'Details tonen' : 'Details verbergen';
+    btn.title = isVisible ? pbT('AuditDetailsTonen') : pbT('AuditDetailsVerbergen');
 });
 
 document.addEventListener('click', function (e) {
@@ -25,5 +25,5 @@ document.addEventListener('click', function (e) {
 
     const isVisible = details.style.display !== 'none';
     details.style.display = isVisible ? 'none' : 'block';
-    btn.textContent = isVisible ? 'show debug' : 'hide debug';
+    btn.textContent = isVisible ? pbT('AuditDebugTonen') : pbT('AuditDebugVerbergen');
 });

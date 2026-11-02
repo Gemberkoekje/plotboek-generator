@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="ConcurrencyConflict" xml:space="preserve">
+    <value>Someone else has made a change in the meantime. Your changes were not saved.</value>
+  </data>
+  <data name="ExportFlexibel" xml:space="preserve">
+    <value>{0} (flexible)</value>
+  </data>
+  <data name="ExportNogNietIngepland" xml:space="preserve">
+    <value>Not scheduled yet</value>
+  </data>
+  <data name="ExportSpelerGedreven" xml:space="preserve">
+    <value>Player-driven</value>
+  </data>
+  <data name="ExportSpelerGedrevenKop" xml:space="preserve">
+    <value>Player-driven</value>
+  </data>
+  <data name="ExportZieExtraInformatie" xml:space="preserve">
+    <value>See more information on page </value>
+  </data>
+  <data name="GeminiPromptBron" xml:space="preserve">
+    <value>Use the SUMMARY as the MAIN source and use the other fields only as extra context. Write only ONE sentence as the answer.</value>
+  </data>
+  <data name="GeminiPromptDebrief" xml:space="preserve">
+    <value>Debrief: {0}</value>
+  </data>
+  <data name="GeminiPromptDoel" xml:space="preserve">
+    <value>Purpose: 1 sentence the GM handing out the NPC roles uses to sell the plot to the NPC players while the roles are divided.</value>
+  </data>
+  <data name="GeminiPromptEncounter" xml:space="preserve">
+    <value>Encounter: {0}</value>
+  </data>
+  <data name="GeminiPromptExtraInformatie" xml:space="preserve">
+    <value>More information: {0}</value>
+  </data>
+  <data name="GeminiPromptNpcs" xml:space="preserve">
+    <value>NPCs: {0}</value>
+  </data>
+  <data name="GeminiPromptOpdracht" xml:space="preserve">
+    <value>Give one short elevator pitch in one sentence (no lists or multiple options).</value>
+  </data>
+  <data name="GeminiPromptPropsEnLoot" xml:space="preserve">
+    <value>Props &amp; loot: {0}</value>
+  </data>
+  <data name="GeminiPromptSamenvatting" xml:space="preserve">
+    <value>Summary:</value>
+  </data>
+  <data name="GeminiPromptTaal" xml:space="preserve">
+    <value>Write the answer in this language: {0}.</value>
+  </data>
+  <data name="GeminiPromptTitel" xml:space="preserve">
+    <value>Title: {0}</value>
+  </data>
+  <data name="GoogleDriveBijwerkenMislukt" xml:space="preserve">
+    <value>The file could not be updated in Google Drive: {0}</value>
+  </data>
+  <data name="GoogleDriveFolderUrlOnleesbaar" xml:space="preserve">
+    <value>No Google Drive folder can be read from the URL {0}.</value>
+  </data>
+  <data name="GoogleDriveGeenFolderUrl" xml:space="preserve">
+    <value>No Google Drive folder URL is set for this plot book.</value>
+  </data>
+  <data name="GoogleDriveNietGeconfigureerd" xml:space="preserve">
+    <value>Google Drive is not configured.</value>
+  </data>
+  <data name="GoogleDriveUploadenMislukt" xml:space="preserve">
+    <value>The file could not be uploaded to Google Drive: {0}</value>
+  </data>
+  <data name="PaginaIdLeeg" xml:space="preserve">
+    <value>No page was given.</value>
+  </data>
+  <data name="PaginaNietGevonden" xml:space="preserve">
+    <value>Page {0} was not found.</value>
+  </data>
+  <data name="PlotboekIdLeeg" xml:space="preserve">
+    <value>No plot book was given.</value>
+  </data>
+  <data name="PlotboekNietGevonden" xml:space="preserve">
+    <value>Plot book {0} was not found.</value>
+  </data>
+</root>

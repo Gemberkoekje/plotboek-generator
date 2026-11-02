@@ -1,3 +1,5 @@
+using PlotboekGenerator.WebApp.Resources;
+
 namespace PlotboekGenerator.WebApp.Pages;
 
 /// <summary>
@@ -61,11 +63,14 @@ public sealed partial class PlotboekModel
     /// included, because in practice someone else picks it up. Deliberately NOT
     /// <c>CanEditCurrentPagina()</c>: responding has to work while the plot is content-locked (a
     /// "volledig klaar" pagina, or a closed plotboek), otherwise an SL could never unblock their own
-    /// plot. NPCs see no feedback at all.
+    /// plot. NPCs see no feedback at all; Readers see it but do not respond.
     /// </summary>
-    public bool CanRespondToFeedback => !IsNpc;
+    public bool CanRespondToFeedback => !IsReadOnlyRole;
 
-    /// <summary>Whether the feedback section is shown at all. NPCs never see internal traffic.</summary>
+    /// <summary>
+    /// Whether the feedback section is shown at all. NPCs never see internal traffic; Readers do,
+    /// since following how the plots come along is what they are there for.
+    /// </summary>
     public bool CanSeeFeedback => !IsNpc;
 
     /// <summary>
@@ -87,7 +92,7 @@ public sealed partial class PlotboekModel
     {
         if (string.IsNullOrWhiteSpace(userId))
         {
-            return "onbekend";
+            return PaginaUi.FeedbackOnbekendeAuteur;
         }
 
         return AvailableSls.FirstOrDefault(sl => sl.Id == userId)?.DisplayName ?? userId;
@@ -97,7 +102,7 @@ public sealed partial class PlotboekModel
     {
         if (!CanManageFeedback)
         {
-            return await FeedbackNotAllowedResult("Alleen admins kunnen feedback geven.");
+            return await FeedbackNotAllowedResult(PaginaUi.FeedbackAlleenAdminsGeven);
         }
 
         return await MutateFeedbackAsync(
@@ -109,7 +114,7 @@ public sealed partial class PlotboekModel
     {
         if (!CanRespondToFeedback)
         {
-            return await FeedbackNotAllowedResult("Je mag niet op feedback reageren.");
+            return await FeedbackNotAllowedResult(PaginaUi.FeedbackNietReageren);
         }
 
         return await MutateFeedbackAsync(
@@ -121,7 +126,7 @@ public sealed partial class PlotboekModel
     {
         if (!CanRespondToFeedback)
         {
-            return await FeedbackNotAllowedResult("Je mag niet op feedback reageren.");
+            return await FeedbackNotAllowedResult(PaginaUi.FeedbackNietReageren);
         }
 
         return await MutateFeedbackAsync(
@@ -133,7 +138,7 @@ public sealed partial class PlotboekModel
     {
         if (!CanManageFeedback)
         {
-            return await FeedbackNotAllowedResult("Alleen admins kunnen feedback afhandelen.");
+            return await FeedbackNotAllowedResult(PaginaUi.FeedbackAlleenAdminsAfhandelen);
         }
 
         return await MutateFeedbackAsync(
@@ -145,7 +150,7 @@ public sealed partial class PlotboekModel
     {
         if (!CanManageFeedback)
         {
-            return await FeedbackNotAllowedResult("Alleen admins kunnen feedback heropenen.");
+            return await FeedbackNotAllowedResult(PaginaUi.FeedbackAlleenAdminsHeropenen);
         }
 
         return await MutateFeedbackAsync(
@@ -157,7 +162,7 @@ public sealed partial class PlotboekModel
     {
         if (!CanManageFeedback)
         {
-            return await FeedbackNotAllowedResult("Alleen admins kunnen feedback verwijderen.");
+            return await FeedbackNotAllowedResult(PaginaUi.FeedbackAlleenAdminsVerwijderen);
         }
 
         return await MutateFeedbackAsync(

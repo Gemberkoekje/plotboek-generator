@@ -1,3 +1,5 @@
+using PlotboekGenerator.core.Resources;
+
 namespace PlotboekGenerator.core.Events;
 
 /// <summary>
@@ -12,6 +14,6 @@ public sealed record PlotboekPaginaPlotlijnAangepast : AuditTrailEvent
     public PlotlijnId PlotlijnId { get; init; }
 
     public override string What => PlotlijnId.HasValue
-        ? $"<strong>Plotlijn aangepast:</strong> Toegevoegd aan plotlijn"
-        : "<strong>Plotlijn verwijderd:</strong> Dit is nu een zelfstandige encounter";
+        ? $"<strong>{CoreTekst.PlotlijnAangepast}</strong> {CoreTekst.PlotlijnToegevoegd}"
+        : $"<strong>{CoreTekst.PlotlijnVerwijderd}</strong> {CoreTekst.PlotlijnZelfstandig}";
 }

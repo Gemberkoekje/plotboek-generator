@@ -1,3 +1,5 @@
+using PlotboekGenerator.core.Resources;
+
 namespace PlotboekGenerator.core.Events;
 
 public sealed record PlotboekPaginaEncounterTypesAangepast : AuditTrailEvent
@@ -11,7 +13,7 @@ public sealed record PlotboekPaginaEncounterTypesAangepast : AuditTrailEvent
         get
         {
             var encounterTypes = EncounterTypes.Create(Major, Minor);
-            return $"<strong>Soort encounter aangepast:</strong> {(encounterTypes.HasValue ? encounterTypes.ToString() : "(leeg)")}";
+            return $"<strong>{CoreTekst.SoortEncounterAangepast}</strong> {(encounterTypes.HasValue ? encounterTypes.ToString() : CoreTekst.Leeg)}";
         }
     }
 }

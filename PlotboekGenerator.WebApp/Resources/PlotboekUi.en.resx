@@ -1,0 +1,498 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="AantalNpcs" xml:space="preserve">
+    <value>Number of NPCs</value>
+  </data>
+  <data name="AccessGeenPlotboek" xml:space="preserve">
+    <value>There is no plot book yet. Come back later; once the GMs start one, you can read along.</value>
+  </data>
+  <data name="AccessGeenPlotboekVoorNpcs" xml:space="preserve">
+    <value>No plot book is ready for NPCs yet. Come back later; the GMs open the plot book as soon as everything is ready.</value>
+  </data>
+  <data name="AccessNietBeschikbaar" xml:space="preserve">
+    <value>The selected plot book is not available.</value>
+  </data>
+  <data name="AccessNogNietKlaarVoorNpcs" xml:space="preserve">
+    <value>This plot book is not ready for NPCs yet.</value>
+  </data>
+  <data name="Acties" xml:space="preserve">
+    <value>Actions</value>
+  </data>
+  <data name="AlleenAdminsKunnenStatusAanpassen" xml:space="preserve">
+    <value>Only administrators can change this status.</value>
+  </data>
+  <data name="AlleenAdminsPlotboekVolledigKlaar" xml:space="preserve">
+    <value>Only administrators can change the status 'Plot book ready'.</value>
+  </data>
+  <data name="AlleenLezen" xml:space="preserve">
+    <value>You can only read this plot book.</value>
+  </data>
+  <data name="Annuleren" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
+  <data name="AuditActie" xml:space="preserve">
+    <value>Action</value>
+  </data>
+  <data name="AuditDebugTonen" xml:space="preserve">
+    <value>show debug</value>
+  </data>
+  <data name="AuditDetailsTonen" xml:space="preserve">
+    <value>Show details</value>
+  </data>
+  <data name="AuditWanneer" xml:space="preserve">
+    <value>When</value>
+  </data>
+  <data name="AuditWat" xml:space="preserve">
+    <value>What</value>
+  </data>
+  <data name="AuditWie" xml:space="preserve">
+    <value>Who</value>
+  </data>
+  <data name="BekijkInGoogleDrive" xml:space="preserve">
+    <value>View in Google Drive</value>
+  </data>
+  <data name="BekijkInGoogleDriveTitel" xml:space="preserve">
+    <value>Open the last uploaded file in Google Drive</value>
+  </data>
+  <data name="BijlageInhoudTonen" xml:space="preserve">
+    <value>Show or hide the content</value>
+  </data>
+  <data name="BijlageInhoudVanTonen" xml:space="preserve">
+    <value>Show or hide the content of {0}</value>
+  </data>
+  <data name="BijlageNaamPlaceholder" xml:space="preserve">
+    <value>Name of the attachment (e.g. Brazen Bull price list)</value>
+  </data>
+  <data name="BijlagenLabel" xml:space="preserve">
+    <value>Attachments:</value>
+  </data>
+  <data name="BijlagenUitleg" xml:space="preserve">
+    <value>Reusable attachments (e.g. price lists, stat blocks). Add them here once, then link them to one or more plots under the "Attachments" heading of a plot. Every attachment appears at the back of the plot book.</value>
+  </data>
+  <data name="BijlageToevoegen" xml:space="preserve">
+    <value>Add attachment</value>
+  </data>
+  <data name="BijlageVerwijderen" xml:space="preserve">
+    <value>Delete attachment</value>
+  </data>
+  <data name="BijlageZonderNaam" xml:space="preserve">
+    <value>This attachment has content but no name yet. Fill in a name, or the content will not be saved.</value>
+  </data>
+  <data name="BijlageZonderNaamMany" xml:space="preserve">
+    <value>Attachments {0} have content but no name. Give them a name and save again, or the content will be lost.</value>
+  </data>
+  <data name="BijlageZonderNaamOne" xml:space="preserve">
+    <value>Attachment {0} has content but no name. Give the attachment a name and save again, or the content will be lost.</value>
+  </data>
+  <data name="BlokLabel" xml:space="preserve">
+    <value>Block {0}.{1}: {2}</value>
+  </data>
+  <data name="BlokNpcTotaalVerwacht" xml:space="preserve">
+    <value>{0} (expected: {1})</value>
+  </data>
+  <data name="DatumsBepalenDagen" xml:space="preserve">
+    <value>When the start date and end date are filled in, the start day and end day are set automatically.</value>
+  </data>
+  <data name="DatumsLegenOmDagenTeKiezen" xml:space="preserve">
+    <value>Clear the dates to change the days by hand.</value>
+  </data>
+  <data name="Doorlopend" xml:space="preserve">
+    <value>Continuing: {0}</value>
+  </data>
+  <data name="DoorlopendeEncounters" xml:space="preserve">
+    <value>Encounters continuing from earlier blocks</value>
+  </data>
+  <data name="DupliceerPagina" xml:space="preserve">
+    <value>Duplicate page</value>
+  </data>
+  <data name="Dupliceren" xml:space="preserve">
+    <value>Duplicate</value>
+  </data>
+  <data name="DuplicerenUitleg" xml:space="preserve">
+    <value>Makes a copy on the same day and time; drag it to another day or time afterwards.</value>
+  </data>
+  <data name="EindDagLabel" xml:space="preserve">
+    <value>End day:</value>
+  </data>
+  <data name="EindDatumLabel" xml:space="preserve">
+    <value>End date:</value>
+  </data>
+  <data name="ElevatorPitchGeannuleerd" xml:space="preserve">
+    <value>Generating the elevator pitch was cancelled or took too long. Please try again.</value>
+  </data>
+  <data name="ElevatorPitchMislukt" xml:space="preserve">
+    <value>Generating the elevator pitch failed. Please try again.</value>
+  </data>
+  <data name="EncountersPerSl" xml:space="preserve">
+    <value>Encounters per GM</value>
+  </data>
+  <data name="EvergreenExportUitleg" xml:space="preserve">
+    <value>Finished encounters are added to the export of regular plot books automatically.</value>
+  </data>
+  <data name="EvergreenUitleg" xml:space="preserve">
+    <value>This is the Evergreen plot book. Its encounters are not tied to a particular event.</value>
+  </data>
+  <data name="ExportDocx" xml:space="preserve">
+    <value>Export DOCX</value>
+  </data>
+  <data name="FeedbackOpenMany" xml:space="preserve">
+    <value>{0} open feedback points</value>
+  </data>
+  <data name="FeedbackOpenOne" xml:space="preserve">
+    <value>{0} open feedback point</value>
+  </data>
+  <data name="FeedbackWachtOpAfhandeling" xml:space="preserve">
+    <value>Waiting for the head GM to sign off</value>
+  </data>
+  <data name="FilterAlleDomeinen" xml:space="preserve">
+    <value>All domains</value>
+  </data>
+  <data name="FilterAlleSls" xml:space="preserve">
+    <value>All GMs</value>
+  </data>
+  <data name="FilterAlleSoorten" xml:space="preserve">
+    <value>All types</value>
+  </data>
+  <data name="FilterAlleTechniek" xml:space="preserve">
+    <value>All {0}</value>
+  </data>
+  <data name="FilterGeenResultaten" xml:space="preserve">
+    <value>No encounters match this filter.</value>
+  </data>
+  <data name="FilterMet" xml:space="preserve">
+    <value>With {0}</value>
+  </data>
+  <data name="FilterMetMuziekLichtRook" xml:space="preserve">
+    <value>With music/light/smoke</value>
+  </data>
+  <data name="FilterOpDomein" xml:space="preserve">
+    <value>Filter by domain</value>
+  </data>
+  <data name="FilterOpSl" xml:space="preserve">
+    <value>Filter by GM</value>
+  </data>
+  <data name="FilterOpSoort" xml:space="preserve">
+    <value>Filter by encounter type</value>
+  </data>
+  <data name="FilterOpTechniek" xml:space="preserve">
+    <value>Filter by {0}</value>
+  </data>
+  <data name="FiltersActief" xml:space="preserve">
+    <value>Filters active</value>
+  </data>
+  <data name="FilterStatus" xml:space="preserve">
+    <value>{0} of {1} encounters</value>
+  </data>
+  <data name="FiltersTonen" xml:space="preserve">
+    <value>Show/hide filters</value>
+  </data>
+  <data name="FiltersWissen" xml:space="preserve">
+    <value>Clear filters</value>
+  </data>
+  <data name="FormulierToontHuidigeWaarden" xml:space="preserve">
+    <value>The form now shows the current values.</value>
+  </data>
+  <data name="GeenAlgemeneSamenvatting" xml:space="preserve">
+    <value>No summary of the overall plot is available yet.</value>
+  </data>
+  <data name="GeenEncountersMetSl" xml:space="preserve">
+    <value>There are no encounters with a responsible GM yet.</value>
+  </data>
+  <data name="GeenPaginas" xml:space="preserve">
+    <value>No pages available for this plot book.</value>
+  </data>
+  <data name="GeenPlotboekBeschikbaar" xml:space="preserve">
+    <value>No plot book available yet</value>
+  </data>
+  <data name="GeenPlotsIngedeeld" xml:space="preserve">
+    <value>No plots scheduled</value>
+  </data>
+  <data name="GeenVoorblad" xml:space="preserve">
+    <value>No cover page image has been set.</value>
+  </data>
+  <data name="GeenWijzigingen" xml:space="preserve">
+    <value>No changes found.</value>
+  </data>
+  <data name="GoogleDriveFolderUitleg" xml:space="preserve">
+    <value>Optional. The Google Drive folder the generated DOCX file is uploaded to.</value>
+  </data>
+  <data name="GoogleDriveFolderUrlLabel" xml:space="preserve">
+    <value>Google Drive folder URL:</value>
+  </data>
+  <data name="GoogleDriveFout" xml:space="preserve">
+    <value>Upload to Google Drive failed: {0}</value>
+  </data>
+  <data name="GoogleDriveGeenFolder" xml:space="preserve">
+    <value>No Google Drive folder URL is configured for this plot book. Set it in the plot book settings.</value>
+  </data>
+  <data name="GoogleDriveGeupload" xml:space="preserve">
+    <value>'{0}' was uploaded to Google Drive.</value>
+  </data>
+  <data name="GoogleDriveLaatsteUpdate" xml:space="preserve">
+    <value>Google Drive last update:</value>
+  </data>
+  <data name="GoogleDriveNietGeconfigureerd" xml:space="preserve">
+    <value>The Google Drive service account is not configured on the server.</value>
+  </data>
+  <data name="Herstel" xml:space="preserve">
+    <value>Restore</value>
+  </data>
+  <data name="HerstelVersieTitel" xml:space="preserve">
+    <value>Restore the page to this version</value>
+  </data>
+  <data name="Hoofdverantwoordelijk" xml:space="preserve">
+    <value>Responsible</value>
+  </data>
+  <data name="IemandAndersAangepast" xml:space="preserve">
+    <value>Someone else has already made a change. Your changes have not been saved.</value>
+  </data>
+  <data name="KaartVolledigFormaat" xml:space="preserve">
+    <value>Open full size</value>
+  </data>
+  <data name="KopieTitel" xml:space="preserve">
+    <value>{0} (copy)</value>
+  </data>
+  <data name="LetOpDubbelepunt" xml:space="preserve">
+    <value>Warning:</value>
+  </data>
+  <data name="LetOpUitroep" xml:space="preserve">
+    <value>Warning:</value>
+  </data>
+  <data name="NergensHoofdverantwoordelijkHtml" xml:space="preserve">
+    <value>This GM is not responsible for any plot. Turn on &lt;strong&gt;Show plots with a supporting role&lt;/strong&gt; to see the encounters they support.</value>
+  </data>
+  <data name="NietOpgeslagenWijzigingen" xml:space="preserve">
+    <value>Your unsaved changes</value>
+  </data>
+  <data name="NieuwePagina" xml:space="preserve">
+    <value>New page</value>
+  </data>
+  <data name="NieuwePaginaStandaardTitel" xml:space="preserve">
+    <value>New page</value>
+  </data>
+  <data name="NogNietIngedeeld" xml:space="preserve">
+    <value>Not scheduled yet</value>
+  </data>
+  <data name="NogNietVolledigKlaar" xml:space="preserve">
+    <value>Not ready yet</value>
+  </data>
+  <data name="OndersteunendBijrol" xml:space="preserve">
+    <value>Supporting (supporting role)</value>
+  </data>
+  <data name="OpsommingLaatste" xml:space="preserve">
+    <value>{0} and {1}</value>
+  </data>
+  <data name="PaginaActies" xml:space="preserve">
+    <value>Page actions</value>
+  </data>
+  <data name="PaginaLijstTitel" xml:space="preserve">
+    <value>Plot book pages</value>
+  </data>
+  <data name="PaginaVerwijderenTitel" xml:space="preserve">
+    <value>Delete page</value>
+  </data>
+  <data name="PaginaWijzigingenTitel" xml:space="preserve">
+    <value>Page changes: {0}</value>
+  </data>
+  <data name="PaginaWordtVerwijderdHtml" xml:space="preserve">
+    <value>The page &lt;strong&gt;{0}&lt;/strong&gt; will be deleted. Are you sure?</value>
+  </data>
+  <data name="PlotboekBewerken" xml:space="preserve">
+    <value>Edit plot book</value>
+  </data>
+  <data name="PlotboekNietKlaarAantalHtml" xml:space="preserve">
+    <value>This plot book cannot be marked as ready yet. &lt;strong&gt;{0}&lt;/strong&gt; pages are not ready yet.</value>
+  </data>
+  <data name="PlotboekNietKlaarLijst" xml:space="preserve">
+    <value>This plot book cannot be marked as ready yet. These pages are not ready yet:</value>
+  </data>
+  <data name="PlotboekNogNietKlaarMet" xml:space="preserve">
+    <value>This plot book cannot be marked as ready yet. Not ready yet: {0}.</value>
+  </data>
+  <data name="PlotboekOpslaan" xml:space="preserve">
+    <value>Save plot book</value>
+  </data>
+  <data name="PlotboekVergrendeld" xml:space="preserve">
+    <value>This plot book is ready and can no longer be changed.</value>
+  </data>
+  <data name="PlotboekVolledigKlaar" xml:space="preserve">
+    <value>Plot book ready</value>
+  </data>
+  <data name="PlotboekVolledigKlaarUitleg" xml:space="preserve">
+    <value>Turn this on when the whole plot book has been checked and may be shown to NPCs.</value>
+  </data>
+  <data name="PlotboekWijzigingenTitel" xml:space="preserve">
+    <value>Plot book changes</value>
+  </data>
+  <data name="SamenvattingAlgemeenPlotLabel" xml:space="preserve">
+    <value>Summary of the overall plot:</value>
+  </data>
+  <data name="SamenvattingAlgemeenPlotUitleg" xml:space="preserve">
+    <value>Optional. A general summary of the overarching plot of this plot book.</value>
+  </data>
+  <data name="SelectieKiezen" xml:space="preserve">
+    <value>-- Select a plot book --</value>
+  </data>
+  <data name="SelectieLabel" xml:space="preserve">
+    <value>Select plot book:</value>
+  </data>
+  <data name="SelectieNogNietKlaarVoorNpcs" xml:space="preserve">
+    <value>No plot book is ready for NPCs yet.</value>
+  </data>
+  <data name="SettingsOverzicht" xml:space="preserve">
+    <value>Plot book overview</value>
+  </data>
+  <data name="SettingsTitel" xml:space="preserve">
+    <value>Plot book settings &amp; actions</value>
+  </data>
+  <data name="SlOverzicht" xml:space="preserve">
+    <value>GM overview</value>
+  </data>
+  <data name="Sluiten" xml:space="preserve">
+    <value>Close</value>
+  </data>
+  <data name="SpelerGedreven" xml:space="preserve">
+    <value>Player-driven</value>
+  </data>
+  <data name="Spelleider" xml:space="preserve">
+    <value>GM</value>
+  </data>
+  <data name="StartDagLabel" xml:space="preserve">
+    <value>Start day:</value>
+  </data>
+  <data name="StartDatumLabel" xml:space="preserve">
+    <value>Start date:</value>
+  </data>
+  <data name="StarttijdNietBeschikbaarOpDag" xml:space="preserve">
+    <value>{0} (not available on this day)</value>
+  </data>
+  <data name="StarttijdNietIngedeeld" xml:space="preserve">
+    <value>No start time yet</value>
+  </data>
+  <data name="StatusAlleenVinkjeNog" xml:space="preserve">
+    <value>Everything filled in: only 'Plot ready' left to tick</value>
+  </data>
+  <data name="StatusGedraaid" xml:space="preserve">
+    <value>Has been run</value>
+  </data>
+  <data name="StatusNietKlaar" xml:space="preserve">
+    <value>Plot is not ready yet</value>
+  </data>
+  <data name="StatusVolledigKlaar" xml:space="preserve">
+    <value>Plot is ready</value>
+  </data>
+  <data name="Titel" xml:space="preserve">
+    <value>Plot book</value>
+  </data>
+  <data name="TitelLabel" xml:space="preserve">
+    <value>Title:</value>
+  </data>
+  <data name="ToonBijrol" xml:space="preserve">
+    <value>Show plots with a supporting role (supporting GM)</value>
+  </data>
+  <data name="UploadNaarGoogleDrive" xml:space="preserve">
+    <value>Upload to Google Drive</value>
+  </data>
+  <data name="VerplaatsNaarPlotboek" xml:space="preserve">
+    <value>Move to plot book</value>
+  </data>
+  <data name="VerplaatsNaarPlotboekKiezen" xml:space="preserve">
+    <value>-- Move to plot book --</value>
+  </data>
+  <data name="VerplaatsPagina" xml:space="preserve">
+    <value>Move page</value>
+  </data>
+  <data name="VerwachtNpcsEerstDagen" xml:space="preserve">
+    <value>Set the start and end days first to enter the number of NPCs per day.</value>
+  </data>
+  <data name="VerwachtNpcsKleurenUitleg" xml:space="preserve">
+    <value>The NPC totals per time block are then coloured green/yellow/red.</value>
+  </data>
+  <data name="VerwachtNpcsLabel" xml:space="preserve">
+    <value>Expected number of NPCs per day:</value>
+  </data>
+  <data name="VerwachtNpcsUitleg" xml:space="preserve">
+    <value>Optional. Fill in how many NPCs are available each day.</value>
+  </data>
+  <data name="Verwijderen" xml:space="preserve">
+    <value>Delete</value>
+  </data>
+  <data name="VolledigKlaar" xml:space="preserve">
+    <value>Ready</value>
+  </data>
+  <data name="VoorbladAfbeeldingLabel" xml:space="preserve">
+    <value>Cover page image:</value>
+  </data>
+  <data name="VoorbladAlt" xml:space="preserve">
+    <value>Cover page</value>
+  </data>
+  <data name="VoorbladUploadUitleg" xml:space="preserve">
+    <value>Upload an image for the plot book's cover page (DOCX export).</value>
+  </data>
+  <data name="VoorbladVerwijderen" xml:space="preserve">
+    <value>Remove current image</value>
+  </data>
+  <data name="WeergaveIconen" xml:space="preserve">
+    <value>Icons</value>
+  </data>
+  <data name="WeergaveNpcAantal" xml:space="preserve">
+    <value>NPC count</value>
+  </data>
+  <data name="WeergaveOnderdelen" xml:space="preserve">
+    <value>Display parts</value>
+  </data>
+  <data name="WeergaveOptiesAriaLabel" xml:space="preserve">
+    <value>Display options</value>
+  </data>
+  <data name="WeergaveOptiesTitel" xml:space="preserve">
+    <value>Display: choose which parts are shown and in which order</value>
+  </data>
+  <data name="WeergaveSleep" xml:space="preserve">
+    <value>Drag to move (or Alt+arrow keys)</value>
+  </data>
+  <data name="WeergaveSlNaam" xml:space="preserve">
+    <value>GM name</value>
+  </data>
+  <data name="WeergaveStandaardHerstellen" xml:space="preserve">
+    <value>Restore default</value>
+  </data>
+  <data name="WeergaveUitleg" xml:space="preserve">
+    <value>Drag or use Alt+arrow keys to reorder; tick to show.</value>
+  </data>
+  <data name="WijzigingBijlageInhoud" xml:space="preserve">
+    <value>Attachment {0} content</value>
+  </data>
+  <data name="WijzigingBijlageNaam" xml:space="preserve">
+    <value>Attachment {0} name</value>
+  </data>
+  <data name="Wijzigingen" xml:space="preserve">
+    <value>Changes</value>
+  </data>
+  <data name="WijzigingenStaanNogInFormulier" xml:space="preserve">
+    <value>Your changes are still in the form below.</value>
+  </data>
+  <data name="WijzigingGoogleDriveFolderUrl" xml:space="preserve">
+    <value>Google Drive folder URL</value>
+  </data>
+  <data name="WijzigingNpcsDag" xml:space="preserve">
+    <value>NPCs {0}</value>
+  </data>
+  <data name="WijzigingSamenvattingAlgemeenPlot" xml:space="preserve">
+    <value>Summary of the overall plot</value>
+  </data>
+  <data name="WijzigingTitel" xml:space="preserve">
+    <value>Title</value>
+  </data>
+</root>

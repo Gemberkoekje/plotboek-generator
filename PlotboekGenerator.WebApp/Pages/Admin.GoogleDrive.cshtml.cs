@@ -1,6 +1,8 @@
+using System.Globalization;
 using Google.Apis.Drive.v3;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using PlotboekGenerator.WebApp.Resources;
 
 namespace PlotboekGenerator.WebApp.Pages;
 
@@ -26,12 +28,12 @@ public sealed partial class AdminModel
 
         if (string.IsNullOrWhiteSpace(clientId))
         {
-            return BadRequest("Google OAuth Client ID is not configured.");
+            return BadRequest(AdminUi.DriveClientIdOntbreekt);
         }
 
         if (string.IsNullOrWhiteSpace(authEndpoint))
         {
-            return BadRequest("Google OAuth Authorization Endpoint is not configured.");
+            return BadRequest(AdminUi.DriveAuthEndpointOntbreekt);
         }
 
         var redirectUri = Url.PageLink("/GoogleDriveCallback");
@@ -57,11 +59,21 @@ public sealed partial class AdminModel
         }
         else if (result.Errors.Count > 0)
         {
-            ErrorMessage = $"Sync voltooid met fouten — {result.Checked} gecontroleerd, {result.Uploaded} geüpload, {result.Errors.Count} fout(en): {string.Join("; ", result.Errors)}";
+            ErrorMessage = string.Format(
+                CultureInfo.CurrentCulture,
+                result.Errors.Count == 1 ? AdminUi.DriveSyncMetFoutenOne : AdminUi.DriveSyncMetFoutenMany,
+                result.Checked,
+                result.Uploaded,
+                result.Errors.Count,
+                string.Join("; ", result.Errors));
         }
         else
         {
-            SuccessMessage = $"Sync voltooid — {result.Checked} plotboeken gecontroleerd, {result.Uploaded} geüpload.";
+            SuccessMessage = string.Format(
+                CultureInfo.CurrentCulture,
+                result.Checked == 1 ? AdminUi.DriveSyncVoltooidOne : AdminUi.DriveSyncVoltooidMany,
+                result.Checked,
+                result.Uploaded);
         }
     }
 }

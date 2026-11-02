@@ -17,7 +17,7 @@ function addPropItem() {
     const i = propIndex++;
 
     const primarySelect = document.getElementById('editable-verantwoordelijke-sl');
-    let optionsHtml = '<option value="">-- SL --</option>';
+    let optionsHtml = `<option value="">${escapeTekst(pbT('PropsSlKiezen'))}</option>`;
     if (primarySelect) {
         primarySelect.querySelectorAll('option').forEach(opt => {
             if (opt.value) {
@@ -31,14 +31,14 @@ function addPropItem() {
             <input type="text"
                    name="EditableProps[${i}].Omschrijving"
                    class="form-control form-control-sm me-2"
-                   placeholder="Omschrijving prop">
+                   placeholder="${escapeTekst(pbT('PropOmschrijvingPlaceholder'))}">
 
             <select name="EditableProps[${i}].VerantwoordelijkeSource"
                     class="form-select form-select-sm me-2 prop-source-select" style="max-width: 160px;"
                     onchange="onPropSourceChanged(this)">
-                <option value="SL">SL</option>
-                <option value="SpelerOfNpc">Speler of NPC</option>
-                <option value="Anders">Anders</option>
+                <option value="SL">${escapeTekst(pbT('PropsBronSl'))}</option>
+                <option value="SpelerOfNpc">${escapeTekst(pbT('PropsBronSpelerOfNpc'))}</option>
+                <option value="Anders">${escapeTekst(pbT('PropsBronAnders'))}</option>
             </select>
 
             <select name="EditableProps[${i}].VerantwoordelijkeSlId"
@@ -49,7 +49,7 @@ function addPropItem() {
             <input type="text"
                    name="EditableProps[${i}].VerantwoordelijkeVrijeTekst"
                    class="form-control form-control-sm me-2 prop-vrije-tekst"
-                   placeholder="Speler of naam"
+                   placeholder="${escapeTekst(pbT('PropsVrijeTekstPlaceholder'))}"
                    style="max-width: 200px; display: none;">
 
             <button type="button" class="btn btn-outline-danger btn-sm" onclick="removePropItem(this)">
@@ -75,7 +75,7 @@ function addLootItem() {
     const i = lootIndex++;
 
     const primarySelect = document.getElementById('editable-verantwoordelijke-sl');
-    let optionsHtml = '<option value="">-- SL --</option>';
+    let optionsHtml = `<option value="">${escapeTekst(pbT('PropsSlKiezen'))}</option>`;
     if (primarySelect) {
         primarySelect.querySelectorAll('option').forEach(opt => {
             if (opt.value) {
@@ -89,14 +89,14 @@ function addLootItem() {
             <input type="text"
                    name="EditableLoot[${i}].Omschrijving"
                    class="form-control form-control-sm me-2"
-                   placeholder="Omschrijving loot">
+                   placeholder="${escapeTekst(pbT('LootOmschrijvingPlaceholder'))}">
 
             <select name="EditableLoot[${i}].VerantwoordelijkeSource"
                     class="form-select form-select-sm me-2 loot-source-select" style="max-width: 160px;"
                     onchange="onLootSourceChanged(this)">
-                <option value="SL">SL</option>
-                <option value="SpelerOfNpc">Speler of NPC</option>
-                <option value="Anders">Anders</option>
+                <option value="SL">${escapeTekst(pbT('PropsBronSl'))}</option>
+                <option value="SpelerOfNpc">${escapeTekst(pbT('PropsBronSpelerOfNpc'))}</option>
+                <option value="Anders">${escapeTekst(pbT('PropsBronAnders'))}</option>
             </select>
 
             <select name="EditableLoot[${i}].VerantwoordelijkeSlId"
@@ -107,7 +107,7 @@ function addLootItem() {
             <input type="text"
                    name="EditableLoot[${i}].VerantwoordelijkeVrijeTekst"
                    class="form-control form-control-sm me-2 loot-vrije-tekst"
-                   placeholder="Speler of naam"
+                   placeholder="${escapeTekst(pbT('PropsVrijeTekstPlaceholder'))}"
                    style="max-width: 200px; display: none;">
 
             <button type="button" class="btn btn-outline-danger btn-sm" onclick="removeLootItem(this)">

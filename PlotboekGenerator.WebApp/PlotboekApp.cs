@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.HttpOverrides;
+using Microsoft.AspNetCore.Localization;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
@@ -54,6 +55,19 @@ public sealed class PlotboekApp
         {
             var seedService = scope.ServiceProvider.GetRequiredService<ReferenceDataSeedService>();
             await seedService.SeedAsync();
+
+            // A demo starts with its example. Resolving the seeder needs the deployment's
+            // IDemoContent, so a demo without one stops here rather than at its first reset.
+            if (app.Services.GetRequiredService<DemoMode>().IsEnabled)
+            {
+                var demoSeed = await scope.ServiceProvider.GetRequiredService<DemoContentSeedService>().SeedIfEmptyAsync();
+                if (!demoSeed.IsValid)
+                {
+                    app.Services.GetRequiredService<ILogger<PlotboekApp>>().LogError(
+                        "The demo's example could not be written: {Reasons}",
+                        string.Join(", ", demoSeed.Messages.Select(m => m.Message)));
+                }
+            }
         }
 
         UseMiddleware(app);
@@ -173,6 +187,9 @@ public sealed class PlotboekApp
         services.AddSingleton(Branding.Read(configuration));
         services.AddSingleton(ThemeCookie.Read(configuration));
         services.AddSingleton(TerreinKaart.Read(configuration));
+        var demo = DemoMode.Read(configuration);
+        services.AddSingleton(demo);
+        services.AddSingleton(LocalizationSettings.Read(configuration));
 
         AddDataProtection(services, configuration);
 
@@ -234,16 +251,29 @@ public sealed class PlotboekApp
 
         services.AddScoped<ReferenceDataSeedService>();
 
+        // A demo's reset and the example it writes. Registered only for a demo: the example comes
+        // from the deployment's IDemoContent, which a deployment that never runs as one leaves out.
+        if (demo.IsEnabled)
+        {
+            services.AddSingleton<MartenEventStoreWiper>();
+            services.AddSingleton<IEventStoreWiper>(sp => sp.GetRequiredService<MartenEventStoreWiper>());
+            services.AddScoped<DemoContentSeedService>();
+            services.AddScoped<DemoResetService>();
+        }
+
         // The deployment's own services: its template, its reference data, and optionally its own
         // role resolver. The default resolver is added only when the deployment brought none.
         profile.ConfigureServices(services, configuration);
+
+        // Read once here so a mistyped default role stops the deployment on boot, not at the first sign-in.
+        ClaimRoleResolver.ReadDefaultRole(configuration);
         services.AddSingleton<ClaimRoleResolver>();
         services.TryAddSingleton<IRoleResolver>(sp => sp.GetRequiredService<ClaimRoleResolver>());
     }
 
     /// <summary>
     /// Reads <c>Terminology:*</c>, one key per <see cref="Terminologie"/> property; a key left out
-    /// keeps the neutral word.
+    /// keeps the neutral word, in the reader's language.
     /// </summary>
     /// <param name="configuration">The application configuration.</param>
     /// <returns>The deployment's words.</returns>
@@ -251,23 +281,21 @@ public sealed class PlotboekApp
     {
         ArgumentNullException.ThrowIfNull(configuration);
 
-        var standaard = Terminologie.Standaard;
-        string Read(string key, string fallback)
-            => string.IsNullOrWhiteSpace(configuration[$"Terminology:{key}"]) ? fallback : configuration[$"Terminology:{key}"]!;
+        string? Read(string key) => configuration[$"Terminology:{key}"];
 
         return new Terminologie
         {
-            Techniek = Read(nameof(Terminologie.Techniek), standaard.Techniek),
-            InstructieTechniek = Read(nameof(Terminologie.InstructieTechniek), standaard.InstructieTechniek),
-            InstructieTechniekUitleg = Read(nameof(Terminologie.InstructieTechniekUitleg), standaard.InstructieTechniekUitleg),
-            GeenTechniekInformatie = Read(nameof(Terminologie.GeenTechniekInformatie), standaard.GeenTechniekInformatie),
-            TechniekInzet = Read(nameof(Terminologie.TechniekInzet), standaard.TechniekInzet),
-            TechniekInstructie = Read(nameof(Terminologie.TechniekInstructie), standaard.TechniekInstructie),
-            MuziekVanuitTechniek = Read(nameof(Terminologie.MuziekVanuitTechniek), standaard.MuziekVanuitTechniek),
-            LichtOfRookVanuitTechniek = Read(nameof(Terminologie.LichtOfRookVanuitTechniek), standaard.LichtOfRookVanuitTechniek),
-            EventBreed = Read(nameof(Terminologie.EventBreed), standaard.EventBreed),
-            EventBreedUitleg = Read(nameof(Terminologie.EventBreedUitleg), standaard.EventBreedUitleg),
-            Organisatie = Read(nameof(Terminologie.Organisatie), standaard.Organisatie),
+            Techniek = Read(nameof(Terminologie.Techniek)),
+            InstructieTechniek = Read(nameof(Terminologie.InstructieTechniek)),
+            InstructieTechniekUitleg = Read(nameof(Terminologie.InstructieTechniekUitleg)),
+            GeenTechniekInformatie = Read(nameof(Terminologie.GeenTechniekInformatie)),
+            TechniekInzet = Read(nameof(Terminologie.TechniekInzet)),
+            TechniekInstructie = Read(nameof(Terminologie.TechniekInstructie)),
+            MuziekVanuitTechniek = Read(nameof(Terminologie.MuziekVanuitTechniek)),
+            LichtOfRookVanuitTechniek = Read(nameof(Terminologie.LichtOfRookVanuitTechniek)),
+            EventBreed = Read(nameof(Terminologie.EventBreed)),
+            EventBreedUitleg = Read(nameof(Terminologie.EventBreedUitleg)),
+            Organisatie = Read(nameof(Terminologie.Organisatie)),
         };
     }
 
@@ -363,6 +391,9 @@ public sealed class PlotboekApp
 
         app.UseHttpsRedirection();
 
+        // The language of the text: the switcher's cookie, the browser, or Localization:DefaultCulture.
+        app.UseRequestLocalization(app.Services.GetRequiredService<LocalizationSettings>().ToRequestLocalizationOptions());
+
         // Add static files BEFORE authentication/authorization
         app.UseStaticFiles();
 
@@ -392,10 +423,7 @@ public sealed class PlotboekApp
                 return Results.StatusCode(StatusCodes.Status503ServiceUnavailable);
             }
 
-            var providedKey = context.Request.Headers["X-Api-Key"].FirstOrDefault() ?? string.Empty;
-            if (!CryptographicOperations.FixedTimeEquals(
-                    Encoding.UTF8.GetBytes(providedKey),
-                    Encoding.UTF8.GetBytes(configuredKey)))
+            if (!HasApiKey(context, configuredKey))
             {
                 return Results.Unauthorized();
             }
@@ -404,7 +432,74 @@ public sealed class PlotboekApp
             return Results.Ok(result);
         }).AllowAnonymous();
 
+        // Puts a demo back to its example - called nightly by an external cronjob. Only a demo has it.
+        if (app.Services.GetRequiredService<DemoMode>().IsEnabled)
+        {
+            app.MapPost("/api/demo/reset", async (
+                HttpContext context,
+                DemoResetService resetService,
+                IConfiguration configuration,
+                CancellationToken cancellationToken) =>
+            {
+                var configuredKey = configuration[DemoMode.ResetApiKeyKey];
+                if (string.IsNullOrWhiteSpace(configuredKey))
+                {
+                    // Fail closed, as above.
+                    return Results.StatusCode(StatusCodes.Status503ServiceUnavailable);
+                }
+
+                if (!HasApiKey(context, configuredKey))
+                {
+                    return Results.Unauthorized();
+                }
+
+                var result = await resetService.ResetAsync(cancellationToken);
+                return result.IsValid
+                    ? Results.Ok(result.Value)
+                    : Results.Problem(string.Join(", ", result.Messages.Select(m => m.Message)));
+            }).AllowAnonymous();
+        }
+
         // Simple health check endpoint
         app.MapGet("/health", () => Results.Ok("Healthy")).AllowAnonymous();
+
+        // The language switcher: remembers the choice for a year and goes back to the page it came from.
+        app.MapGet("/culture/{culture}", (string culture, string? returnUrl, HttpContext context, LocalizationSettings localization) =>
+        {
+            if (localization.Find(culture) is { } chosen)
+            {
+                context.Response.Cookies.Append(
+                    CookieRequestCultureProvider.DefaultCookieName,
+                    CookieRequestCultureProvider.MakeCookieValue(new RequestCulture(System.Globalization.CultureInfo.CurrentCulture, chosen)),
+                    new CookieOptions
+                    {
+                        Expires = DateTimeOffset.UtcNow.AddYears(1),
+                        IsEssential = true,
+                        HttpOnly = true,
+                        SameSite = SameSiteMode.Lax,
+                        Secure = context.Request.IsHttps,
+                    });
+            }
+
+            return Results.LocalRedirect(IsLocalUrl(returnUrl) ? returnUrl! : "~/");
+        }).AllowAnonymous();
+    }
+
+    /// <summary>
+    /// Whether <paramref name="url"/> stays on this site: a path from the root, not a scheme-relative
+    /// <c>//host</c> or <c>/\host</c> that a browser would take elsewhere.
+    /// </summary>
+    internal static bool IsLocalUrl(string? url)
+        => !string.IsNullOrEmpty(url)
+        && url[0] == '/'
+        && (url.Length == 1 || (url[1] != '/' && url[1] != '\\'));
+
+    /// <summary>Whether the request's <c>X-Api-Key</c> header is the configured key, compared in fixed time.</summary>
+    private static bool HasApiKey(HttpContext context, string configuredKey)
+    {
+        var providedKey = context.Request.Headers["X-Api-Key"].FirstOrDefault() ?? string.Empty;
+        return CryptographicOperations.FixedTimeEquals(
+            Encoding.UTF8.GetBytes(providedKey),
+            Encoding.UTF8.GetBytes(configuredKey));
     }
 }

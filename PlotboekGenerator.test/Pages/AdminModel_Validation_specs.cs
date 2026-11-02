@@ -62,7 +62,7 @@ public sealed class AdminModel_Validation_specs
         model.TargetUserId = "user-1";
 
         model.ValidateLinkAccountsParameters().Should().BeFalse();
-        model.ErrorMessage.Should().Contain("different");
+        model.ErrorMessage.Should().Contain("verschillen");
     }
 
     [Test]

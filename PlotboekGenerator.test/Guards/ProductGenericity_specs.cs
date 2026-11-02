@@ -55,10 +55,11 @@ public sealed class ProductGenericity_specs
         offenders.Should().BeEmpty("a deployment's words belong in its own host; the product says them through terminology and configuration");
     }
 
-    [Test]
-    public void The_generic_export_template_names_no_deployment()
+    [TestCase("PlotboekTemplate.docx")]
+    [TestCase("PlotboekTemplate.en.docx")]
+    public void The_generic_export_template_names_no_deployment(string fileName)
     {
-        var template = Path.Combine(RepositoryRoot(), "PlotboekGenerator.Host", "Templates", "PlotboekTemplate.docx");
+        var template = Path.Combine(RepositoryRoot(), "PlotboekGenerator.Host", "Templates", fileName);
 
         using var document = WordprocessingDocument.Open(template, false);
         var texts = new[] { document.MainDocumentPart!.Document!.Body!.InnerText }

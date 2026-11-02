@@ -1,3 +1,4 @@
+@using System.Globalization
 @model PlotboekModel
 
 @*
@@ -25,15 +26,15 @@
     var samenvattingDelen = new List<string>();
     if (openFeedback.Count > 0)
     {
-        samenvattingDelen.Add($"{openFeedback.Count} open");
+        samenvattingDelen.Add(string.Format(CultureInfo.CurrentCulture, PaginaUi.FeedbackAantalOpen, openFeedback.Count));
     }
     if (beantwoordeFeedback.Count > 0)
     {
-        samenvattingDelen.Add($"{beantwoordeFeedback.Count} beantwoord");
+        samenvattingDelen.Add(string.Format(CultureInfo.CurrentCulture, PaginaUi.FeedbackAantalBeantwoord, beantwoordeFeedback.Count));
     }
     if (afgehandeldeFeedback.Count > 0)
     {
-        samenvattingDelen.Add($"{afgehandeldeFeedback.Count} afgehandeld");
+        samenvattingDelen.Add(string.Format(CultureInfo.CurrentCulture, PaginaUi.FeedbackAantalAfgehandeld, afgehandeldeFeedback.Count));
     }
 }
 
@@ -48,11 +49,11 @@
              aria-controls="section-feedback">
             <div class="d-flex justify-content-between align-items-center">
                 <span class="detail-section-label">
-                    <i class="fas fa-comment-dots me-1 @(openFeedback.Count > 0 ? "text-danger" : "")"></i>Feedback
+                    <i class="fas fa-comment-dots me-1 @(openFeedback.Count > 0 ? "text-danger" : "")"></i>@PaginaUi.FeedbackSectie
                     @if (openFeedback.Count > 0)
                     {
                         <i class="fas fa-exclamation-triangle text-danger ms-1"></i>
-                        <small class="text-danger ms-1">blokkeert "volledig klaar"</small>
+                        <small class="text-danger ms-1">@PaginaUi.FeedbackBlokkeertVolledigKlaar</small>
                     }
                 </span>
                 <i class="fas fa-chevron-down detail-section-chevron"></i>
@@ -64,7 +65,7 @@
                 }
                 else
                 {
-                    <span class="text-muted fst-italic">Geen feedback</span>
+                    <span class="text-muted fst-italic">@PaginaUi.GeenFeedback</span>
                 }
             </div>
         </div>
@@ -73,7 +74,7 @@
 
                 @if (!heeftFeedback)
                 {
-                    <p class="text-muted fst-italic mb-3">Er is nog geen feedback op dit plot.</p>
+                    <p class="text-muted fst-italic mb-3">@PaginaUi.FeedbackNogGeen</p>
                 }
 
                 @foreach (var punt in openFeedback.Concat(beantwoordeFeedback))
@@ -85,7 +86,7 @@
                 {
                     <details class="feedback-afgehandeld mb-3">
                         <summary class="text-muted small">
-                            <i class="fas fa-check me-1"></i>Afgehandelde feedback (@afgehandeldeFeedback.Count)
+                            <i class="fas fa-check me-1"></i>@string.Format(CultureInfo.CurrentCulture, PaginaUi.FeedbackAfgehandeldeKop, afgehandeldeFeedback.Count)
                         </summary>
                         <div class="mt-2">
                             @foreach (var punt in afgehandeldeFeedback)
@@ -102,17 +103,17 @@
                         <input type="hidden" name="Jaar" value="@Model.Jaar" />
                         <input type="hidden" name="Event" value="@Model.EventId" />
                         <input type="hidden" name="PaginaId" value="@Model.PaginaId" />
-                        <label for="nieuwe-feedback-tekst" class="form-label fw-bold small">Feedback toevoegen:</label>
+                        <label for="nieuwe-feedback-tekst" class="form-label fw-bold small">@PaginaUi.FeedbackToevoegenLabel</label>
                         <textarea id="nieuwe-feedback-tekst"
                                   name="NieuweFeedbackTekst"
                                   class="form-control form-control-sm"
                                   rows="3"
-                                  placeholder="Wat moet er aan dit plot gebeuren?"></textarea>
+                                  placeholder="@PaginaUi.FeedbackToevoegenPlaceholder"></textarea>
                         <small class="form-text text-muted d-block mb-2">
-                            Het plot kan niet op "volledig klaar" zolang dit punt openstaat. De SL krijgt het te zien op het plot zelf.
+                            @PaginaUi.FeedbackToevoegenUitleg
                         </small>
                         <button type="submit" name="Action" value="addFeedback" class="btn btn-primary btn-sm">
-                            <i class="fas fa-comment-medical me-1"></i>Feedback toevoegen
+                            <i class="fas fa-comment-medical me-1"></i>@PaginaUi.FeedbackToevoegen
                         </button>
                     </form>
                 }

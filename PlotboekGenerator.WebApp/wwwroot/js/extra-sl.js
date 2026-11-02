@@ -15,7 +15,7 @@ function addExtraSl() {
     const primarySelect = document.getElementById('editable-verantwoordelijke-sl');
     if (!primarySelect) return;
 
-    let optionsHtml = '<option value="">-- Selecteer een SL --</option>';
+    let optionsHtml = `<option value="">${escapeTekst(pbT('ExtraSlKiezen'))}</option>`;
     primarySelect.querySelectorAll('option').forEach(opt => {
         if (opt.value) {
             optionsHtml += `<option value="${opt.value}">${opt.textContent}</option>`;

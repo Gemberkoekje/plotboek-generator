@@ -1,4 +1,6 @@
 using System.Collections.Immutable;
+using System.Globalization;
+using PlotboekGenerator.core.Resources;
 
 namespace PlotboekGenerator.core.Models;
 
@@ -46,7 +48,7 @@ public sealed record Plotlijn
             {
                 return string.Join("; ", PaginaTitels);
             }
-            return $"{PaginaTitels[0]} (+{PaginaTitels.Count - 1} plots)";
+            return string.Format(CultureInfo.CurrentCulture, CoreTekst.PlotlijnTitelMeer, PaginaTitels[0], PaginaTitels.Count - 1);
         }
     }
 }

@@ -1,3 +1,6 @@
+using System.Globalization;
+using PlotboekGenerator.core.Resources;
+
 namespace PlotboekGenerator.core.Events;
 
 public sealed record PlotboekDagenAangepast : AuditTrailEvent
@@ -6,5 +9,5 @@ public sealed record PlotboekDagenAangepast : AuditTrailEvent
 
     required public Dag EindDag { get; init; }
 
-    public override string What => $"<strong>Dagen aangepast:</strong> {StartDag} t/m {EindDag}";
+    public override string What => $"<strong>{CoreTekst.DagenAangepast}</strong> {string.Format(CultureInfo.CurrentCulture, CoreTekst.VanTotEnMet, StartDag.Naam(), EindDag.Naam())}";
 }

@@ -1,3 +1,6 @@
+using System.Globalization;
+using PlotboekGenerator.WebApp.Resources;
+
 namespace PlotboekGenerator.WebApp.Pages;
 
 public sealed partial class PlotboekModel
@@ -26,14 +29,14 @@ public sealed partial class PlotboekModel
         if (string.IsNullOrWhiteSpace(folderUrl))
         {
             GoogleDriveUploadSuccess = false;
-            GoogleDriveUploadMessage = "Geen Google Drive folder URL geconfigureerd voor dit plotboek. Stel deze in bij de Plotboek Instellingen.";
+            GoogleDriveUploadMessage = PlotboekUi.GoogleDriveGeenFolder;
             return RedirectToPage("/Plotboek", new { Jaar, Event = EventId, PaginaId });
         }
 
         if (!googleDriveService.IsConfigured)
         {
             GoogleDriveUploadSuccess = false;
-            GoogleDriveUploadMessage = "Google Drive service account is niet geconfigureerd op de server.";
+            GoogleDriveUploadMessage = PlotboekUi.GoogleDriveNietGeconfigureerd;
             return RedirectToPage("/Plotboek", new { Jaar, Event = EventId, PaginaId });
         }
 
@@ -45,7 +48,10 @@ public sealed partial class PlotboekModel
             // bookkeeping as the automatic Google Drive sync (PlotboekGoogleDriveSyncService) -
             // this button forces an upload right now regardless of whether anything changed,
             // instead of duplicating that logic in a second, divergent path.
-            var result = await googleDriveSyncService.UploadPlotboekAsync(PlotboekId, HttpContext.RequestAborted);
+            // In the deployment's language, like the export and the nightly sync.
+            var result = await CultuurScope.InAsync(
+                localization?.DefaultCulture,
+                () => googleDriveSyncService.UploadPlotboekAsync(PlotboekId, HttpContext.RequestAborted));
             if (!result.IsValid)
             {
                 GoogleDriveUploadSuccess = false;
@@ -81,13 +87,13 @@ public sealed partial class PlotboekModel
             }
 
             GoogleDriveUploadSuccess = true;
-            GoogleDriveUploadMessage = $"'{driveFileName}' is succesvol geüpload naar Google Drive.";
+            GoogleDriveUploadMessage = string.Format(CultureInfo.CurrentCulture, PlotboekUi.GoogleDriveGeupload, driveFileName);
         }
         catch (Exception ex)
         {
             logger.LogError(ex, "Failed to upload DOCX to Google Drive for {Jaar}-{EventId}", Jaar, EventId);
             GoogleDriveUploadSuccess = false;
-            GoogleDriveUploadMessage = $"Fout bij uploaden naar Google Drive: {ex.Message}";
+            GoogleDriveUploadMessage = string.Format(CultureInfo.CurrentCulture, PlotboekUi.GoogleDriveFout, ex.Message);
         }
 
         return RedirectToPage("/Plotboek", new { Jaar, Event = EventId, PaginaId });

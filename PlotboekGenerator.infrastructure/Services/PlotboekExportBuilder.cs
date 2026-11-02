@@ -1,9 +1,12 @@
 using System.Collections.Immutable;
+using System.Globalization;
 using System.Text;
 using System.Text.RegularExpressions;
 using PlotboekGenerator.Application.Ports;
 using PlotboekGenerator.core;
 using PlotboekGenerator.core.Generator.Templates;
+using PlotboekGenerator.core.Resources;
+using PlotboekGenerator.infrastructure.Resources;
 
 namespace PlotboekGenerator.infrastructure.Services;
 
@@ -151,7 +154,7 @@ public sealed partial class PlotboekExportBuilder : IPlotboekExportDataBuilder
                 {
                     lijst.Add(new DayData
                     {
-                        Day = $"{dag} {GetStarttijdDisplayName(starttijdId, starttijdConfigs)}",
+                        Day = $"{dag.Naam()} {GetStarttijdDisplayName(starttijdId, starttijdConfigs)}",
                         Pages = [.. relevantPages.OrderBy(p => p.Order).Select(p => BuildPageData(p, plotlijnNummers, userLookup, starttijdConfigs, aantalBlokkenConfigs, encounterConfigs, bijlageLookup, questLocatieConfigs))],
                     });
                 }
@@ -162,7 +165,7 @@ public sealed partial class PlotboekExportBuilder : IPlotboekExportDataBuilder
         {
             lijst.Add(new DayData
             {
-                Day = "Nog niet ingepland",
+                Day = InfraTekst.ExportNogNietIngepland,
                 Pages = [.. pages.Where(p => p.Dag == Dag.None && !p.IsSpelerGedreven)
                     .OrderBy(p => StarttijdSortKey(p.StarttijdId, starttijdConfigs))
                     .ThenBy(p => p.StarttijdId, StringComparer.Ordinal)
@@ -181,7 +184,7 @@ public sealed partial class PlotboekExportBuilder : IPlotboekExportDataBuilder
         {
             lijst.Add(new DayData
             {
-                Day = "Speler Gedreven",
+                Day = InfraTekst.ExportSpelerGedrevenKop,
                 Pages = [.. spelerGedrevenPages.Select(p => BuildPageData(p, plotlijnNummers, userLookup, starttijdConfigs, aantalBlokkenConfigs, encounterConfigs, bijlageLookup, questLocatieConfigs))],
             });
         }
@@ -268,7 +271,7 @@ public sealed partial class PlotboekExportBuilder : IPlotboekExportDataBuilder
                 .ToList();
             var dagType = GetMeetingDagType(dag, daysWithPages);
             var dayMeetings = meetingsByType.GetValueOrDefault(dagType, []);
-            tijdschemasLijst.Add(BuildTijdschemasData(dag.ToString(), dagPages, plotlijnNummers, userLookup, dayMeetings, starttijdConfigs));
+            tijdschemasLijst.Add(BuildTijdschemasData(dag.Naam(), dagPages, plotlijnNummers, userLookup, dayMeetings, starttijdConfigs));
         }
 
         if (pages.Any(p => p.Dag == Dag.None && !p.IsSpelerGedreven))
@@ -278,7 +281,7 @@ public sealed partial class PlotboekExportBuilder : IPlotboekExportDataBuilder
                 .ThenBy(p => p.StarttijdId, StringComparer.Ordinal)
                 .ThenBy(p => p.Order)
                 .ToList();
-            tijdschemasLijst.Add(BuildTijdschemasData("Nog niet ingepland", dagPages, plotlijnNummers, userLookup, [], starttijdConfigs));
+            tijdschemasLijst.Add(BuildTijdschemasData(InfraTekst.ExportNogNietIngepland, dagPages, plotlijnNummers, userLookup, [], starttijdConfigs));
         }
 
         return tijdschemasLijst;
@@ -460,7 +463,7 @@ public sealed partial class PlotboekExportBuilder : IPlotboekExportDataBuilder
             BenodigdeProps = p.PropsEnLoot.HasValue ? p.PropsEnLoot.ToPropsString() : string.Empty,
             GewensteLoot = p.PropsEnLoot.HasValue ? p.PropsEnLoot.ToLootString() : string.Empty,
             InstructiePentagon = BuildInstructiePentagon(p),
-            MeerInformatie = hasMeerInfo ? "Zie extra informatie op pagina " : string.Empty,
+            MeerInformatie = hasMeerInfo ? InfraTekst.ExportZieExtraInformatie : string.Empty,
             MeerInformatieBookmark = hasMeerInfo ? SanitizeBookmarkName(p.PaginaId) : string.Empty,
             BijlageVerwijzingen = BuildBijlageVerwijzingen(p, bijlageLookup),
             Opmerkingen = p.Opmerkingen ?? string.Empty,
@@ -476,7 +479,7 @@ public sealed partial class PlotboekExportBuilder : IPlotboekExportDataBuilder
     {
         if (p.IsSpelerGedreven)
         {
-            return "Speler gedreven";
+            return InfraTekst.ExportSpelerGedreven;
         }
 
         if (p.StarttijdId is null or "None")
@@ -485,7 +488,7 @@ public sealed partial class PlotboekExportBuilder : IPlotboekExportDataBuilder
         }
 
         var starttijd = GetStarttijdDisplayName(p.StarttijdId, starttijdConfigs);
-        return p.IsFlexibel ? $"{starttijd} (Flexibel)" : starttijd;
+        return p.IsFlexibel ? string.Format(CultureInfo.CurrentCulture, InfraTekst.ExportFlexibel, starttijd) : starttijd;
     }
 
     public static PageData BuildEvergreenPageData(PlotboekPagina.ExportData p, IReadOnlyDictionary<string, string> userLookup)
@@ -692,7 +695,7 @@ public sealed partial class PlotboekExportBuilder : IPlotboekExportDataBuilder
 
         if (npcData.AlleNpcs)
         {
-            return "ALLE";
+            return CoreTekst.NpcsAlleKort;
         }
         var min = npcData.TotaalMinimum;
         var max = npcData.TotaalMaximum ?? min;
@@ -732,8 +735,15 @@ public sealed partial class PlotboekExportBuilder : IPlotboekExportDataBuilder
     /// </summary>
     public const string AvondetenMeetingNaam = "Avondeten";
 
+    /// <summary>
+    /// The same meeting in the reference host's English example data. Meetings are data in the
+    /// deployment's own language, so both names count.
+    /// </summary>
+    public const string DinnerMeetingNaam = "Dinner";
+
     private static bool IsAvondetenMeeting(string naam)
-        => string.Equals(naam?.Trim(), AvondetenMeetingNaam, StringComparison.OrdinalIgnoreCase);
+        => string.Equals(naam?.Trim(), AvondetenMeetingNaam, StringComparison.OrdinalIgnoreCase)
+        || string.Equals(naam?.Trim(), DinnerMeetingNaam, StringComparison.OrdinalIgnoreCase);
 
     public static MeetingDagType GetMeetingDagType(Dag dag, IReadOnlyList<Dag> daysInRange)
     {
@@ -890,7 +900,7 @@ public sealed partial class PlotboekExportBuilder : IPlotboekExportDataBuilder
         var minor = encounterTypeIds.Minor?.Select(id => ResolveEncounterDisplayName(id, encounterConfigs)).Where(s => !string.IsNullOrWhiteSpace(s)).ToList() ?? [];
         if (minor.Count > 0)
         {
-            display += $" (mogelijk {string.Join(", ", minor)})";
+            display = string.Format(CultureInfo.CurrentCulture, CoreTekst.EncounterTypesMetMogelijk, display, string.Join(", ", minor));
         }
 
         return display;
@@ -972,7 +982,7 @@ public sealed partial class PlotboekExportBuilder : IPlotboekExportDataBuilder
             ? config.DisplayName
             : locatie.LocatieId;
 
-        return $"{locatie.Locatie} ({naam})";
+        return $"{locatie.Locatie.Naam()} ({naam})";
     }
 
     private static readonly IReadOnlyDictionary<string, QuestLocatieConfig> EmptyQuestLocatieConfigs

@@ -1,3 +1,6 @@
+using System.Globalization;
+using PlotboekGenerator.core.Resources;
+
 namespace PlotboekGenerator.core.Events;
 
 /// <summary>
@@ -8,5 +11,5 @@ public sealed record PlotboekBijlagenAangepast : AuditTrailEvent
 {
     required public IReadOnlyList<BijlageData> Bijlagen { get; init; }
 
-    public override string What => $"Bijlagen aangepast ({Bijlagen.Count})";
+    public override string What => string.Format(CultureInfo.CurrentCulture, CoreTekst.BijlagenAangepast, Bijlagen.Count);
 }

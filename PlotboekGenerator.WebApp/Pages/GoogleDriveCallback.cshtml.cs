@@ -1,8 +1,10 @@
+using System.Globalization;
 using Google.Apis.Auth.OAuth2;
 using Google.Apis.Auth.OAuth2.Flows;
 using Google.Apis.Auth.OAuth2.Responses;
 using Google.Apis.Drive.v3;
 using Microsoft.Extensions.Configuration;
+using PlotboekGenerator.WebApp.Resources;
 
 namespace PlotboekGenerator.WebApp.Pages;
 
@@ -22,14 +24,14 @@ public sealed class GoogleDriveCallbackModel(
         if (!string.IsNullOrEmpty(error))
         {
             Success = false;
-            Message = $"Google Drive autorisatie geweigerd: {error}";
+            Message = string.Format(CultureInfo.CurrentCulture, AdminUi.CallbackGeweigerd, error);
             return;
         }
 
         if (string.IsNullOrEmpty(code))
         {
             Success = false;
-            Message = "Geen autorisatiecode ontvangen van Google.";
+            Message = AdminUi.CallbackGeenCode;
             return;
         }
 
@@ -39,7 +41,7 @@ public sealed class GoogleDriveCallbackModel(
         if (string.IsNullOrWhiteSpace(clientId) || string.IsNullOrWhiteSpace(clientSecret))
         {
             Success = false;
-            Message = "Google OAuth credentials zijn niet geconfigureerd.";
+            Message = AdminUi.CallbackNietGeconfigureerd;
             return;
         }
 
@@ -65,19 +67,19 @@ public sealed class GoogleDriveCallbackModel(
             if (string.IsNullOrEmpty(tokenResponse.RefreshToken))
             {
                 Success = false;
-                Message = "Geen refresh token ontvangen. Ga naar https://myaccount.google.com/permissions, verwijder de toegang voor deze app en probeer het opnieuw.";
+                Message = string.Format(CultureInfo.CurrentCulture, AdminUi.CallbackGeenRefreshToken, "https://myaccount.google.com/permissions");
                 return;
             }
 
             RefreshToken = tokenResponse.RefreshToken;
             Success = true;
-            Message = "Google Drive autorisatie geslaagd! Kopieer de refresh token hieronder en voeg deze toe aan je secrets.json.";
+            Message = AdminUi.CallbackSucces;
         }
         catch (TokenResponseException ex)
         {
             logger.LogError(ex, "Failed to exchange Google Drive authorization code for tokens");
             Success = false;
-            Message = $"Fout bij het uitwisselen van de autorisatiecode: {ex.Error?.Error}";
+            Message = string.Format(CultureInfo.CurrentCulture, AdminUi.CallbackUitwisselenMislukt, ex.Error?.Error);
         }
     }
 }

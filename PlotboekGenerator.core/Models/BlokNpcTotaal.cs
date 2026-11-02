@@ -1,3 +1,6 @@
+using System.Globalization;
+using PlotboekGenerator.core.Resources;
+
 namespace PlotboekGenerator.core.Models;
 
 /// <summary>
@@ -58,7 +61,7 @@ public sealed record BlokNpcTotaal
             return string.Empty;
 
         if (HeeftAlleNpcs)
-            return "ALLE NPCs";
+            return CoreTekst.NpcsAlle;
 
         var parts = new List<string>();
 
@@ -68,7 +71,7 @@ public sealed record BlokNpcTotaal
             var totalStr = TotaalMaximum.HasValue && TotaalMinimum != TotaalMaximum
                 ? $"{TotaalMinimum}-{TotaalMaximum}"
                 : $"{TotaalMinimum}";
-            parts.Add($"{totalStr} NPCs");
+            parts.Add(AantalNpcsTekst(totalStr));
         }
 
         // Add overflow details if any
@@ -80,12 +83,20 @@ public sealed record BlokNpcTotaal
                     var countStr = o.Maximum.HasValue && o.Minimum != o.Maximum
                         ? $"{o.Minimum}-{o.Maximum}"
                         : $"{o.Minimum}";
-                    return $"{countStr} van {o.VanStarttijdId}";
+                    return string.Format(CultureInfo.CurrentCulture, CoreTekst.BlokNpcTotaalOverloopVan, countStr, o.VanStarttijdId);
                 });
-            parts.Add($"(incl. {string.Join(", ", overflowParts)})");
+            parts.Add(string.Format(CultureInfo.CurrentCulture, CoreTekst.BlokNpcTotaalInclusief, string.Join(", ", overflowParts)));
         }
 
         return string.Join(" ", parts);
+    }
+
+    /// <summary>The total with its noun, singular when exactly one NPC is needed.</summary>
+    /// <param name="aantal">The total as a number or a range, e.g. "3" or "2-5".</param>
+    private string AantalNpcsTekst(string aantal)
+    {
+        var isEen = TotaalMinimum == 1 && (!TotaalMaximum.HasValue || TotaalMaximum == 1);
+        return string.Format(CultureInfo.CurrentCulture, isEen ? CoreTekst.BlokNpcTotaalOne : CoreTekst.BlokNpcTotaalMany, aantal);
     }
 
     /// <summary>
@@ -97,7 +108,7 @@ public sealed record BlokNpcTotaal
             return string.Empty;
 
         if (HeeftAlleNpcs)
-            return "ALLE";
+            return CoreTekst.NpcsAlleKort;
 
         if (TotaalMaximum.HasValue && TotaalMinimum != TotaalMaximum)
             return $"{TotaalMinimum}-{TotaalMaximum}";

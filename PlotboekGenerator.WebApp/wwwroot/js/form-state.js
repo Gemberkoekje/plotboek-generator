@@ -99,7 +99,7 @@ window.addEventListener('beforeunload', function(e) {
     if (__bypassBeforeUnload) return;
     if (hasUnsavedChanges() || hasUnsavedSettingsChanges()) {
         // Customize the message shown in some browsers via returnValue
-        var message = 'Je hebt nog niet opgeslagen wijzigingen. Weet je zeker dat je deze pagina wilt verlaten?';
+        var message = pbT('OnopgeslagenWijzigingen');
         (e || window.event).returnValue = message;
         return message;
     }

@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Authentication;
 using PlotboekGenerator.WebApp.Authentication;
+using System.Globalization;
 using System.Security.Claims;
+using PlotboekGenerator.WebApp.Resources;
 
 namespace PlotboekGenerator.WebApp.Areas.Identity.Pages.Account;
 
@@ -51,7 +53,7 @@ public sealed class LoginModel(
         if (!ExternalLogins.Any(scheme => string.Equals(scheme.Name, provider, StringComparison.Ordinal)))
         {
             logger.LogWarning("Login requested for provider {Provider}, which is not registered.", provider);
-            ErrorMessage = "Deze inlogmethode is niet meer beschikbaar. Kies een van de onderstaande opties.";
+            ErrorMessage = Ui.LoginMethodeVerdwenen;
             ReturnUrl = returnUrl;
             return Page();
         }
@@ -71,7 +73,7 @@ public sealed class LoginModel(
 
         if (remoteError != null)
         {
-            ErrorMessage = $"Error from external provider: {remoteError}";
+            ErrorMessage = string.Format(CultureInfo.CurrentCulture, Ui.LoginFoutVanDienst, remoteError);
             logger.LogError("External authentication error: {RemoteError}", remoteError);
             // Clear external cookie to prevent stale state on subsequent attempts
             await HttpContext.SignOutAsync(IdentityConstants.ExternalScheme);
@@ -87,7 +89,7 @@ public sealed class LoginModel(
 
         if (info == null)
         {
-            ErrorMessage = "Error loading external login information.";
+            ErrorMessage = Ui.LoginGegevensNietGeladen;
             logger.LogError("Failed to load external login info");
             ExternalLogins = [.. await signInManager.GetExternalAuthenticationSchemesAsync()];
             return Page();
@@ -115,7 +117,7 @@ public sealed class LoginModel(
         if (result.IsLockedOut)
         {
             logger.LogWarning("User account locked out.");
-            ErrorMessage = "User account is locked out.";
+            ErrorMessage = Ui.LoginGeblokkeerd;
             ExternalLogins = [.. await signInManager.GetExternalAuthenticationSchemesAsync()];
             return Page();
         }
@@ -132,7 +134,7 @@ public sealed class LoginModel(
 
         if (string.IsNullOrEmpty(email))
         {
-            ErrorMessage = "Email claim not received from external provider.";
+            ErrorMessage = Ui.LoginGeenEmail;
             logger.LogError("No email claim received from {Provider}", info.LoginProvider);
             ExternalLogins = [.. await signInManager.GetExternalAuthenticationSchemesAsync()];
             return Page();
@@ -163,7 +165,7 @@ public sealed class LoginModel(
                 logger.LogError("AddLogin (link to existing) error: {Code} - {Description}", error.Code, error.Description);
             }
 
-            ErrorMessage = "Failed to link your login to the existing account.";
+            ErrorMessage = Ui.LoginKoppelenMislukt;
             ExternalLogins = [.. await signInManager.GetExternalAuthenticationSchemesAsync()];
             return Page();
         }
@@ -233,7 +235,7 @@ public sealed class LoginModel(
             logger.LogError("User creation error: {Code} - {Description}", error.Code, error.Description);
         }
 
-        ErrorMessage = "Failed to create user account.";
+        ErrorMessage = Ui.LoginAccountMakenMislukt;
         ExternalLogins = [.. await signInManager.GetExternalAuthenticationSchemesAsync()];
         return Page();
     }

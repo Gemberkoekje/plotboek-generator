@@ -1,5 +1,6 @@
 using JasperFx.Events;
 using Marten;
+using PlotboekGenerator.infrastructure.Resources;
 
 namespace PlotboekGenerator.infrastructure.MartenDb;
 
@@ -30,7 +31,7 @@ public sealed class MartenEventStore(Marten.IDocumentStore store) : IEventStore<
         }
         catch (EventStreamUnexpectedMaxEventIdException)
         {
-            return Result.WithMessages(ValidationMessage.Error("Iemand anders heeft al een aanpassing gedaan. Je wijzigingen zijn niet opgeslagen."));
+            return Result.WithMessages(ValidationMessage.Error(InfraTekst.ConcurrencyConflict));
         }
     }
 

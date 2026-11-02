@@ -18,9 +18,16 @@ public sealed partial class PlotboekModel
             return string.Empty;
         }
 
-        return locatie.HasQuestLocatieKeuze
-            ? $"{locatie.Locatie} ({AvailableQuestLocatieConfigs.GetDisplayName(locatie.LocatieId)})"
-            : locatie.ToString();
+        // Built here rather than with LocatieEncounterData.ToString(), which writes the stored enum name:
+        // the reader sees the location's name in their own language.
+        if (locatie.HasQuestLocatieKeuze)
+        {
+            return $"{locatie.Locatie.Naam()} ({AvailableQuestLocatieConfigs.GetDisplayName(locatie.LocatieId)})";
+        }
+
+        return locatie.RequiresSpecificatie && !string.IsNullOrWhiteSpace(locatie.Specificatie)
+            ? $"{locatie.Locatie.Naam()} ({locatie.Specificatie})"
+            : locatie.Locatie.Naam();
     }
 
     /// <summary>

@@ -62,9 +62,9 @@ public readonly record struct LocatieEncounterData
 
         if (RequiresSpecificatie && !string.IsNullOrWhiteSpace(Specificatie))
         {
-            return $"{Locatie} ({Specificatie})";
+            return $"{Locatie.Naam()} ({Specificatie})";
         }
 
-        return Locatie.ToString();
+        return Locatie.Naam();
     }
 }

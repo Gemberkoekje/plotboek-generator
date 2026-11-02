@@ -1,16 +1,16 @@
 @model AdminModel
+@using System.Globalization
 
 <!-- Domain Management Section -->
 <div class="card mb-4">
     <div class="card-header text-bg-success">
         <h5 class="mb-0">
-            <i class="fas fa-globe"></i> Domain Management
+            <i class="fas fa-globe"></i> @AdminUi.SectieDomains
         </h5>
     </div>
     <div class="card-body">
         <p class="text-muted mb-3">
-            Manage the domains/categories used for plotboek pagina classification.
-            The domain shorthand will be prefixed to the title in exports (e.g., "Ti - Hier komt de handelaar").
+            @AdminUi.DomainsUitleg
         </p>
 
         <!-- Add/Edit Domain Form -->
@@ -20,7 +20,7 @@
             <input type="hidden" name="EditDomainId" id="editDomainId" value="" />
             <div class="row g-3 align-items-end">
                 <div class="col-md-2">
-                    <label for="editDomainShorthand" class="form-label">Afkorting</label>
+                    <label for="editDomainShorthand" class="form-label">@AdminUi.AfkortingLabel</label>
                     <input type="text"
                            class="form-control"
                            id="editDomainShorthand"
@@ -29,7 +29,7 @@
                            required />
                 </div>
                 <div class="col-md-6">
-                    <label for="editDomainDescription" class="form-label">Beschrijving</label>
+                    <label for="editDomainDescription" class="form-label">@AdminUi.BeschrijvingLabel</label>
                     <input type="text"
                            class="form-control"
                            id="editDomainDescription"
@@ -38,10 +38,10 @@
                 </div>
                 <div class="col-md-4">
                     <button type="submit" class="btn btn-success" id="saveDomainBtn">
-                        <i class="fas fa-plus"></i> Domein Toevoegen
+                        <i class="fas fa-plus"></i> @AdminUi.DomeinToevoegenButton
                     </button>
                     <button type="button" class="btn btn-outline-secondary" id="cancelEditDomainBtn" style="display: none;" onclick="cancelEditDomain()">
-                        <i class="fas fa-times"></i> Annuleren
+                        <i class="fas fa-times"></i> @AdminUi.AnnulerenButton
                     </button>
                 </div>
             </div>
@@ -54,10 +54,10 @@
                 <table class="table table-hover" id="domainsTable">
                     <thead>
                         <tr>
-                            <th style="width: 50px;">Volgorde</th>
-                            <th style="width: 100px;">Afkorting</th>
-                            <th>Beschrijving</th>
-                            <th style="width: 150px;">Acties</th>
+                            <th style="width: 50px;">@AdminUi.Volgorde</th>
+                            <th style="width: 100px;">@AdminUi.AfkortingLabel</th>
+                            <th>@AdminUi.BeschrijvingLabel</th>
+                            <th style="width: 150px;">@AdminUi.KolomActies</th>
                         </tr>
                     </thead>
                     <tbody id="domainsTbody">
@@ -82,7 +82,8 @@
                                         <input type="hidden" name="DeleteDomainId" value="@domain.Id" />
                                         <button type="submit"
                                                 class="btn btn-sm btn-outline-danger"
-                                                onclick="return confirm('Weet je zeker dat je domein \'@domain.Shorthand\' wilt verwijderen?');">
+                                                data-confirm="@string.Format(CultureInfo.CurrentCulture, AdminUi.DomeinVerwijderenConfirm, domain.Shorthand)"
+                                                onclick="return confirm(this.dataset.confirm);">
                                             <i class="fas fa-trash"></i>
                                         </button>
                                     </form>
@@ -99,17 +100,17 @@
                 <input type="hidden" name="Section" value="domains" />
                 <input type="hidden" name="DomainReorderData" id="domainReorderData" value="" />
                 <button type="submit" class="btn btn-primary">
-                    <i class="fas fa-save"></i> Volgorde Opslaan
+                    <i class="fas fa-save"></i> @AdminUi.VolgordeOpslaanButton
                 </button>
                 <button type="button" class="btn btn-outline-secondary" onclick="cancelReorder()">
-                    <i class="fas fa-times"></i> Annuleren
+                    <i class="fas fa-times"></i> @AdminUi.AnnulerenButton
                 </button>
             </form>
         }
         else
         {
             <div class="alert alert-info">
-                <i class="fas fa-info-circle"></i> Geen domeinen gevonden. Voeg een domein toe om te beginnen.
+                <i class="fas fa-info-circle"></i> @AdminUi.GeenDomeinen
             </div>
         }
     </div>

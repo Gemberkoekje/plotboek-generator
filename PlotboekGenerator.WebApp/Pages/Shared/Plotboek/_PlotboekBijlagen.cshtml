@@ -1,4 +1,5 @@
 @model PlotboekModel
+@using System.Globalization
 
 @*
     Bijlagen management, rendered inside the savePlotboek settings form. Each bijlage is a name + a
@@ -13,9 +14,9 @@
 
 <div class="row">
     <div class="col-12 mb-3">
-        <label class="form-label fw-bold"><i class="fas fa-paperclip me-1"></i>Bijlagen:</label>
+        <label class="form-label fw-bold"><i class="fas fa-paperclip me-1"></i>@PlotboekUi.BijlagenLabel</label>
         <small class="form-text text-muted d-block mb-2">
-            Herbruikbare bijlagen (bv. prijslijsten, statblocks). Voeg ze hier &eacute;&eacute;n keer toe en koppel ze daarna aan &eacute;&eacute;n of meer plots via het kopje "Bijlagen" bij een plot. Elke bijlage verschijnt achterin het plotboek.
+            @PlotboekUi.BijlagenUitleg
         </small>
 
         <div id="bijlagen-container" data-readonly="@(Model.IsPlotboekReadOnly ? "true" : "false")">
@@ -26,8 +27,8 @@
                    title and leaves the control effectively unnamed for screen readers. Name it
                    explicitly, and per bijlage — a plotboek can hold a long list of these. *@
                 var toggleLabel = string.IsNullOrWhiteSpace(b.Naam)
-                    ? "Inhoud tonen of verbergen"
-                    : $"Inhoud van {b.Naam} tonen of verbergen";
+                    ? PlotboekUi.BijlageInhoudTonen
+                    : string.Format(CultureInfo.CurrentCulture, PlotboekUi.BijlageInhoudVanTonen, b.Naam);
                 @* A row that came back rejected for having content but no name must not render folded
                    away — that would hide the very text the warning above is asking about. *@
                 var startOpen = string.IsNullOrWhiteSpace(b.Naam) && PlotboekModel.HasBijlageInhoud(b.InhoudHtml ?? string.Empty);
@@ -42,8 +43,8 @@
                         </span>
                         <input type="hidden" name="EditableBijlagen[@i].Id" value="@b.Id" />
                         <input type="text" name="EditableBijlagen[@i].Naam" class="form-control form-control-sm me-2"
-                               placeholder="Naam van de bijlage (bv. Brazen Bull prijslijst)" value="@b.Naam" />
-                        <button type="button" class="btn btn-outline-danger btn-sm" onclick="removeBijlage(this)" title="Bijlage verwijderen">
+                               placeholder="@PlotboekUi.BijlageNaamPlaceholder" value="@b.Naam" />
+                        <button type="button" class="btn btn-outline-danger btn-sm" onclick="removeBijlage(this)" title="@PlotboekUi.BijlageVerwijderen">
                             <i class="fas fa-trash"></i>
                         </button>
                     </div>
@@ -63,7 +64,7 @@
         @if (!Model.IsPlotboekReadOnly)
         {
             <button type="button" class="btn btn-outline-secondary btn-sm" onclick="addBijlage()">
-                <i class="fas fa-plus me-1"></i> Bijlage toevoegen
+                <i class="fas fa-plus me-1"></i> @PlotboekUi.BijlageToevoegen
             </button>
         }
     </div>
@@ -76,13 +77,13 @@
             <span class="bijlage-toggle me-1" role="button" tabindex="0"
                   data-bs-toggle="collapse" data-bs-target="#bijlage-body-__INDEX__"
                   aria-expanded="true" aria-controls="bijlage-body-__INDEX__"
-                  aria-label="Inhoud tonen of verbergen" title="Inhoud tonen of verbergen">
+                  aria-label="@PlotboekUi.BijlageInhoudTonen" title="@PlotboekUi.BijlageInhoudTonen">
                 <i class="fas fa-chevron-down bijlage-toggle-chevron" aria-hidden="true"></i>
             </span>
             <input type="hidden" name="EditableBijlagen[__INDEX__].Id" value="" />
             <input type="text" name="EditableBijlagen[__INDEX__].Naam" class="form-control form-control-sm me-2"
-                   placeholder="Naam van de bijlage (bv. Brazen Bull prijslijst)" value="" />
-            <button type="button" class="btn btn-outline-danger btn-sm" onclick="removeBijlage(this)" title="Bijlage verwijderen">
+                   placeholder="@PlotboekUi.BijlageNaamPlaceholder" value="" />
+            <button type="button" class="btn btn-outline-danger btn-sm" onclick="removeBijlage(this)" title="@PlotboekUi.BijlageVerwijderen">
                 <i class="fas fa-trash"></i>
             </button>
         </div>
@@ -202,7 +203,7 @@
             if (invalid && !feedback && naamRij) {
                 feedback = document.createElement('div');
                 feedback.className = 'invalid-feedback d-block bijlage-naam-feedback';
-                feedback.textContent = 'Deze bijlage heeft inhoud maar nog geen naam. Vul een naam in, anders wordt de inhoud niet opgeslagen.';
+                feedback.textContent = @Json.Serialize(PlotboekUi.BijlageZonderNaam);
                 naamRij.insertAdjacentElement('afterend', feedback);
             } else if (!invalid && feedback) {
                 feedback.remove();

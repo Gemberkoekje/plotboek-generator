@@ -1,3 +1,5 @@
+using PlotboekGenerator.WebApp.Resources;
+
 namespace PlotboekGenerator.WebApp.Areas.Identity.Pages.Account.Manage;
 
 [Authorize]
@@ -41,7 +43,7 @@ public sealed class IndexModel(
         var currentUserName = user.UserName;
         if (UserName == currentUserName)
         {
-            StatusMessage = "No changes were made.";
+            StatusMessage = Ui.ProfielGeenWijzigingen;
             return RedirectToPage();
         }
 
@@ -56,7 +58,7 @@ public sealed class IndexModel(
         }
 
         await signInManager.RefreshSignInAsync(user);
-        StatusMessage = "Your username has been updated.";
+        StatusMessage = Ui.ProfielGebruikersnaamBijgewerkt;
         return RedirectToPage();
     }
 
@@ -64,13 +66,13 @@ public sealed class IndexModel(
     {
         if (string.IsNullOrWhiteSpace(UserName))
         {
-            ModelState.AddModelError(nameof(UserName), "Username is required.");
+            ModelState.AddModelError(nameof(UserName), Ui.GebruikersnaamVerplicht);
             return false;
         }
 
         if (UserName.Length < 3 || UserName.Length > 100)
         {
-            ModelState.AddModelError(nameof(UserName), "Username must be between 3 and 100 characters.");
+            ModelState.AddModelError(nameof(UserName), Ui.GebruikersnaamLengte);
             return false;
         }
 
@@ -82,7 +84,7 @@ public sealed class IndexModel(
         var existingUser = await userManager.FindByNameAsync(UserName!);
         if (existingUser != null && existingUser.Id != currentUserId)
         {
-            ModelState.AddModelError(nameof(UserName), "This username is already taken.");
+            ModelState.AddModelError(nameof(UserName), Ui.GebruikersnaamBezet);
             return true;
         }
         return false;

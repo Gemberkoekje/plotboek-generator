@@ -17,20 +17,20 @@
 <div class="feedback-kaart border rounded p-2 mb-2 @(isOpen ? "feedback-kaart-open" : "")">
     <div class="d-flex justify-content-between align-items-start gap-2">
         <div class="small text-muted">
-            van <strong>@vm.GetFeedbackAuteurNaam(punt.GegevenDoor)</strong>
+            @PaginaUi.FeedbackVan <strong>@vm.GetFeedbackAuteurNaam(punt.GegevenDoor)</strong>
             &middot; <span data-utc="@PlotboekModel.ToUtcAttribute(punt.GegevenOp)">@punt.GegevenOp.ToString("dd-MM-yyyy HH:mm")</span>
         </div>
         @if (isOpen)
         {
-            <span class="badge bg-danger text-nowrap">Open</span>
+            <span class="badge bg-danger text-nowrap">@punt.Status.Naam()</span>
         }
         else if (isAfgehandeld)
         {
-            <span class="badge bg-success text-nowrap">Afgehandeld</span>
+            <span class="badge bg-success text-nowrap">@punt.Status.Naam()</span>
         }
         else
         {
-            <span class="badge text-bg-info text-nowrap">Beantwoord</span>
+            <span class="badge text-bg-info text-nowrap">@punt.Status.Naam()</span>
         }
     </div>
 
@@ -40,7 +40,7 @@
     {
         <div class="feedback-reactie mt-2 ps-2">
             <div class="small text-muted">
-                reactie van <strong>@vm.GetFeedbackAuteurNaam(punt.ReactieDoor)</strong>
+                @PaginaUi.FeedbackReactieVan <strong>@vm.GetFeedbackAuteurNaam(punt.ReactieDoor)</strong>
                 @if (punt.ReactieOp != default)
                 {
                     <text>&middot; <span data-utc="@PlotboekModel.ToUtcAttribute(punt.ReactieOp)">@punt.ReactieOp.ToString("dd-MM-yyyy HH:mm")</span></text>
@@ -57,19 +57,19 @@
             <input type="hidden" name="Event" value="@vm.EventId" />
             <input type="hidden" name="PaginaId" value="@vm.PaginaId" />
             <input type="hidden" name="SelectedFeedbackId" value="@puntId" />
-            <label for="feedback-reactie-@puntId" class="visually-hidden">Reactie op deze feedback</label>
+            <label for="feedback-reactie-@puntId" class="visually-hidden">@PaginaUi.FeedbackReactieLabel</label>
             <textarea id="feedback-reactie-@puntId"
                       name="FeedbackReactie"
                       class="form-control form-control-sm"
                       rows="2"
-                      placeholder="Wat heb je ermee gedaan?"></textarea>
+                      placeholder="@PaginaUi.FeedbackReactiePlaceholder"></textarea>
             <div class="d-flex flex-wrap gap-2 mt-2">
                 <button type="submit" name="Action" value="answerFeedback" class="btn btn-primary btn-sm">
-                    <i class="fas fa-reply me-1"></i>Reageren
+                    <i class="fas fa-reply me-1"></i>@PaginaUi.FeedbackReageren
                 </button>
                 <button type="submit" name="Action" value="seenFeedback" class="btn btn-outline-secondary btn-sm"
-                        title="Deblokkeert het plot zonder dat je iets hoeft te typen">
-                    <i class="fas fa-eye me-1"></i>Gezien, geen actie
+                        title="@PaginaUi.FeedbackGezienTitel">
+                    <i class="fas fa-eye me-1"></i>@PaginaUi.FeedbackGezien
                 </button>
             </div>
         </form>
@@ -85,31 +85,32 @@
 
             @if (!isOpen)
             {
-                <label for="feedback-reden-@puntId" class="visually-hidden">Reden voor heropenen</label>
+                <label for="feedback-reden-@puntId" class="visually-hidden">@PaginaUi.FeedbackHeropenRedenLabel</label>
                 <input type="text"
                        id="feedback-reden-@puntId"
                        name="FeedbackHeropenReden"
                        class="form-control form-control-sm feedback-reden"
-                       placeholder="Reden voor heropenen (optioneel)" />
+                       placeholder="@PaginaUi.FeedbackHeropenRedenPlaceholder" />
             }
 
             @if (isBeantwoord)
             {
                 <button type="submit" name="Action" value="resolveFeedback" class="btn btn-success btn-sm">
-                    <i class="fas fa-check me-1"></i>Afhandelen
+                    <i class="fas fa-check me-1"></i>@PaginaUi.FeedbackAfhandelen
                 </button>
             }
 
             @if (!isOpen)
             {
                 <button type="submit" name="Action" value="reopenFeedback" class="btn btn-outline-warning btn-sm">
-                    <i class="fas fa-rotate-left me-1"></i>Heropenen
+                    <i class="fas fa-rotate-left me-1"></i>@PaginaUi.FeedbackHeropenen
                 </button>
             }
 
             <button type="submit" name="Action" value="deleteFeedback" class="btn btn-outline-danger btn-sm ms-auto"
-                    onclick="return confirm('Dit feedbackpunt intrekken? De reactie verdwijnt mee uit het overzicht.');">
-                <i class="fas fa-trash me-1"></i>Intrekken
+                    data-confirm="@PaginaUi.FeedbackIntrekkenBevestiging"
+                    onclick="return confirm(this.dataset.confirm);">
+                <i class="fas fa-trash me-1"></i>@PaginaUi.FeedbackIntrekken
             </button>
         </form>
     }

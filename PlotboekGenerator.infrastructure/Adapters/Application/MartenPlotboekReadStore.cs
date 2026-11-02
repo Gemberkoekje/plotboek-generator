@@ -1,5 +1,7 @@
 using PlotboekGenerator.Application.DTOs;
 using PlotboekGenerator.Application.Ports;
+using System.Globalization;
+using PlotboekGenerator.infrastructure.Resources;
 
 namespace PlotboekGenerator.infrastructure.Adapters.Application;
 
@@ -22,7 +24,7 @@ public sealed class MartenPlotboekReadStore : IPlotboekReadStore
 
         if (exportData == null)
         {
-            return Result.WithMessages<PlotboekDto>(ValidationMessage.Error($"Plotboek {id} not found."));
+            return Result.WithMessages<PlotboekDto>(ValidationMessage.Error(string.Format(CultureInfo.CurrentCulture, InfraTekst.PlotboekNietGevonden, id)));
         }
 
         return new PlotboekDto(exportData.PlotboekId, exportData.Jaar, exportData.EventId)

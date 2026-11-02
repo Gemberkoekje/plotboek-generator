@@ -1,6 +1,9 @@
 @inject UserManager<PlotboekUser> UserManager
 @inject ThemeCookie ThemeCookie
 @inject PlotboekGenerator.WebApp.Branding Branding
+@inject PlotboekGenerator.WebApp.DemoMode Demo
+@inject PlotboekGenerator.WebApp.LocalizationSettings Localization
+@using System.Globalization
 @{
     var isSignedIn = User.Identity?.IsAuthenticated == true;
     var currentUser = isSignedIn ? await UserManager.GetUserAsync(User) : null;
@@ -20,9 +23,16 @@
 
     // The page being rendered, so the menu can mark its own entry.
     var currentPage = ViewContext.RouteData.Values["page"] as string ?? string.Empty;
+
+    // Every role that may open the plotboek page; the others get Home, which explains why not.
+    var canOpenPlotboek = User.IsInRole("User") || User.IsInRole("Admin") || User.IsInRole("Reader") || User.IsInRole("NPC");
+
+    // The language of the text (request localization), and where the switcher comes back to.
+    var language = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName;
+    var here = Uri.EscapeDataString($"{Context.Request.PathBase}{Context.Request.Path}{Context.Request.QueryString}");
 }
 <!DOCTYPE html>
-<html lang="nl"@theme data-theme-cookie="@ThemeCookie.CookieName" data-theme-domain="@ThemeCookie.SharedDomain">
+<html lang="@language"@theme data-theme-cookie="@ThemeCookie.CookieName" data-theme-domain="@ThemeCookie.SharedDomain">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -38,11 +48,11 @@
     @await RenderSectionAsync("Styles", required: false)
 </head>
 <body class="d-flex flex-column min-vh-100">
-    <a class="visually-hidden-focusable position-absolute top-0 start-0 p-2" href="#main-content">Naar de inhoud</a>
+    <a class="visually-hidden-focusable position-absolute top-0 start-0 p-2" href="#main-content">@Ui.NaarDeInhoud</a>
     <header>
         @* The title bar is drawn in the deployment's colour in both themes; data-bs-theme="dark" makes
            Bootstrap draw its text, toggler and focus rings light on it. *@
-        <nav class="navbar navbar-expand-md shadow-sm" data-bs-theme="dark" style="background-color: @Branding.ThemeColor;" aria-label="Hoofdmenu">
+        <nav class="navbar navbar-expand-md shadow-sm" data-bs-theme="dark" style="background-color: @Branding.ThemeColor;" aria-label="@Ui.Hoofdmenu">
             <div class="container">
                 <a class="navbar-brand d-flex align-items-center gap-2" asp-area="" asp-page="/Index">
                     @if (!string.IsNullOrWhiteSpace(Branding.LogoUrl))
@@ -52,41 +62,51 @@
                     <span>@Branding.Name</span>
                 </a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#main-menu"
-                        aria-controls="main-menu" aria-expanded="false" aria-label="Menu tonen">
+                        aria-controls="main-menu" aria-expanded="false" aria-label="@Ui.MenuTonen">
                     <span class="navbar-toggler-icon"></span>
                 </button>
                 <div class="collapse navbar-collapse" id="main-menu">
                     <ul class="navbar-nav me-auto">
-                        @if (!User.IsInRole("User") && !User.IsInRole("Admin"))
+                        @if (!canOpenPlotboek)
                         {
                             <li class="nav-item">
                                 <a class="nav-link @(currentPage == "/Index" ? "active" : "")" aria-current="@(currentPage == "/Index" ? "page" : null)"
-                                   asp-area="" asp-page="/Index">Home</a>
+                                   asp-area="" asp-page="/Index">@Ui.NavHome</a>
                             </li>
                         }
-                        @if (User.IsInRole("User") || User.IsInRole("Admin"))
+                        @if (canOpenPlotboek)
                         {
                             <li class="nav-item">
                                 <a class="nav-link @(currentPage == "/Plotboek" ? "active" : "")" aria-current="@(currentPage == "/Plotboek" ? "page" : null)"
-                                   asp-area="" asp-page="/Plotboek">Plotboek</a>
+                                   asp-area="" asp-page="/Plotboek">@Ui.NavPlotboek</a>
                             </li>
                         }
                         @if (User.IsInRole("Admin"))
                         {
                             <li class="nav-item">
                                 <a class="nav-link @(currentPage == "/Admin" ? "active" : "")" aria-current="@(currentPage == "/Admin" ? "page" : null)"
-                                   asp-area="" asp-page="/Admin">Admin</a>
+                                   asp-area="" asp-page="/Admin">@Ui.NavAdmin</a>
                             </li>
                         }
                     </ul>
                     <div class="navbar-nav align-items-md-center">
                         <partial name="_LoginPartial" />
+                        @if (Localization.HasChoice)
+                        {
+                            <div class="d-flex" role="group" aria-label="@Ui.Taal">
+                                @foreach (var culture in Localization.SupportedCultures.Where(c => c.TwoLetterISOLanguageName != language))
+                                {
+                                    <a class="nav-link px-2" href="@Url.Content($"~/culture/{culture.Name}")?returnUrl=@here"
+                                       lang="@culture.Name" hreflang="@culture.Name" title="@culture.NativeName">@culture.Name.ToUpperInvariant()</a>
+                                }
+                            </div>
+                        }
                         @* Cycles system → light → dark; plotboek-theme.js wires it and sets the labels.
                            Hidden until that script has run: without it the button can do nothing. *@
                         <button type="button" class="nav-link px-2" data-theme-toggle hidden
-                                data-label-system="Thema volgt het systeem. Klik voor licht."
-                                data-label-light="Licht thema. Klik voor donker."
-                                data-label-dark="Donker thema. Klik om het systeem te volgen.">
+                                data-label-system="@Ui.ThemaVolgtSysteem"
+                                data-label-light="@Ui.ThemaLicht"
+                                data-label-dark="@Ui.ThemaDonker">
                             <i class="fas fa-circle-half-stroke" aria-hidden="true"></i>
                         </button>
                     </div>
@@ -95,14 +115,30 @@
         </nav>
     </header>
     <div class="container pt-3 flex-grow-1">
+        @if (Demo.IsEnabled)
+        {
+            <aside class="alert alert-info d-flex align-items-start gap-2 small" aria-label="@Ui.DemoBannerLabel">
+                <i class="fas fa-flask mt-1" aria-hidden="true"></i>
+                <div>
+                    <strong>@Ui.DemoBannerTitel</strong>
+                    @Ui.DemoBannerTekst
+                    @if (!string.IsNullOrWhiteSpace(Branding.ContactUrl))
+                    {
+                        <text>@Ui.DemoBannerSchrijfrechtenVraag <a href="@Branding.ContactUrl" class="alert-link">@Ui.DemoBannerSchrijfrechtenLink</a>.</text>
+                    }
+                    <a asp-area="" asp-page="/Privacy" class="alert-link">@Ui.DemoBannerPrivacyLink</a>.
+                </div>
+            </aside>
+        }
         <main id="main-content" role="main" class="pb-3">
             @RenderBody()
         </main>
     </div>
 
     <footer class="border-top py-3 text-body-secondary small">
-        <div class="container">
+        <div class="container d-flex flex-wrap justify-content-between gap-2">
             <span>@Branding.FooterText</span>
+            <a asp-area="" asp-page="/Privacy" class="link-secondary">@Ui.FooterPrivacy</a>
         </div>
     </footer>
 

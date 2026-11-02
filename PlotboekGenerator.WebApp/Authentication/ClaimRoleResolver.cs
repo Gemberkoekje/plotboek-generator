@@ -8,7 +8,8 @@ namespace PlotboekGenerator.WebApp.Authentication;
 /// <summary>
 /// The default <see cref="IRoleResolver"/>: the e-mail addresses under <c>Authentication:Admins</c>
 /// are Admin, and a provider with a <see cref="OidcProviderSettings.RoleClaim"/> grants the highest
-/// role whose value under <c>Authentication:Roles:{Admin|User|NPC}</c> appears in that claim.
+/// role whose value under <c>Authentication:Roles:{Admin|User|Reader|NPC}</c> appears in that claim.
+/// A sign-in that earns no role that way gets <c>Authentication:DefaultRole</c>.
 /// </summary>
 /// <remarks>
 /// The role claim is looked for among the login's claims first, then as a top-level claim in its
@@ -17,7 +18,13 @@ namespace PlotboekGenerator.WebApp.Authentication;
 /// </remarks>
 public sealed class ClaimRoleResolver(IConfiguration configuration) : IRoleResolver
 {
+    /// <summary>The configuration key of the role a sign-in gets when nothing grants it one.</summary>
+    public const string DefaultRoleKey = "Authentication:DefaultRole";
+
+    private static readonly string[] GrantableRoles = [UserRoles.Admin, UserRoles.User, UserRoles.Reader, UserRoles.NPC];
+
     private readonly IConfiguration _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
+    private readonly string? _defaultRole = ReadDefaultRole(configuration);
 
     /// <inheritdoc />
     public string? ResolveRole(ExternalLoginInfo login)
@@ -35,11 +42,11 @@ public sealed class ClaimRoleResolver(IConfiguration configuration) : IRoleResol
             .FirstOrDefault(p => string.Equals(p.Scheme, login.LoginProvider, StringComparison.Ordinal));
         if (provider is null || string.IsNullOrWhiteSpace(provider.RoleClaim))
         {
-            return null;
+            return _defaultRole;
         }
 
         var granted = RoleClaimValues(login, provider.RoleClaim);
-        foreach (var role in new[] { UserRoles.Admin, UserRoles.User, UserRoles.NPC })
+        foreach (var role in GrantableRoles)
         {
             if (ReadList($"Authentication:Roles:{role}").Exists(granted.Contains))
             {
@@ -47,7 +54,33 @@ public sealed class ClaimRoleResolver(IConfiguration configuration) : IRoleResol
             }
         }
 
-        return UserRoles.Guest;
+        return _defaultRole ?? UserRoles.Guest;
+    }
+
+    /// <summary>
+    /// Reads <c>Authentication:DefaultRole</c>: one of the <see cref="UserRoles"/> but Admin, written
+    /// in any case. Left empty, a provider without a role claim says nothing about roles and one with
+    /// a role claim that grants nothing makes the user a Guest, as before the setting existed.
+    /// </summary>
+    /// <param name="configuration">The application configuration.</param>
+    /// <returns>The default role, or <c>null</c> when none is configured.</returns>
+    /// <exception cref="InvalidOperationException">The value is not a role, or it is Admin.</exception>
+    public static string? ReadDefaultRole(IConfiguration configuration)
+    {
+        ArgumentNullException.ThrowIfNull(configuration);
+
+        var value = configuration[DefaultRoleKey];
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            return null;
+        }
+
+        // Admin for everyone who signs in is never what a deployment means: admins are listed by
+        // address under Authentication:Admins.
+        var allowed = UserRoles.All.Where(role => role != UserRoles.Admin).ToList();
+        return allowed.Find(role => string.Equals(role, value.Trim(), StringComparison.OrdinalIgnoreCase))
+            ?? throw new InvalidOperationException(
+                $"{DefaultRoleKey} is '{value}'. Use one of: {string.Join(", ", allowed)}. Admins are listed under Authentication:Admins.");
     }
 
     private static HashSet<string> RoleClaimValues(ExternalLoginInfo login, string roleClaim)

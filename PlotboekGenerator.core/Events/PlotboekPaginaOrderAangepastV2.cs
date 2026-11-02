@@ -1,3 +1,6 @@
+using System.Globalization;
+using PlotboekGenerator.core.Resources;
+
 namespace PlotboekGenerator.core.Events;
 
 public sealed record PlotboekPaginaOrderAangepastV2 : AuditTrailEvent
@@ -9,5 +12,5 @@ public sealed record PlotboekPaginaOrderAangepastV2 : AuditTrailEvent
     /// <summary>The starttijd ID, corresponding to the <see cref="Starttijd"/> enum member name (e.g. "Tijd1030", "Tijd2000").</summary>
     required public string StarttijdId { get; init; }
 
-    public override string What => $"<strong>Volgorde aangepast:</strong> positie {Order} in {Dag} - {StarttijdId}";
+    public override string What => $"<strong>{CoreTekst.VolgordeAangepast}</strong> {string.Format(CultureInfo.CurrentCulture, CoreTekst.VolgordePositie, Order, Dag.Naam(), StarttijdId)}";
 }

@@ -1,3 +1,6 @@
+using System.Globalization;
+using PlotboekGenerator.core.Resources;
+
 namespace PlotboekGenerator.core.Events;
 
 public sealed record PlotboekPaginaOrderAangepast : AuditTrailEvent
@@ -8,5 +11,5 @@ public sealed record PlotboekPaginaOrderAangepast : AuditTrailEvent
 
     required public Starttijd Starttijd { get; init; }
 
-    public override string What => $"<strong>Volgorde aangepast:</strong> positie {Order} in {Dag} - {Starttijd}";
+    public override string What => $"<strong>{CoreTekst.VolgordeAangepast}</strong> {string.Format(CultureInfo.CurrentCulture, CoreTekst.VolgordePositie, Order, Dag.Naam(), Starttijd)}";
 }

@@ -1,3 +1,6 @@
+using System.Globalization;
+using PlotboekGenerator.infrastructure.Resources;
+
 namespace PlotboekGenerator.infrastructure.MartenDb;
 
 public sealed class PlotboekPaginaRepository : IAggregateRepository<PlotboekPaginaId, PlotboekPagina>
@@ -22,11 +25,11 @@ public sealed class PlotboekPaginaRepository : IAggregateRepository<PlotboekPagi
     public async Task<Result<PlotboekPagina>> LoadAsync(PlotboekPaginaId id, CancellationToken cancellationToken = default)
     {
         if (id == PlotboekPaginaId.Empty)
-            return Result.WithMessages<PlotboekPagina>(ValidationMessage.Error($"PlotboekPagina Id is empty."));
+            return Result.WithMessages<PlotboekPagina>(ValidationMessage.Error(InfraTekst.PaginaIdLeeg));
 
         var events = await _eventStore.LoadEventsAsync((Uuid)id, cancellationToken);
         if (events.Count == 0)
-            return Result.WithMessages<PlotboekPagina>(ValidationMessage.Error($"PlotboekPagina {id} not found."));
+            return Result.WithMessages<PlotboekPagina>(ValidationMessage.Error(string.Format(CultureInfo.CurrentCulture, InfraTekst.PaginaNietGevonden, id)));
 
         var eventbuffer = EventBuffer.FromStorage(id, events, e => e);
         var aggregate = Aggregate.FromStorage<PlotboekPagina, PlotboekPaginaId>(eventbuffer);
@@ -46,11 +49,11 @@ public sealed class PlotboekPaginaRepository : IAggregateRepository<PlotboekPagi
     public async Task<Result<PaginaHistorySnapshot>> LoadAtVersionAsync(PlotboekPaginaId id, long version, CancellationToken cancellationToken = default)
     {
         if (id == PlotboekPaginaId.Empty)
-            return Result.WithMessages<PaginaHistorySnapshot>(ValidationMessage.Error($"PlotboekPagina Id is empty."));
+            return Result.WithMessages<PaginaHistorySnapshot>(ValidationMessage.Error(InfraTekst.PaginaIdLeeg));
 
         var events = await _eventStore.LoadEventsWithVersionAsync((Uuid)id, cancellationToken);
         if (events.Count == 0)
-            return Result.WithMessages<PaginaHistorySnapshot>(ValidationMessage.Error($"PlotboekPagina {id} not found."));
+            return Result.WithMessages<PaginaHistorySnapshot>(ValidationMessage.Error(string.Format(CultureInfo.CurrentCulture, InfraTekst.PaginaNietGevonden, id)));
 
         // Anchor on the actual stream versions (not the element count) so that reconstructing to
         // "version N" always matches the version the audit trail shows, even if the stream were ever

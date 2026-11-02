@@ -7,5 +7,5 @@
 
 <div class="text-center">
     <h1 class="display-4">@Branding.Name</h1>
-    <p>Welkom! Dit is de @Branding.Name. Je hebt nog geen rechten. Neem contact op met @Terminologie.Organisatie, @Terminologie.Organisatie kan je rechten geven.</p>
+    <p>@string.Format(System.Globalization.CultureInfo.CurrentCulture, Ui.IndexWelkomZonderRechten, Branding.Name, Terminologie.Organisatie)</p>
 </div>

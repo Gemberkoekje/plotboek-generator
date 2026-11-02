@@ -1,6 +1,7 @@
 namespace PlotboekGenerator.WebApp.Pages;
 
 using PlotboekGenerator.core;
+using PlotboekGenerator.WebApp.Resources;
 
 public sealed partial class PlotboekModel
 {
@@ -199,13 +200,13 @@ public sealed partial class PlotboekModel
 
     internal Dictionary<string, string?> CaptureEditableTextFields() => new ()
     {
-        ["Titel"] = EditableTitle,
-        ["Elevator Pitch"] = EditableElevatorPitch,
-        ["Samenvatting Plot"] = EditableSamenvattingPlot,
-        ["Meer Informatie"] = EditableMeerInformatie,
-        ["Opmerkingen"] = EditableOpmerkingen,
+        [PaginaUi.VeldTitel] = EditableTitle,
+        [PaginaUi.VeldElevatorPitch] = EditableElevatorPitch,
+        [PaginaUi.VeldSamenvattingPlot] = EditableSamenvattingPlot,
+        [PaginaUi.VeldMeerInformatie] = EditableMeerInformatie,
+        [PaginaUi.VeldOpmerkingen] = EditableOpmerkingen,
         [Terminologie.Huidig.InstructieTechniek] = EditableInstructiePentagon,
-        ["Locatie Specificatie"] = EditableLocatieEncounterSpecificatie,
+        [PaginaUi.VeldLocatieSpecificatie] = EditableLocatieEncounterSpecificatie,
     };
 
     internal void InitializePaginaEditableFields()
@@ -490,7 +491,7 @@ public sealed partial class PlotboekModel
 
         if (PaginaVersion > 0 && plotboekPagina.Value.Version != PaginaVersion)
         {
-            return Result.WithMessages(ValidationMessage.Error("Iemand anders heeft al een aanpassing gedaan. Je wijzigingen zijn niet opgeslagen."));
+            return Result.WithMessages(ValidationMessage.Error(PaginaUi.ConcurrencyConflict));
         }
 
         // Handle "pagina:" prefix - link current pagina with another unlinked pagina via a new plotlijn

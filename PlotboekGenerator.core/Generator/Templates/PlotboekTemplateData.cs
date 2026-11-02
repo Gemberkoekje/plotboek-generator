@@ -1,4 +1,5 @@
 using System.Collections.Immutable;
+using PlotboekGenerator.core.Resources;
 
 namespace PlotboekGenerator.core.Generator.Templates;
 
@@ -100,7 +101,8 @@ public sealed record DayData
 }
 public sealed record PageData
 {
-    public const string NogNietIngevuld = "Nog niet ingevuld";
+    /// <summary>The placeholder for a field nobody filled in, in the language of the export.</summary>
+    public static string NogNietIngevuld => CoreTekst.ExportNogNietIngevuld;
 
     required public string NaamEncounter { get; init; }
     required public string VerantwoordelijkeSl { get; init; }

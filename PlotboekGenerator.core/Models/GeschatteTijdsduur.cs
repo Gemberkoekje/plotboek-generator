@@ -1,3 +1,6 @@
+using System.Globalization;
+using PlotboekGenerator.core.Resources;
+
 namespace PlotboekGenerator.core.Models;
 
 /// <summary>
@@ -48,15 +51,20 @@ public readonly record struct GeschatteTijdsduur
 
         if (hours == 0)
         {
-            return $"{minutes} minuten";
+            return Minuten(minutes);
         }
 
         if (minutes == 0)
         {
-            return hours == 1 ? "1 uur" : $"{hours} uur";
+            return Uren(hours);
         }
 
-        var hourPart = hours == 1 ? "1 uur" : $"{hours} uur";
-        return $"{hourPart} en {minutes} minuten";
+        return string.Format(CultureInfo.CurrentCulture, CoreTekst.TijdsduurUurEnMinuten, Uren(hours), Minuten(minutes));
     }
+
+    private static string Uren(int hours)
+        => string.Format(CultureInfo.CurrentCulture, hours == 1 ? CoreTekst.TijdsduurUurOne : CoreTekst.TijdsduurUurMany, hours);
+
+    private static string Minuten(int minutes)
+        => string.Format(CultureInfo.CurrentCulture, minutes == 1 ? CoreTekst.TijdsduurMinutenOne : CoreTekst.TijdsduurMinutenMany, minutes);
 }

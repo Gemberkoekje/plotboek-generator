@@ -1,17 +1,16 @@
 @model AdminModel
+@using System.Globalization
 
 <!-- Standaard-NPC Management Section -->
 <div class="card mb-4">
     <div class="card-header text-bg-info">
         <h5 class="mb-0">
-            <i class="fas fa-bookmark"></i> Standaard-NPC's
+            <i class="fas fa-bookmark"></i> @AdminUi.SectieStandaardNpcs
         </h5>
     </div>
     <div class="card-body">
         <p class="text-muted mb-3">
-            NPC-rollen die vaak terugkomen, zoals een stadswacht of een bandiet. SL's bewaren ze vanuit een plot
-            en voegen ze in een volgend plot toe als ingevulde rol. Een plot houdt zijn eigen kopie: wijzigen of
-            verwijderen hier verandert geen bestaand plot.
+            @AdminUi.StandaardNpcsUitleg
         </p>
 
         <!-- Add/Edit Standaard-NPC Form -->
@@ -21,23 +20,23 @@
             <input type="hidden" name="EditStandaardNpcId" id="editStandaardNpcId" value="" />
             <div class="row g-3">
                 <div class="col-md-4">
-                    <label for="editStandaardNpcRol" class="form-label">Rol</label>
+                    <label for="editStandaardNpcRol" class="form-label">@AdminUi.RolLabel</label>
                     <input type="text"
                            class="form-control"
                            id="editStandaardNpcRol"
                            name="EditStandaardNpcRol"
-                           placeholder="bijv. Stadswacht"
+                           placeholder="@AdminUi.RolPlaceholder"
                            required />
                 </div>
                 <div class="col-md-4">
-                    <label for="editStandaardNpcKledingEnSchmink" class="form-label">Kleding &amp; Schmink</label>
+                    <label for="editStandaardNpcKledingEnSchmink" class="form-label">@AdminUi.KledingEnSchminkLabel</label>
                     <textarea class="form-control"
                               id="editStandaardNpcKledingEnSchmink"
                               name="EditStandaardNpcKledingEnSchmink"
                               rows="2"></textarea>
                 </div>
                 <div class="col-md-4">
-                    <label for="editStandaardNpcCastingInstructie" class="form-label">Casting-instructie</label>
+                    <label for="editStandaardNpcCastingInstructie" class="form-label">@AdminUi.CastingInstructieLabel</label>
                     <textarea class="form-control"
                               id="editStandaardNpcCastingInstructie"
                               name="EditStandaardNpcCastingInstructie"
@@ -45,10 +44,10 @@
                 </div>
                 <div class="col-12">
                     <button type="submit" class="btn btn-info" id="saveStandaardNpcBtn">
-                        <i class="fas fa-plus"></i> Standaard-NPC Toevoegen
+                        <i class="fas fa-plus"></i> @AdminUi.StandaardNpcToevoegenButton
                     </button>
                     <button type="button" class="btn btn-outline-secondary" id="cancelEditStandaardNpcBtn" style="display: none;" onclick="cancelEditStandaardNpc()">
-                        <i class="fas fa-times"></i> Annuleren
+                        <i class="fas fa-times"></i> @AdminUi.AnnulerenButton
                     </button>
                 </div>
             </div>
@@ -57,16 +56,16 @@
         <!-- Standaard-NPC List -->
         @if (Model.StandaardNpcs.Count > 0)
         {
-            <p class="text-muted small mb-2">@Model.StandaardNpcs.Count standaard-NPC's</p>
+            <p class="text-muted small mb-2">@string.Format(CultureInfo.CurrentCulture, Model.StandaardNpcs.Count == 1 ? AdminUi.StandaardNpcsAantalOne : AdminUi.StandaardNpcsAantalMany, Model.StandaardNpcs.Count)</p>
             <div class="table-responsive">
                 <table class="table table-hover table-sm align-middle">
                     <thead>
                         <tr>
-                            <th>Rol</th>
-                            <th>Kleding &amp; Schmink</th>
-                            <th>Casting-instructie</th>
-                            <th>Laatst bewaard</th>
-                            <th style="width: 110px;">Acties</th>
+                            <th>@AdminUi.RolLabel</th>
+                            <th>@AdminUi.KledingEnSchminkLabel</th>
+                            <th>@AdminUi.CastingInstructieLabel</th>
+                            <th>@AdminUi.KolomLaatstBewaard</th>
+                            <th style="width: 110px;">@AdminUi.KolomActies</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -86,7 +85,7 @@
                                 <td class="text-nowrap">
                                     <button type="button"
                                             class="btn btn-sm btn-outline-primary me-1"
-                                            title="Bewerken"
+                                            title="@AdminUi.BewerkenTitel"
                                             data-npc-id="@standaardNpc.Id"
                                             data-npc-rol="@standaardNpc.Rol"
                                             data-npc-kleding="@standaardNpc.KledingEnSchmink"
@@ -100,8 +99,8 @@
                                         <input type="hidden" name="DeleteStandaardNpcId" value="@standaardNpc.Id" />
                                         <button type="submit"
                                                 class="btn btn-sm btn-outline-danger"
-                                                title="Verwijderen"
-                                                data-confirm="Weet je zeker dat je standaard-NPC '@standaardNpc.Rol' wilt verwijderen? Bestaande plots houden hun eigen kopie."
+                                                title="@AdminUi.VerwijderenTitel"
+                                                data-confirm="@string.Format(CultureInfo.CurrentCulture, AdminUi.StandaardNpcVerwijderenConfirm, standaardNpc.Rol)"
                                                 onclick="return confirm(this.dataset.confirm);">
                                             <i class="fas fa-trash"></i>
                                         </button>
@@ -116,8 +115,8 @@
         else
         {
             <div class="alert alert-info">
-                <i class="fas fa-info-circle"></i> Nog geen standaard-NPC's. Voeg er hier een toe, of bewaar een rol
-                vanuit een plot met <strong>Bewaar als standaard</strong>.
+                <i class="fas fa-info-circle"></i> @AdminUi.GeenStandaardNpcs
+                @Html.Raw(string.Format(CultureInfo.CurrentCulture, AdminUi.GeenStandaardNpcsBewarenHtml, "<strong>" + Html.Encode(AdminUi.BewaarAlsStandaardKnop) + "</strong>"))
             </div>
         }
     </div>

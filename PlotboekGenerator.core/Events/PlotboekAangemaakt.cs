@@ -1,3 +1,5 @@
+using PlotboekGenerator.core.Resources;
+
 namespace PlotboekGenerator.core.Events;
 
 public sealed record PlotboekAangemaakt : AuditTrailEvent
@@ -11,11 +13,11 @@ public sealed record PlotboekAangemaakt : AuditTrailEvent
     required public Dag EindDag { get; init; }
 
     public override string What => $"""
-        <strong>Aangemaakt</strong>
+        <strong>{CoreTekst.HistorieAangemaakt}</strong>
         <ul class="mb-0 ps-3">
-            <li><strong>Jaar:</strong> {Jaar}</li>
-            <li><strong>Event:</strong> {Event}</li>
-            <li><strong>Van:</strong> {StartDag} <strong>t/m</strong> {EindDag}</li>
+            <li><strong>{CoreTekst.HistorieJaar}</strong> {Jaar}</li>
+            <li><strong>{CoreTekst.HistorieEvent}</strong> {Event}</li>
+            <li><strong>{CoreTekst.HistorieVan}</strong> {StartDag.Naam()} <strong>{CoreTekst.HistorieTotEnMet}</strong> {EindDag.Naam()}</li>
         </ul>
         """;
 }

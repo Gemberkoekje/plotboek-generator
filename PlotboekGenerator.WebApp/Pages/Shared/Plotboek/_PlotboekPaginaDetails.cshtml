@@ -1,3 +1,4 @@
+@using System.Globalization
 @model PlotboekModel
 @inject PlotboekGenerator.WebApp.TerreinKaart TerreinKaart
 
@@ -5,12 +6,12 @@
 <div class="col-md-6">
     <div class="card">
         <div class="card-header d-flex justify-content-between align-items-center">
-            <h5 class="mb-0">Plotboek Pagina Details</h5>
+            <h5 class="mb-0">@PaginaUi.PaginaDetailsKop</h5>
             @if (Model.SelectedPlotboekPagina != null)
             {
                 <a href="@Url.Page("/Plotboek", new { Jaar = Model.Jaar, Event = Model.EventId, PaginaId = Model.PaginaId, ShowPaginaAuditTrail = true })"
                    class="btn btn-outline-secondary btn-sm">
-                    <i class="fas fa-history"></i> Wijzigingen
+                    <i class="fas fa-history"></i> @PaginaUi.Wijzigingen
                 </a>
             }
         </div>
@@ -41,13 +42,19 @@
                 if (pagina.ExtraSlNames?.Any() == true)
                     allSlNames.AddRange(pagina.ExtraSlNames);
                 if (allSlNames.Count > 0)
-                    planningParts.Add($"SL: {string.Join(", ", allSlNames)}");
+                    planningParts.Add(string.Format(CultureInfo.CurrentCulture, PaginaUi.PlanningSlSamenvatting, string.Join(", ", allSlNames)));
                 var planningSummary = string.Join(" \u00B7 ", planningParts);
 
                 // Compute encounter summary
                 var encounterParts = new List<string>();
+                // Built here rather than with EncounterTypeIds.ToString(), whose "(mogelijk …)" is Dutch.
                 if (pagina.EncounterTypeIds.HasValue)
-                    encounterParts.Add(pagina.EncounterTypeIds.ToString());
+                {
+                    var hoofdsoorten = string.Join(" / ", pagina.EncounterTypeIds.Major);
+                    encounterParts.Add(pagina.EncounterTypeIds.Minor?.Count > 0
+                        ? string.Format(CultureInfo.CurrentCulture, PaginaUi.EncounterSoortenMogelijk, hoofdsoorten, string.Join(", ", pagina.EncounterTypeIds.Minor))
+                        : hoofdsoorten);
+                }
                 if (pagina.LocatieEncounter.HasValue)
                     encounterParts.Add(Model.GetLocatieEncounterDisplay(pagina.LocatieEncounter));
                 var encounterSummary = string.Join(" \u00B7 ", encounterParts);
@@ -58,7 +65,7 @@
                 {
                     var summaryParts = new List<string>();
                     if (pagina.AantalNpcs.AlleNpcs)
-                        summaryParts.Add("ALLE NPCs");
+                        summaryParts.Add(PaginaUi.AlleNpcs);
                     var npcRoles = pagina.AantalNpcs.Rollen?.Where(r => r.HasValue).ToList() ?? [];
                     if (npcRoles.Count > 0)
                     {
@@ -123,39 +130,39 @@
                         <div class="alert alert-warning d-flex justify-content-between align-items-center" role="alert">
                             <div>
                                 <i class="fas fa-clock-rotate-left me-2"></i>
-                                Je bekijkt de versie van
+                                @PaginaUi.RestoreVersieVan
                                 @if (Model.RestoreFromWhen is { } restoreWhen)
                                 {
                                     <strong><span data-utc="@restoreWhen.ToString("o")">@restoreWhen.ToString("dd-MM-yyyy HH:mm")</span></strong>
                                 }
                                 else
                                 {
-                                    <strong>een eerder moment</strong>
+                                    <strong>@PaginaUi.RestoreEerderMoment</strong>
                                 }
                                 @if (!string.IsNullOrEmpty(Model.RestoreFromWho))
                                 {
-                                    <text>(door @Model.RestoreFromWho)</text>
+                                    @string.Format(CultureInfo.CurrentCulture, PaginaUi.RestoreDoor, Model.RestoreFromWho)
                                 }
-                                &mdash; deze waarden zijn <strong>nog niet opgeslagen</strong>. Klik op <strong>Opslaan</strong> om de inhoud te herstellen.
-                                Volgorde en verwijderstatus blijven ongewijzigd.
+                                &mdash; @PaginaUi.RestoreWaardenZijn <strong>@PaginaUi.RestoreNogNietOpgeslagen</strong>. @PaginaUi.RestoreKlikOp <strong>@PaginaUi.Opslaan</strong> @PaginaUi.RestoreOmTeHerstellen
+                                @PaginaUi.RestoreVolgordeOngewijzigd
                             </div>
                             <a href="@Url.Page("/Plotboek", new { Jaar = Model.Jaar, Event = Model.EventId, PaginaId = Model.PaginaId })"
                                class="btn btn-sm btn-secondary ms-3 text-nowrap">
-                                <i class="fas fa-times me-1"></i>Annuleren
+                                <i class="fas fa-times me-1"></i>@PaginaUi.Annuleren
                             </a>
                         </div>
                     }
 
                     @if (!string.IsNullOrEmpty(Model.ConcurrencyError))
                     {
-                        var quillFields = new HashSet<string> { "Samenvatting Plot", "Meer Informatie", Terminologie.InstructieTechniek };
+                        var quillFields = new HashSet<string> { PaginaUi.VeldSamenvattingPlot, PaginaUi.VeldMeerInformatie, Terminologie.InstructieTechniek };
                         <div class="alert alert-danger fade show" role="alert">
-                            <strong><i class="fas fa-exclamation-triangle"></i> Let op!</strong> @Model.ConcurrencyError
-                            <br /><small>Het formulier toont nu de huidige waarden.</small>
+                            <strong><i class="fas fa-exclamation-triangle"></i> @PaginaUi.ConcurrencyLetOp</strong> @Model.ConcurrencyError
+                            <br /><small>@PaginaUi.ConcurrencyHuidigeWaarden</small>
                             @if (Model.AttemptedChanges.Count > 0)
                             {
                                 <details class="mt-2">
-                                    <summary><strong>Jouw niet-opgeslagen wijzigingen</strong></summary>
+                                    <summary><strong>@PaginaUi.ConcurrencyJouwWijzigingen</strong></summary>
                                     <div class="mt-2">
                                         @foreach (var change in Model.AttemptedChanges)
                                         {
@@ -213,26 +220,26 @@
                                        onchange="toggleVolledigKlaar()">
                             }
                             <label class="form-check-label fw-bold @(isVolledigKlaar ? "text-success" : "")" for="editable-is-volledig-klaar"
-                                   title="@(geblokkeerdDoorFeedback ? "Dit plot heeft nog openstaande feedback; reageer daar eerst op." : null)">
-                                <i class="fas @(isVolledigKlaar ? "fa-check-circle" : "fa-circle") me-1"></i>Plot volledig klaar
+                                   title="@(geblokkeerdDoorFeedback ? PaginaUi.OpenFeedbackBlokkeert : null)">
+                                <i class="fas @(isVolledigKlaar ? "fa-check-circle" : "fa-circle") me-1"></i>@PaginaUi.PlotVolledigKlaar
                             </label>
                         </div>
                         @if (Model.IsPlotboekReadOnly)
                         {
                             <small class="text-muted d-block mt-1">
-                                <i class="fas fa-lock me-1"></i>Dit plotboek is volledig klaar en is alleen-lezen.
+                                <i class="fas fa-lock me-1"></i>@PaginaUi.PlotboekAlleenLezen
                             </small>
                         }
                         else if (geblokkeerdDoorFeedback)
                         {
                             <small class="text-danger d-block mt-1">
-                                <i class="fas fa-comment-dots me-1"></i>Dit plot heeft nog openstaande feedback; reageer daar eerst op.
+                                <i class="fas fa-comment-dots me-1"></i>@PaginaUi.OpenFeedbackBlokkeert
                             </small>
                         }
                         else if (!canMarkVolledigKlaar && !isVolledigKlaar)
                         {
                             <small class="text-muted d-block mt-1">
-                                <i class="fas fa-info-circle me-1"></i>Vul eerst alle verplichte velden in: @string.Join(", ", allMissing)
+                                <i class="fas fa-info-circle me-1"></i>@string.Format(CultureInfo.CurrentCulture, PaginaUi.VerplichteVeldenEerst, string.Join(", ", allMissing))
                             </small>
                         }
                         else if (alleenVinkjeNog)
@@ -240,7 +247,7 @@
                             @* Hidden by toggleVolledigKlaar() once the switch is ticked, so it doesn't linger before saving. *@
                             <div id="volledig-klaar-herinnering" class="alert alert-warning py-2 small mt-2 mb-0" role="status">
                                 <i class="fas fa-exclamation-triangle me-1"></i>
-                                Alles is ingevuld. Is je plot af? Vink dan <strong>Plot volledig klaar</strong> aan; dat is de laatste stap.
+                                @PaginaUi.AlleenVinkjeNogVoor <strong>@PaginaUi.PlotVolledigKlaar</strong> @PaginaUi.AlleenVinkjeNogNa
                             </div>
                         }
                     </div>
@@ -255,11 +262,11 @@
                                        asp-for="EditableIsGedraaid"
                                        id="editable-is-gedraaid">
                                 <label class="form-check-label fw-bold @(pagina.IsGedraaid ? "text-warning" : "")" for="editable-is-gedraaid">
-                                    <i class="fas @(pagina.IsGedraaid ? "fa-flag-checkered" : "fa-flag") me-1"></i>Gedraaid (Ran)
+                                    <i class="fas @(pagina.IsGedraaid ? "fa-flag-checkered" : "fa-flag") me-1"></i>@PaginaUi.Gedraaid
                                 </label>
                             </div>
                             <small class="text-muted d-block mt-1">
-                                <i class="fas fa-info-circle me-1"></i>Wanneer aangevinkt, wordt deze encounter niet meer afgedrukt in toekomstige plotboeken.
+                                <i class="fas fa-info-circle me-1"></i>@PaginaUi.GedraaidUitleg
                             </small>
                         </div>
                     }
@@ -275,7 +282,7 @@
                              aria-controls="section-title">
                             <div class="d-flex justify-content-between align-items-center">
                                 <span class="detail-section-label">
-                                    <i class="fas fa-heading me-1"></i>Titel
+                                    <i class="fas fa-heading me-1"></i>@PaginaUi.SectieTitel
                                     @if (titleMissing.Count > 0) { <i class="fas fa-exclamation-triangle text-warning ms-1"></i><small class="text-warning ms-1">@string.Join(", ", titleMissing)</small> }
                                 </span>
                                 <i class="fas fa-chevron-down detail-section-chevron"></i>
@@ -287,19 +294,19 @@
                                 }
                                 else
                                 {
-                                    <span class="text-muted fst-italic">Geen titel</span>
+                                    <span class="text-muted fst-italic">@PaginaUi.GeenTitel</span>
                                 }
                             </div>
                         </div>
                         <div class="collapse" id="section-title">
                             <div class="detail-section-body">
                                 <div class="mb-3">
-                                    <label for="editable-domain" class="form-label fw-bold">Domein:</label>
+                                    <label for="editable-domain" class="form-label fw-bold">@PaginaUi.DomeinLabel</label>
                                 <select id="editable-domain"
                                             asp-for="EditableDomainId"
                                             class="form-select"
                                             onchange="updatePlotlijnOptions()">
-                                        <option value="">-- Geen domein --</option>
+                                        <option value="">@PaginaUi.GeenDomein</option>
                                         @foreach (var domain in Model.AvailableDomains)
                                         {
                                             <option value="@domain.Id" selected="@(Model.EditableDomainId == domain.Id)">@domain.DisplayName</option>
@@ -312,7 +319,7 @@
                                 </div>
 
                                 <div class="mb-3">
-                                    <label for="editable-title" class="form-label fw-bold">Title:</label>
+                                    <label for="editable-title" class="form-label fw-bold">@PaginaUi.TitelLabel</label>
                                     <div class="input-group">
                                         <input type="text"
                                                id="editable-title"
@@ -324,14 +331,14 @@
                                 @if (!Model.IsEvergreen)
                                 {
                                 <div class="mb-3" id="plotlijn-container">
-                                    <label for="editable-plotlijn" class="form-label fw-bold">Plotlijn:</label>
+                                    <label for="editable-plotlijn" class="form-label fw-bold">@PaginaUi.PlotlijnLabel</label>
                                     <select id="editable-plotlijn"
                                             asp-for="EditablePlotlijnIdRaw"
                                             class="form-select">
-                                        <option value="">-- Zelfstandige encounter (geen plotlijn) --</option>
+                                        <option value="">@PaginaUi.ZelfstandigeEncounter</option>
                                         @if (Model.AvailablePlotlijnen.Any())
                                         {
-                                            <optgroup label="Bestaande plotlijnen">
+                                            <optgroup label="@PaginaUi.BestaandePlotlijnen">
                                                 @foreach (var plotlijn in Model.AvailablePlotlijnen)
                                                 {
                                                     <option value="plotlijn:@plotlijn.PlotlijnId"
@@ -342,7 +349,7 @@
                                         }
                                         @if (Model.PlotboekPaginas.Any(p => !p.PlotlijnId.HasValue && p.Id != Model.PaginaId))
                                         {
-                                            <optgroup label="Koppelen aan plot (nieuwe plotlijn)">
+                                            <optgroup label="@PaginaUi.KoppelenAanPlot">
                                                 @foreach (var linkPagina in Model.PlotboekPaginas.Where(p => !p.PlotlijnId.HasValue && p.Id != Model.PaginaId))
                                                 {
                                                     <option value="pagina:@linkPagina.Id"
@@ -352,7 +359,7 @@
                                         }
                                     </select>
                                     <small class="form-text text-muted">
-                                        Selecteer een bestaande plotlijn om aan te koppelen, of kies een ander plot om samen een nieuwe plotlijn te vormen.
+                                        @PaginaUi.PlotlijnUitleg
                                     </small>
                                 </div>
                                 }
@@ -370,12 +377,12 @@
                              aria-controls="section-planning">
                             <div class="d-flex justify-content-between align-items-center">
                                 <span class="detail-section-label">
-                                    <i class="fas fa-calendar-alt me-1"></i>Planning
+                                    <i class="fas fa-calendar-alt me-1"></i>@PaginaUi.SectiePlanning
                                     @if (planningMissing.Count > 0) { <i class="fas fa-exclamation-triangle text-warning ms-1"></i><small class="text-warning ms-1">@string.Join(", ", planningMissing)</small> }
                                     @if (!Model.IsEvergreen)
                                     {
-                                        <span id="nacht-plot-warning-indicator" class="text-warning ms-1" title="Flexibel nacht plot zonder slot om 20:00 of later" style="display:@(nachtPlotWarning ? "inline" : "none");">
-                                            <i class="fas fa-moon"></i><small class="ms-1">Geen nachtslot</small>
+                                        <span id="nacht-plot-warning-indicator" class="text-warning ms-1" title="@PaginaUi.NachtPlotZonderSlotTitel" style="display:@(nachtPlotWarning ? "inline" : "none");">
+                                            <i class="fas fa-moon"></i><small class="ms-1">@PaginaUi.GeenNachtslot</small>
                                         </span>
                                     }
                                 </span>
@@ -388,7 +395,7 @@
                                 }
                                 else
                                 {
-                                    <span class="text-muted fst-italic">Geen planning</span>
+                                    <span class="text-muted fst-italic">@PaginaUi.GeenPlanning</span>
                                 }
                             </div>
                         </div>
@@ -397,7 +404,7 @@
                                 @if (!Model.IsEvergreen)
                                 {
                                 <div class="mb-3" id="dag-container">
-                                    <label for="editable-day" class="form-label fw-bold">Dag:</label>
+                                    <label for="editable-day" class="form-label fw-bold">@PaginaUi.DagLabel</label>
                                     <select id="editable-day"
                                             asp-for="EditableDay"
                                             class="form-select"
@@ -405,13 +412,13 @@
                                             onchange="updateStarttijdOptions()">
                                         @foreach (var dag in Model.AvailableDays)
                                         {
-                                            <option value="@dag" selected="@(Model.EditableDay == dag)">@dag</option>
+                                            <option value="@dag" selected="@(Model.EditableDay == dag)">@dag.Naam()</option>
                                         }
                                     </select>
                                 </div>
                                 <div class="row mb-3">
                                     <div class="col-md-6" id="starttijd-container">
-                                        <label for="editable-starttijd" class="form-label fw-bold">Starttijd:</label>
+                                        <label for="editable-starttijd" class="form-label fw-bold">@PaginaUi.StarttijdLabel</label>
                                         <select id="editable-starttijd"
                                                 asp-for="EditableStarttijd"
                                                 class="form-select"
@@ -435,7 +442,7 @@
                                         <script type="application/json" id="starttijd-opties">@Html.Raw(Model.BuildStarttijdOptiesJson())</script>
                                     </div>
                                     <div class="col-md-6">
-                                        <label for="editable-aantal-blokken" class="form-label fw-bold">Geschatte Duur:</label>
+                                        <label for="editable-aantal-blokken" class="form-label fw-bold">@PaginaUi.GeschatteDuurLabel</label>
                                         <select id="editable-aantal-blokken"
                                                 asp-for="EditableAantalBlokken"
                                                 class="form-select">
@@ -450,7 +457,7 @@
                                 else
                                 {
                                 <div class="mb-3">
-                                    <label for="editable-aantal-blokken" class="form-label fw-bold">Geschatte Duur:</label>
+                                    <label for="editable-aantal-blokken" class="form-label fw-bold">@PaginaUi.GeschatteDuurLabel</label>
                                     <select id="editable-aantal-blokken"
                                             asp-for="EditableAantalBlokken"
                                             class="form-select">
@@ -459,16 +466,16 @@
                                             <option value="@cfg.Id" selected="@(Model.EditableAantalBlokken == cfg.Id)">@cfg.DisplayName</option>
                                         }
                                     </select>
-                                    <small class="form-text text-muted">Evergreen encounters hebben geen vaste dag of starttijd, alleen een geschatte duur.</small>
+                                    <small class="form-text text-muted">@PaginaUi.EvergreenGeenDag</small>
                                 </div>
                                 }
 
                                 <div class="mb-3">
-                                    <label for="editable-verantwoordelijke-sl" class="form-label fw-bold">Verantwoordelijke SL:</label>
+                                    <label for="editable-verantwoordelijke-sl" class="form-label fw-bold">@PaginaUi.VerantwoordelijkeSlLabel</label>
                                     <select id="editable-verantwoordelijke-sl"
                                             asp-for="EditableVerantwoordelijkeSlId"
                                             class="form-select">
-                                        <option value="">Nog niet bekend</option>
+                                        <option value="">@PaginaUi.NogNietBekend</option>
                                         @foreach (var sl in Model.AvailableSls)
                                         {
                                             <option value="@sl.Id" selected="@(Model.EditableVerantwoordelijkeSlId == sl.Id)">@sl.DisplayName</option>
@@ -477,7 +484,7 @@
                                 </div>
 
                                 <div class="mb-3">
-                                    <label class="form-label fw-bold">Extra SL's:</label>
+                                    <label class="form-label fw-bold">@PaginaUi.ExtraSlsLabel</label>
                                     <div id="extra-sl-container">
                                         @if (Model.EditableExtraSlIds != null && Model.EditableExtraSlIds.Any())
                                         {
@@ -487,7 +494,7 @@
                                                 <div class="extra-sl-item d-flex align-items-center mb-2" data-index="@i">
                                                     <select name="EditableExtraSlIds[@i]"
                                                             class="form-select form-select-sm me-2">
-                                                        <option value="">-- Selecteer een SL --</option>
+                                                        <option value="">@PaginaUi.ExtraSlKiezen</option>
                                                         @foreach (var sl in Model.AvailableSls)
                                                         {
                                                             <option value="@sl.Id" selected="@(extraSlId == sl.Id)">@sl.DisplayName</option>
@@ -501,12 +508,12 @@
                                         }
                                     </div>
                                     <button type="button" class="btn btn-outline-success btn-sm" onclick="addExtraSl()">
-                                        <i class="fas fa-plus me-1"></i>Extra SL Toevoegen
+                                        <i class="fas fa-plus me-1"></i>@PaginaUi.ExtraSlToevoegen
                                     </button>
                                 </div>
 
                                 <hr />
-                                <label class="form-label fw-bold">Planning Opties:</label>
+                                <label class="form-label fw-bold">@PaginaUi.PlanningOptiesLabel</label>
                                 <div class="row g-2 mb-3">
                                     @if (!Model.IsEvergreen)
                                     {
@@ -514,27 +521,27 @@
                                         <div class="form-check">
                                             <input class="form-check-input" type="checkbox" asp-for="EditableIsSpelerGedreven" id="editable-is-speler-gedreven" onchange="toggleSpelerGedreven()">
                                             <label class="form-check-label" for="editable-is-speler-gedreven">
-                                                &#x1F3AD; Speler Gedreven
+                                                &#x1F3AD; @PaginaUi.SpelerGedreven
                                             </label>
-                                            <small class="text-muted d-block">Dag en starttijd worden niet gebruikt</small>
+                                            <small class="text-muted d-block">@PaginaUi.SpelerGedrevenUitleg</small>
                                         </div>
                                     </div>
                                     <div class="col-md-6">
                                         <div class="form-check">
                                             <input class="form-check-input" type="checkbox" asp-for="EditableIsFlexibel" id="editable-is-flexibel">
                                             <label class="form-check-label" for="editable-is-flexibel">
-                                                &#x1F504; Flexibel
+                                                &#x1F504; @PaginaUi.Flexibel
                                             </label>
-                                            <small class="text-muted d-block">Exacte tijd is minder belangrijk</small>
+                                            <small class="text-muted d-block">@PaginaUi.FlexibelUitleg</small>
                                         </div>
                                     </div>
                                     <div class="col-md-6">
                                         <div class="form-check">
                                             <input class="form-check-input" type="checkbox" asp-for="EditableIsFlexibelNachtPlot" id="editable-is-flexibel-nacht-plot" onchange="updateNachtPlotWarning()">
                                             <label class="form-check-label" for="editable-is-flexibel-nacht-plot">
-                                                &#x1F319; Flexibel nacht plot
+                                                &#x1F319; @PaginaUi.FlexibelNachtPlot
                                             </label>
-                                            <small class="text-muted d-block">Flexibel, maar hoort in een avond-/nachtslot (20:00 of later)</small>
+                                            <small class="text-muted d-block">@PaginaUi.FlexibelNachtPlotUitleg</small>
                                         </div>
                                     </div>
                                     }
@@ -542,12 +549,12 @@
                                 @if (!Model.IsEvergreen)
                                 {
                                     <div id="nacht-plot-warning" class="alert alert-warning py-2 small mb-3" style="display:@(nachtPlotWarning ? "block" : "none");">
-                                        <i class="fas fa-moon me-1"></i>Dit is een <strong>flexibel nacht plot</strong>, maar het staat niet in een slot om 20:00 of later. Kies een avond-/nachtslot of zet de optie uit.
+                                        <i class="fas fa-moon me-1"></i>@PaginaUi.NachtPlotWaarschuwingVoor <strong>@PaginaUi.NachtPlotWaarschuwingNadruk</strong>@PaginaUi.NachtPlotWaarschuwingNa
                                     </div>
                                 }
 
                                 <hr />
-                                <label class="form-label fw-bold">Planning Iconen:</label>
+                                <label class="form-label fw-bold">@PaginaUi.PlanningIconenLabel</label>
                                 <div class="row g-2">
                                     <div class="col-md-6">
                                         <div class="form-check">
@@ -566,27 +573,27 @@
                                         <div class="form-check">
                                             <input class="form-check-input" type="checkbox" asp-for="EditableTimingCruciaal" id="editable-timing-cruciaal">
                                             <label class="form-check-label" for="editable-timing-cruciaal">
-                                                &#x2B50; Timing Cruciaal
+                                                &#x2B50; @PaginaUi.TimingCruciaal
                                             </label>
-                                            <small class="text-muted d-block">Plot moet in dit blok</small>
+                                            <small class="text-muted d-block">@PaginaUi.TimingCruciaalUitleg</small>
                                         </div>
                                     </div>
                                     <div class="col-md-6">
                                         <div class="form-check">
                                             <input class="form-check-input" type="checkbox" asp-for="EditablePlotCruciaal" id="editable-plot-cruciaal">
                                             <label class="form-check-label" for="editable-plot-cruciaal">
-                                                &#x2757; Plot Cruciaal
+                                                &#x2757; @PaginaUi.PlotCruciaal
                                             </label>
-                                            <small class="text-muted d-block">Mag niet gecanceld worden bij te weinig NPCs (in overleg met HSL/EC)</small>
+                                            <small class="text-muted d-block">@PaginaUi.PlotCruciaalUitleg</small>
                                         </div>
                                     </div>
                                     <div class="col-md-6">
                                         <div class="form-check">
                                             <input class="form-check-input" type="checkbox" asp-for="EditableMagAlsEersteCancelled" id="editable-mag-als-eerste-gecancelled">
                                             <label class="form-check-label" for="editable-mag-als-eerste-gecancelled">
-                                                &#x2753; Mag als eerste gecanceld
+                                                &#x2753; @PaginaUi.MagAlsEersteGecanceld
                                             </label>
-                                            <small class="text-muted d-block">Mag als eerste gecanceld worden bij te weinig NPCs</small>
+                                            <small class="text-muted d-block">@PaginaUi.MagAlsEersteGecanceldUitleg</small>
                                         </div>
                                     </div>
                                 </div>
@@ -604,13 +611,13 @@
                              aria-controls="section-encounter">
                             <div class="d-flex justify-content-between align-items-center">
                                 <span class="detail-section-label">
-                                    <i class="fas fa-theater-masks me-1"></i>Encounter
+                                    <i class="fas fa-theater-masks me-1"></i>@PaginaUi.SectieEncounter
                                     @if (encounterMissing.Count > 0) { <i class="fas fa-exclamation-triangle text-warning ms-1"></i><small class="text-warning ms-1">@string.Join(", ", encounterMissing)</small> }
                                     @if (exacteLocatieBotsingen > 0)
                                     {
                                         <i class="fas fa-map-marker-alt text-danger ms-1"></i>
                                         <small class="text-danger ms-1">
-                                            @(exacteLocatieBotsingen == 1 ? "locatie dubbel geboekt" : $"{exacteLocatieBotsingen}x locatie dubbel geboekt")
+                                            @(exacteLocatieBotsingen == 1 ? PaginaUi.LocatieDubbelGeboektOne : string.Format(CultureInfo.CurrentCulture, PaginaUi.LocatieDubbelGeboektMany, exacteLocatieBotsingen))
                                         </small>
                                     }
                                 </span>
@@ -623,17 +630,17 @@
                                 }
                                 else
                                 {
-                                    <span class="text-muted fst-italic">Geen encounter informatie</span>
+                                    <span class="text-muted fst-italic">@PaginaUi.GeenEncounterInformatie</span>
                                 }
                             </div>
                         </div>
                         <div class="collapse" id="section-encounter">
                             <div class="detail-section-body">
                                 <div class="mb-3">
-                                    <label class="form-label fw-bold">Soort Encounter:</label>
+                                    <label class="form-label fw-bold">@PaginaUi.SoortEncounterLabel</label>
                                     <div class="row g-3">
                                         <div class="col-md-6">
-                                            <label class="form-label small text-muted">Hoofdsoort (meerdere mogelijk)</label>
+                                            <label class="form-label small text-muted">@PaginaUi.Hoofdsoort</label>
                                             <div class="border rounded p-2" style="max-height: 150px; overflow-y: auto;">
                                                 @foreach (var cfg in Model.AvailableSoortEncounterConfigs.Where(s => !s.IsNone))
                                                 {
@@ -652,7 +659,7 @@
                                             </div>
                                         </div>
                                         <div class="col-md-6">
-                                            <label class="form-label small text-muted">Mogelijk ook (meerdere mogelijk)</label>
+                                            <label class="form-label small text-muted">@PaginaUi.MogelijkOok</label>
                                             <div class="border rounded p-2" style="max-height: 150px; overflow-y: auto;">
                                                 @foreach (var cfg in Model.AvailableSoortEncounterConfigs.Where(s => !s.IsNone))
                                                 {
@@ -678,7 +685,7 @@
 
                                 <div class="mb-3">
                                     <label class="form-label fw-bold">
-                                        Locatie Encounter:
+                                        @PaginaUi.LocatieEncounterLabel
                                         @* An anchor, not a button: a disabled fieldset (read-only pagina) would grey out a
                                            <button>, and looking at the terrain map should always stay possible. *@
                                         @if (TerreinKaart.IsIngesteld)
@@ -687,8 +694,8 @@
                                                class="btn btn-sm btn-outline-secondary py-0 px-2 ms-1"
                                                data-bs-toggle="modal"
                                                data-bs-target="#terreinKaartModal"
-                                               title="Bekijk: @TerreinKaart.Titel"
-                                               aria-label="Bekijk: @TerreinKaart.Titel">?</a>
+                                               title="@string.Format(CultureInfo.CurrentCulture, PaginaUi.TerreinKaartBekijken, TerreinKaart.Titel)"
+                                               aria-label="@string.Format(CultureInfo.CurrentCulture, PaginaUi.TerreinKaartBekijken, TerreinKaart.Titel)">?</a>
                                         }
                                     </label>
                                     @{
@@ -711,7 +718,7 @@
                                                 @foreach (var locatie in Enum.GetValues<core.Enums.LocatieEncounter>())
                                                 {
                                                     <option value="@locatie" selected="@(Model.EditableLocatieEncounter == locatie)">
-                                                        @(locatie == core.Enums.LocatieEncounter.None ? "-- Selecteer --" : locatie.ToString())
+                                                        @(locatie == core.Enums.LocatieEncounter.None ? PaginaUi.LocatieSelecteer : locatie.Naam())
                                                     </option>
                                                 }
                                             </select>
@@ -732,7 +739,7 @@
                                                                     data-notitie="@categorie.Notitie"
                                                                     data-ernst="@categorie.Ernst"
                                                                     data-locatie-notitie="@loc.Notitie">
-                                                                @loc.DisplayName@(loc.IsActief ? string.Empty : " (niet meer in gebruik)")
+                                                                @(loc.IsActief ? loc.DisplayName : string.Format(CultureInfo.CurrentCulture, PaginaUi.QuestLocatieNietMeerInGebruik, loc.DisplayName))
                                                             </option>
                                                         }
                                                     </optgroup>
@@ -743,10 +750,10 @@
                                                         data-notitie=""
                                                         data-ernst="@core.Enums.QuestLocatieErnst.None"
                                                         data-locatie-notitie="">
-                                                    Anders… (vul zelf in)
+                                                    @PaginaUi.QuestLocatieAnders
                                                 </option>
                                             </select>
-                                            <small class="form-text text-muted">Welke questlocatie?</small>
+                                            <small class="form-text text-muted">@PaginaUi.WelkeQuestlocatie</small>
                                         </div>
                                         <div class="col-md-4" id="locatie-specificatie-container" style="display: @(showSpecificatie ? "block" : "none");">
                                             <input type="text"
@@ -754,7 +761,7 @@
                                                    asp-for="EditableLocatieEncounterSpecificatie"
                                                    class="form-control"
                                                    oninput="updateLocatieEncounterPreview()">
-                                            <small class="form-text text-muted">Welk veld?</small>
+                                            <small class="form-text text-muted">@PaginaUi.WelkVeld</small>
                                         </div>
                                     </div>
                                     <div id="questlocatie-notitie"
@@ -769,27 +776,26 @@
                                     {
                                         var conflictTijd = conflict.Dag == core.Enums.Dag.None
                                             ? string.Empty
-                                            : $"{conflict.Dag} {Model.AvailableStarttijdConfigs.GetDisplayName(conflict.StarttijdId)}";
+                                            : $"{conflict.Dag.Naam()} {Model.AvailableStarttijdConfigs.GetDisplayName(conflict.StarttijdId)}";
                                         switch (conflict.Soort)
                                         {
                                             case core.Enums.LocatieConflictSoort.ExacteMatch:
                                                 <div class="alert alert-danger py-2 small mt-2 mb-0">
                                                     <i class="fas fa-triangle-exclamation me-1"></i>
-                                                    Deze locatie is al in gebruik: <strong>@conflict.Titel</strong> (@conflictTijd).
+                                                    @PaginaUi.LocatieAlInGebruik <strong>@conflict.Titel</strong> (@conflictTijd).
                                                 </div>
                                                 break;
                                             case core.Enums.LocatieConflictSoort.Overlapgroep:
                                                 <div class="alert alert-warning py-2 small mt-2 mb-0">
                                                     <i class="fas fa-triangle-exclamation me-1"></i>
-                                                    Let op: <strong>@conflict.Titel</strong> speelt op
-                                                    @Model.AvailableQuestLocatieConfigs.GetDisplayName(conflict.LocatieId)
-                                                    in hetzelfde blok — zorg dat ze elkaar niet in de weg zitten.
+                                                    @PaginaUi.LocatieOverlapLetOp <strong>@conflict.Titel</strong>
+                                                    @string.Format(CultureInfo.CurrentCulture, PaginaUi.LocatieOverlapSpeeltOp, Model.AvailableQuestLocatieConfigs.GetDisplayName(conflict.LocatieId))
                                                 </div>
                                                 break;
                                             case core.Enums.LocatieConflictSoort.ZonderTijdvak:
                                                 <div class="alert alert-info py-2 small mt-2 mb-0">
                                                     <i class="fas fa-circle-info me-1"></i>
-                                                    <strong>@conflict.Titel</strong> gebruikt dezelfde locatie maar heeft geen dagdeel — stem onderling af.
+                                                    <strong>@conflict.Titel</strong> @PaginaUi.LocatieZonderTijdvak
                                                 </div>
                                                 break;
                                         }
@@ -816,7 +822,7 @@
                              aria-controls="section-npc">
                             <div class="d-flex justify-content-between align-items-center">
                                 <span class="detail-section-label">
-                                    <i class="fas fa-users me-1"></i>NPCs
+                                    <i class="fas fa-users me-1"></i>@PaginaUi.SectieNpcs
                                     @if (npcMissing.Count > 0) { <i class="fas fa-exclamation-triangle text-warning ms-1"></i><small class="text-warning ms-1">@string.Join(", ", npcMissing)</small> }
                                 </span>
                                 <i class="fas fa-chevron-down detail-section-chevron"></i>
@@ -828,13 +834,13 @@
                                 }
                                 else
                                 {
-                                    <span class="text-muted fst-italic">Geen NPC informatie</span>
+                                    <span class="text-muted fst-italic">@PaginaUi.GeenNpcInformatie</span>
                                 }
                             </div>
                         </div>
                         <div class="collapse @(npcSectieOpen ? "show" : "")" id="section-npc">
                             <div class="detail-section-body">
-                                <label class="form-label fw-bold">Aantal NPCs:</label>
+                                <label class="form-label fw-bold">@PaginaUi.AantalNpcsLabel</label>
 
                                 <div class="mb-3 p-2 border rounded bg-body-tertiary d-flex align-items-start">
                                     <input class="form-check-input mt-1 me-2"
@@ -844,10 +850,10 @@
                                            onchange="toggleGeenNpcsNodig()">
                                     <div>
                                         <label class="form-check-label fw-bold mb-0" for="editable-geen-npcs">
-                                            <i class="fas fa-user-slash me-1"></i>Geen NPC's nodig
+                                            <i class="fas fa-user-slash me-1"></i>@PaginaUi.GeenNpcsNodig
                                         </label>
                                         <small class="text-muted d-block">
-                                            Vink aan als dit plot geen NPC's nodig heeft. Sluit "ALLE NPCs" en losse rollen uit.
+                                            @PaginaUi.GeenNpcsNodigUitleg
                                         </small>
                                     </div>
                                 </div>
@@ -860,10 +866,10 @@
                                            onchange="toggleAlleNpcsMode()">
                                     <div>
                                         <label class="form-check-label fw-bold text-danger mb-0" for="editable-alle-npcs">
-                                            <i class="fas fa-users me-1"></i>ALLE NPCs (bijv. groot gevecht)
+                                            <i class="fas fa-users me-1"></i>@PaginaUi.AlleNpcsLabel
                                         </label>
                                         <small class="text-muted d-block">
-                                            Selecteer dit als alle beschikbare NPCs nodig zijn.
+                                            @PaginaUi.AlleNpcsUitleg
                                         </small>
                                     </div>
                                 </div>
@@ -877,34 +883,34 @@
                                             <div class="npc-rol-item border rounded p-3 mb-2" data-index="@i">
                                                 <div class="row g-2 mb-2">
                                                     <div class="col-md-6">
-                                                        <label class="form-label small text-muted">Rol/Type NPC</label>
+                                                        <label class="form-label small text-muted">@PaginaUi.NpcRolLabel</label>
                                                         <input type="text"
                                                                name="EditableNpcRollen[@i].Rol"
                                                                value="@rol.Rol"
                                                                class="form-control form-control-sm">
                                                     </div>
                                                     <div class="col-md-3">
-                                                        <label class="form-label small text-muted npc-count-label">Minimum</label>
+                                                        <label class="form-label small text-muted npc-count-label">@PaginaUi.NpcMinimum</label>
                                                         <input type="number"
                                                                name="EditableNpcRollen[@i].MinimumAantal"
                                                                value="@rol.MinimumAantal"
                                                                class="form-control form-control-sm npc-min-input"
                                                                min="0"
-                                                               placeholder="Min">
+                                                               placeholder="@PaginaUi.NpcMinPlaceholder">
                                                     </div>
                                                     <div class="col-md-3">
-                                                        <label class="form-label small text-muted npc-count-label">Maximum</label>
+                                                        <label class="form-label small text-muted npc-count-label">@PaginaUi.NpcMaximum</label>
                                                         <input type="number"
                                                                name="EditableNpcRollen[@i].MaximumAantal"
                                                                value="@rol.MaximumAantal"
                                                                class="form-control form-control-sm npc-max-input"
                                                                min="0"
-                                                               placeholder="Max (optioneel)">
+                                                               placeholder="@PaginaUi.NpcMaxPlaceholder">
                                                     </div>
                                                 </div>
                                                 <div class="row g-2 mb-2">
                                                     <div class="col-md-12">
-                                                        <label class="form-label small text-muted">Kleding &amp; Schmink</label>
+                                                        <label class="form-label small text-muted">@PaginaUi.NpcKledingEnSchmink</label>
                                                         <input type="text"
                                                                name="EditableNpcRollen[@i].KledingEnSchmink"
                                                                value="@rol.KledingEnSchmink"
@@ -915,12 +921,12 @@
                                                    Mirror every change here in the addNpcRol() template in npc.js. *@
                                                 <div class="row g-2 mb-2">
                                                     <div class="col-md-12">
-                                                        <label class="form-label small text-muted">Casting &mdash; wat voor figurant zoeken we?</label>
+                                                        <label class="form-label small text-muted">@PaginaUi.NpcCastingLabel</label>
                                                         <input type="text"
                                                                name="EditableNpcRollen[@i].CastingInstructie"
                                                                value="@rol.CastingInstructie"
                                                                class="form-control form-control-sm"
-                                                               placeholder="bv. vrouwelijk uiterlijk, goede roleplayer, stevig postuur">
+                                                               placeholder="@PaginaUi.NpcCastingPlaceholder">
                                                     </div>
                                                 </div>
                                                 <div class="row g-2 mb-2">
@@ -935,16 +941,16 @@
                                                                    data-target="npc-afstemming-toelichting-@i"
                                                                    onchange="toggleNpcTextField(this)">
                                                             <label class="form-check-label small" for="npc-afstemming-@i">
-                                                                &#x1F91D; Vereist afstemming vooraf (bv. marteling, intimiteit, heftige angstinhoud)
+                                                                &#x1F91D; @PaginaUi.NpcAfstemmingLabel
                                                             </label>
-                                                            <small class="text-muted d-block">De MSL stemt dit vooraf af met de figurant.</small>
+                                                            <small class="text-muted d-block">@PaginaUi.NpcAfstemmingUitleg</small>
                                                         </div>
                                                         <input type="text"
                                                                name="EditableNpcRollen[@i].AfstemmingToelichting"
                                                                value="@rol.AfstemmingToelichting"
                                                                id="npc-afstemming-toelichting-@i"
                                                                class="form-control form-control-sm mt-1"
-                                                               placeholder="Waarover moet afgestemd worden?"
+                                                               placeholder="@PaginaUi.NpcAfstemmingPlaceholder"
                                                                style="display: @(rol.VereistAfstemming ? "block" : "none");">
                                                     </div>
                                                 </div>
@@ -958,7 +964,7 @@
                                                                    id="npc-terugkerend-@i"
                                                                    checked="@rol.IsTerukerend">
                                                             <label class="form-check-label small" for="npc-terugkerend-@i">
-                                                                Terugkerend na dit plot
+                                                                @PaginaUi.NpcTerugkerend
                                                             </label>
                                                         </div>
                                                     </div>
@@ -973,7 +979,7 @@
                                                                    data-target="npc-eerder-door-@i"
                                                                    onchange="toggleNpcTextField(this, 'npc-eerder-door-@i')">
                                                             <label class="form-check-label small" for="npc-eerder-@i">
-                                                                Eerder gespeeld
+                                                                @PaginaUi.NpcEerderGespeeld
                                                             </label>
                                                         </div>
                                                         <input type="text"
@@ -981,7 +987,7 @@
                                                                value="@rol.GespeeldDoor"
                                                                id="npc-eerder-door-@i"
                                                                class="form-control form-control-sm mt-1"
-                                                               placeholder="Door wie?"
+                                                               placeholder="@PaginaUi.NpcDoorWie"
                                                                style="display: @(rol.IsEerderGespeeld ? "block" : "none");">
                                                     </div>
                                                     <div class="col-md-4">
@@ -996,7 +1002,7 @@
                                                                    data-warning="npc-gekozen-warning-@i"
                                                                    onchange="toggleNpcGekozen(this)">
                                                             <label class="form-check-label small" for="npc-gekozen-@i">
-                                                                Al gekozen/gebriefd
+                                                                @PaginaUi.NpcAlGekozen
                                                             </label>
                                                         </div>
                                                         <input type="text"
@@ -1004,23 +1010,23 @@
                                                                value="@rol.GekozenPersoon"
                                                                id="npc-gekozen-persoon-@i"
                                                                class="form-control form-control-sm mt-1"
-                                                               placeholder="Wie?"
+                                                               placeholder="@PaginaUi.NpcWie"
                                                                style="display: @(rol.IsAlGekozen ? "block" : "none");">
                                                     </div>
                                                 </div>
                                                 <div id="npc-gekozen-warning-@i"
                                                      class="alert alert-warning py-2 small mb-2"
                                                      style="display: @(rol.IsAlGekozen ? "block" : "none");">
-                                                    <i class="fas fa-triangle-exclamation me-1"></i><strong>LET OP:</strong> De MSL kiezen de NPC's. Gebruik deze optie alleen voor rollen waarbij een hele lange briefing nodig is die niet op het event zelf gegeven kan worden.
+                                                    <i class="fas fa-triangle-exclamation me-1"></i><strong>@PaginaUi.NpcLetOp</strong> @PaginaUi.NpcGekozenWaarschuwing
                                                 </div>
                                                 <button type="button" class="btn btn-outline-danger btn-sm" onclick="removeNpcRol(this)">
-                                                    <i class="fas fa-trash me-1"></i>Verwijderen
+                                                    <i class="fas fa-trash me-1"></i>@PaginaUi.NpcVerwijderen
                                                 </button>
                                                 @* Mirror this button in the addNpcRol() template in npc.js. *@
                                                 <button type="button" class="btn btn-outline-secondary btn-sm ms-1"
-                                                        title="Slaat het plot op en bewaart deze rol (naam, kleding &amp; schmink, casting) als standaard-NPC."
+                                                        title="@PaginaUi.NpcBewaarAlsStandaardTitel"
                                                         onclick="bewaarNpcRolAlsStandaard(this)">
-                                                    <i class="fas fa-bookmark me-1"></i>Bewaar als standaard
+                                                    <i class="fas fa-bookmark me-1"></i>@PaginaUi.NpcBewaarAlsStandaard
                                                 </button>
                                             </div>
                                         }
@@ -1028,7 +1034,7 @@
                                 </div>
                                 <div class="d-flex flex-wrap align-items-center gap-2">
                                     <button type="button" class="btn btn-outline-success btn-sm" onclick="addNpcRol()">
-                                        <i class="fas fa-plus me-1"></i>NPC Rol Toevoegen
+                                        <i class="fas fa-plus me-1"></i>@PaginaUi.NpcRolToevoegen
                                     </button>
                                     @if (Model.AvailableStandaardNpcs.Count > 0)
                                     {
@@ -1036,9 +1042,9 @@
                                            itself is neither posted nor part of the unsaved-changes snapshot. The
                                            option values are the keys bewaarNpcRolAlsStandaard() checks for clashes. *@
                                         <select id="standaard-npc-select" class="form-select form-select-sm w-auto"
-                                                aria-label="Standaard-NPC toevoegen"
+                                                aria-label="@PaginaUi.StandaardNpcToevoegenLabel"
                                                 onchange="addStandaardNpcRol(this)">
-                                            <option value="">+ Standaard-NPC toevoegen…</option>
+                                            <option value="">@PaginaUi.StandaardNpcToevoegenOptie</option>
                                             @foreach (var standaardNpc in Model.AvailableStandaardNpcs)
                                             {
                                                 <option value="@standaardNpc.Id"
@@ -1066,13 +1072,13 @@
                                 </div>
 
                                 <hr />
-                                <label class="form-label fw-bold">NPC Iconen:</label>
+                                <label class="form-label fw-bold">@PaginaUi.NpcIconenLabel</label>
                                 <div class="row g-2">
                                     <div class="col-md-6">
                                         <div class="form-check">
                                             <input class="form-check-input" type="checkbox" asp-for="EditableUitgebreideBriefing" id="editable-uitgebreide-briefing">
                                             <label class="form-check-label" for="editable-uitgebreide-briefing">
-                                                &#x1F4D6; Uitgebreide briefing
+                                                &#x1F4D6; @PaginaUi.UitgebreideBriefing
                                             </label>
                                         </div>
                                     </div>
@@ -1080,7 +1086,7 @@
                                         <div class="form-check">
                                             <input class="form-check-input" type="checkbox" asp-for="EditableGrootPakOfKostuum" id="editable-groot-pak-kostuum">
                                             <label class="form-check-label" for="editable-groot-pak-kostuum">
-                                                &#x2764;&#xFE0F; Groot pak of uitgebreid kostuum/schmink
+                                                &#x2764;&#xFE0F; @PaginaUi.GrootPakOfKostuum
                                             </label>
                                         </div>
                                     </div>
@@ -1100,7 +1106,7 @@
                              aria-controls="section-plot">
                             <div class="d-flex justify-content-between align-items-center">
                                 <span class="detail-section-label">
-                                    <i class="fas fa-scroll me-1"></i>Plot
+                                    <i class="fas fa-scroll me-1"></i>@PaginaUi.SectiePlot
                                     @if (plotMissing.Count > 0) { <i class="fas fa-exclamation-triangle text-warning ms-1"></i><small class="text-warning ms-1">@string.Join(", ", plotMissing)</small> }
                                 </span>
                                 <i class="fas fa-chevron-down detail-section-chevron"></i>
@@ -1112,14 +1118,14 @@
                                 }
                                 else
                                 {
-                                    <span class="text-muted fst-italic">Geen elevator pitch</span>
+                                    <span class="text-muted fst-italic">@PaginaUi.GeenElevatorPitch</span>
                                 }
                             </div>
                         </div>
                         <div class="collapse @(showPlotSection ? "show" : "")" id="section-plot">
                             <div class="detail-section-body">
                                 <div class="mb-3">
-                                    <label for="editable-elevator-pitch" class="form-label fw-bold">Elevator Pitch:</label>
+                                    <label for="editable-elevator-pitch" class="form-label fw-bold">@PaginaUi.ElevatorPitchLabel</label>
                                     <div class="input-group">
                                         <input type="text"
                                                id="editable-elevator-pitch"
@@ -1128,12 +1134,12 @@
                                         @if (Model.KanElevatorPitchGenereren)
                                         {
                                             <button id="btn-genereer-elevator-pitch" type="button" class="btn btn-outline-secondary" onclick="generateElevatorPitch()">
-                                                <i class="fas fa-robot me-1"></i>Genereer elevator pitch
+                                                <i class="fas fa-robot me-1"></i>@PaginaUi.GenereerElevatorPitch
                                             </button>
                                         }
                                     </div>
                                     <small class="form-text text-muted">
-                                        1 zin die MSL gebruikt om het plot te verkopen richting de figuranten tijdens het verdelen van de rollen.
+                                        @PaginaUi.ElevatorPitchUitleg
                                     </small>
                                 </div>
                                 <input type="hidden" id="generated-elevator-pitch-hidden" asp-for="GeneratedElevatorPitchHidden" />
@@ -1145,13 +1151,13 @@
                                 else if (!string.IsNullOrEmpty(Model.GeneratedElevatorPitchPreview))
                                 {
                                     <div class="alert alert-info" role="alert">
-                                        <strong>Gegenereerde elevator pitch:</strong>
+                                        <strong>@PaginaUi.GegenereerdeElevatorPitch</strong>
                                         <div class="mt-2">@Model.GeneratedElevatorPitchPreview</div>
                                     </div>
                                 }
 
                                 <div class="mb-3">
-                                    <label class="form-label fw-bold">Samenvatting Plot:</label>
+                                    <label class="form-label fw-bold">@PaginaUi.SamenvattingPlotLabel</label>
                                     <input type="hidden" id="editable-samenvatting-plot" asp-for="EditableSamenvattingPlot" />
                                     <div id="samenvatting-plot-editor">@Html.Raw(Model.EditableSamenvattingPlot)</div>
                                 </div>
@@ -1169,7 +1175,7 @@
                              aria-controls="section-props-loot">
                             <div class="d-flex justify-content-between align-items-center">
                                 <span class="detail-section-label">
-                                    <i class="fas fa-box-open me-1"></i>Props &amp; Loot
+                                    <i class="fas fa-box-open me-1"></i>@PaginaUi.SectiePropsEnLoot
                                     @if (propsLootMissing.Count > 0) { <i class="fas fa-exclamation-triangle text-warning ms-1"></i><small class="text-warning ms-1">@string.Join(", ", propsLootMissing)</small> }
                                 </span>
                                 <i class="fas fa-chevron-down detail-section-chevron"></i>
@@ -1179,8 +1185,8 @@
                                     var propsLootParts = new List<string>();
                                     var validProps = pagina.PropsEnLoot.Props?.Where(p => p.HasValue).ToList() ?? [];
                                     var validLoot = pagina.PropsEnLoot.Loot?.Where(l => l.HasValue).ToList() ?? [];
-                                    if (validProps.Count > 0) propsLootParts.Add($"{validProps.Count} prop(s)");
-                                    if (validLoot.Count > 0) propsLootParts.Add($"{validLoot.Count} loot item(s)");
+                                    if (validProps.Count > 0) propsLootParts.Add(string.Format(CultureInfo.CurrentCulture, validProps.Count == 1 ? PaginaUi.PropsAantalOne : PaginaUi.PropsAantalMany, validProps.Count));
+                                    if (validLoot.Count > 0) propsLootParts.Add(string.Format(CultureInfo.CurrentCulture, validLoot.Count == 1 ? PaginaUi.LootAantalOne : PaginaUi.LootAantalMany, validLoot.Count));
                                 }
                                 @if (propsLootParts.Count > 0)
                                 {
@@ -1188,14 +1194,14 @@
                                 }
                                 else
                                 {
-                                    <span class="text-muted fst-italic">Geen props of loot</span>
+                                    <span class="text-muted fst-italic">@PaginaUi.GeenPropsOfLoot</span>
                                 }
                             </div>
                         </div>
                         <div class="collapse" id="section-props-loot">
                             <div class="detail-section-body">
-                                <label class="form-label fw-bold">Benodigde Props:</label>
-                                <small class="text-muted d-block mb-2">Props &eacute;n wie ze aanlevert.</small>
+                                <label class="form-label fw-bold">@PaginaUi.BenodigdeProps</label>
+                                <small class="text-muted d-block mb-2">@PaginaUi.BenodigdePropsUitleg</small>
                                 <div id="props-container">
                                     @if (Model.EditableProps != null && Model.EditableProps.Any())
                                     {
@@ -1207,19 +1213,19 @@
                                                        name="EditableProps[@i].Omschrijving"
                                                        value="@prop.Omschrijving"
                                                        class="form-control form-control-sm me-2"
-                                                       placeholder="Omschrijving prop">
+                                                       placeholder="@PaginaUi.PropOmschrijvingPlaceholder">
 
                                                 <select name="EditableProps[@i].VerantwoordelijkeSource"
                                                         class="form-select form-select-sm me-2 prop-source-select" style="max-width: 160px;"
                                                         onchange="onPropSourceChanged(this)">
-                                                    <option value="SL" selected="@(string.Equals(prop.VerantwoordelijkeSource, "SL", StringComparison.OrdinalIgnoreCase))">SL</option>
-                                                    <option value="SpelerOfNpc" selected="@(string.Equals(prop.VerantwoordelijkeSource, "SpelerOfNpc", StringComparison.OrdinalIgnoreCase))">Speler of NPC</option>
-                                                    <option value="Anders" selected="@(string.Equals(prop.VerantwoordelijkeSource, "Anders", StringComparison.OrdinalIgnoreCase))">Anders</option>
+                                                    <option value="SL" selected="@(string.Equals(prop.VerantwoordelijkeSource, "SL", StringComparison.OrdinalIgnoreCase))">@PaginaUi.PropsBronSl</option>
+                                                    <option value="SpelerOfNpc" selected="@(string.Equals(prop.VerantwoordelijkeSource, "SpelerOfNpc", StringComparison.OrdinalIgnoreCase))">@PaginaUi.PropsBronSpelerOfNpc</option>
+                                                    <option value="Anders" selected="@(string.Equals(prop.VerantwoordelijkeSource, "Anders", StringComparison.OrdinalIgnoreCase))">@PaginaUi.PropsBronAnders</option>
                                                 </select>
 
                                                 <select name="EditableProps[@i].VerantwoordelijkeSlId"
                                                         class="form-select form-select-sm me-2 prop-sl-select" style="max-width: 200px; display: @(string.Equals(prop.VerantwoordelijkeSource, "SL", StringComparison.OrdinalIgnoreCase) ? "block" : "none");">
-                                                    <option value="">-- SL --</option>
+                                                    <option value="">@PaginaUi.PropsSlKiezen</option>
                                                     @foreach (var sl in Model.AvailableSls)
                                                     {
                                                         <option value="@sl.Id" selected="@(prop.VerantwoordelijkeSlId == sl.Id)">@sl.DisplayName</option>
@@ -1230,7 +1236,7 @@
                                                        name="EditableProps[@i].VerantwoordelijkeVrijeTekst"
                                                        value="@prop.VerantwoordelijkeVrijeTekst"
                                                        class="form-control form-control-sm me-2 prop-vrije-tekst"
-                                                       placeholder="Speler of naam"
+                                                       placeholder="@PaginaUi.PropsVrijeTekstPlaceholder"
                                                        style="max-width: 200px; display: @(string.Equals(prop.VerantwoordelijkeSource, "SL", StringComparison.OrdinalIgnoreCase) ? "none" : "block");">
                                                 <button type="button" class="btn btn-outline-danger btn-sm" onclick="removePropItem(this)">
                                                     <i class="fas fa-trash"></i>
@@ -1240,14 +1246,14 @@
                                     }
                                 </div>
                                 <button type="button" class="btn btn-outline-success btn-sm mb-3" onclick="addPropItem()">
-                                    <i class="fas fa-plus me-1"></i>Prop Toevoegen
+                                    <i class="fas fa-plus me-1"></i>@PaginaUi.PropToevoegen
                                 </button>
 
                                 <hr />
 
 
-                                <label class="form-label fw-bold">Gewenste Loot:</label>
-                                <small class="text-muted d-block mb-2">Lootbags / Specifieke loot &eacute;n wie dit aanlevert.</small>
+                                <label class="form-label fw-bold">@PaginaUi.GewensteLoot</label>
+                                <small class="text-muted d-block mb-2">@PaginaUi.GewensteLootUitleg</small>
                                 <div id="loot-container">
                                     @if (Model.EditableLoot != null && Model.EditableLoot.Any())
                                     {
@@ -1259,19 +1265,19 @@
                                                        name="EditableLoot[@i].Omschrijving"
                                                        value="@lootItem.Omschrijving"
                                                        class="form-control form-control-sm me-2"
-                                                       placeholder="Omschrijving loot">
+                                                       placeholder="@PaginaUi.LootOmschrijvingPlaceholder">
 
                                                 <select name="EditableLoot[@i].VerantwoordelijkeSource"
                                                         class="form-select form-select-sm me-2 loot-source-select" style="max-width: 160px;"
                                                         onchange="onLootSourceChanged(this)">
-                                                    <option value="SL" selected="@(string.Equals(lootItem.VerantwoordelijkeSource, "SL", StringComparison.OrdinalIgnoreCase))">SL</option>
-                                                    <option value="SpelerOfNpc" selected="@(string.Equals(lootItem.VerantwoordelijkeSource, "SpelerOfNpc", StringComparison.OrdinalIgnoreCase))">Speler of NPC</option>
-                                                    <option value="Anders" selected="@(string.Equals(lootItem.VerantwoordelijkeSource, "Anders", StringComparison.OrdinalIgnoreCase))">Anders</option>
+                                                    <option value="SL" selected="@(string.Equals(lootItem.VerantwoordelijkeSource, "SL", StringComparison.OrdinalIgnoreCase))">@PaginaUi.PropsBronSl</option>
+                                                    <option value="SpelerOfNpc" selected="@(string.Equals(lootItem.VerantwoordelijkeSource, "SpelerOfNpc", StringComparison.OrdinalIgnoreCase))">@PaginaUi.PropsBronSpelerOfNpc</option>
+                                                    <option value="Anders" selected="@(string.Equals(lootItem.VerantwoordelijkeSource, "Anders", StringComparison.OrdinalIgnoreCase))">@PaginaUi.PropsBronAnders</option>
                                                 </select>
 
                                                 <select name="EditableLoot[@i].VerantwoordelijkeSlId"
                                                         class="form-select form-select-sm me-2 loot-sl-select" style="max-width: 200px; display: @(string.Equals(lootItem.VerantwoordelijkeSource, "SL", StringComparison.OrdinalIgnoreCase) ? "block" : "none");">
-                                                    <option value="">-- SL --</option>
+                                                    <option value="">@PaginaUi.PropsSlKiezen</option>
                                                     @foreach (var sl in Model.AvailableSls)
                                                     {
                                                         <option value="@sl.Id" selected="@(lootItem.VerantwoordelijkeSlId == sl.Id)">@sl.DisplayName</option>
@@ -1282,7 +1288,7 @@
                                                        name="EditableLoot[@i].VerantwoordelijkeVrijeTekst"
                                                        value="@lootItem.VerantwoordelijkeVrijeTekst"
                                                        class="form-control form-control-sm me-2 loot-vrije-tekst"
-                                                       placeholder="Speler of naam"
+                                                       placeholder="@PaginaUi.PropsVrijeTekstPlaceholder"
                                                        style="max-width: 200px; display: @(string.Equals(lootItem.VerantwoordelijkeSource, "SL", StringComparison.OrdinalIgnoreCase) ? "none" : "block");">
                                                 <button type="button" class="btn btn-outline-danger btn-sm" onclick="removeLootItem(this)">
                                                     <i class="fas fa-trash"></i>
@@ -1292,7 +1298,7 @@
                                     }
                                 </div>
                                 <button type="button" class="btn btn-outline-success btn-sm" onclick="addLootItem()">
-                                    <i class="fas fa-plus me-1"></i>Loot Toevoegen
+                                    <i class="fas fa-plus me-1"></i>@PaginaUi.LootToevoegen
                                 </button>
                             </div>
                         </div>
@@ -1315,7 +1321,7 @@
                             <div class="detail-section-summary mt-1">
                                 @if (!string.IsNullOrEmpty(pagina.InstructiePentagon))
                                 {
-                                    <span class="text-muted fst-italic">Ingevuld</span>
+                                    <span class="text-muted fst-italic">@PaginaUi.Ingevuld</span>
                                 }
                                 else
                                 {
@@ -1365,35 +1371,35 @@
                              aria-controls="section-extra-informatie">
                             <div class="d-flex justify-content-between align-items-center">
                                 <span class="detail-section-label">
-                                    <i class="fas fa-info-circle me-1"></i>Extra informatie
+                                    <i class="fas fa-info-circle me-1"></i>@PaginaUi.SectieExtraInformatie
                                 </span>
                                 <i class="fas fa-chevron-down detail-section-chevron"></i>
                             </div>
                             <div class="detail-section-summary mt-1">
                                 @if (!string.IsNullOrEmpty(pagina.MeerInformatie))
                                 {
-                                    <span class="text-muted fst-italic">Ingevuld</span>
+                                    <span class="text-muted fst-italic">@PaginaUi.Ingevuld</span>
                                 }
                                 else
                                 {
-                                    <span class="text-muted fst-italic">Geen extra informatie</span>
+                                    <span class="text-muted fst-italic">@PaginaUi.GeenExtraInformatie</span>
                                 }
                             </div>
                         </div>
                         <div class="collapse" id="section-extra-informatie">
                             <div class="detail-section-body">
                                 <div class="mb-3">
-                                    <label class="form-label fw-bold">Meer Informatie:</label>
+                                    <label class="form-label fw-bold">@PaginaUi.MeerInformatieLabel</label>
                                     <small class="form-text text-muted d-block mb-2">
-                                        Optioneel. Uitgebreide informatie die apart in het plotboek document wordt opgenomen.
+                                        @PaginaUi.MeerInformatieUitleg
                                     </small>
                                     <input type="hidden" id="editable-meer-informatie" asp-for="EditableMeerInformatie" />
                                     <div id="meer-informatie-editor">@Html.Raw(Model.EditableMeerInformatie)</div>
                                 </div>
                                 <div class="mb-3">
-                                    <label for="editable-opmerkingen" class="form-label fw-bold">Opmerkingen:</label>
+                                    <label for="editable-opmerkingen" class="form-label fw-bold">@PaginaUi.OpmerkingenLabel</label>
                                     <small class="form-text text-muted d-block mb-2">
-                                        Optioneel. Vrije opmerkingen over dit plot.
+                                        @PaginaUi.OpmerkingenUitleg
                                     </small>
                                     <textarea id="editable-opmerkingen"
                                               asp-for="EditableOpmerkingen"
@@ -1414,7 +1420,7 @@
                              aria-controls="section-bijlagen">
                             <div class="d-flex justify-content-between align-items-center">
                                 <span class="detail-section-label">
-                                    <i class="fas fa-paperclip me-1"></i>Bijlagen
+                                    <i class="fas fa-paperclip me-1"></i>@PaginaUi.SectieBijlagen
                                 </span>
                                 <i class="fas fa-chevron-down detail-section-chevron"></i>
                             </div>
@@ -1422,22 +1428,22 @@
                                 @{ var gekoppeldeBijlagen = Model.EditableReferencedBijlagen?.Count ?? 0; }
                                 @if (gekoppeldeBijlagen > 0)
                                 {
-                                    <span>@gekoppeldeBijlagen bijlage(n) gekoppeld</span>
+                                    <span>@string.Format(CultureInfo.CurrentCulture, gekoppeldeBijlagen == 1 ? PaginaUi.BijlagenGekoppeldOne : PaginaUi.BijlagenGekoppeldMany, gekoppeldeBijlagen)</span>
                                 }
                                 else
                                 {
-                                    <span class="text-muted fst-italic">Geen bijlagen gekoppeld</span>
+                                    <span class="text-muted fst-italic">@PaginaUi.GeenBijlagenGekoppeld</span>
                                 }
                             </div>
                         </div>
                         <div class="collapse" id="section-bijlagen">
                             <div class="detail-section-body">
                                 <small class="form-text text-muted d-block mb-2">
-                                    Koppel gedeelde bijlagen aan dit plot. Elke gekoppelde bijlage krijgt in het plotboek een verwijzing "Voor ... zie bijlage op pagina ...". Bijlagen zelf beheer je bij de plotboek-instellingen.
+                                    @PaginaUi.BijlagenUitleg
                                 </small>
                                 @if (Model.AvailableBijlagen.Count == 0)
                                 {
-                                    <span class="text-muted fst-italic">Er zijn nog geen bijlagen. Voeg ze toe bij de plotboek-instellingen.</span>
+                                    <span class="text-muted fst-italic">@PaginaUi.GeenBijlagen</span>
                                 }
                                 else
                                 {
@@ -1467,7 +1473,7 @@
                              aria-controls="section-debrief">
                             <div class="d-flex justify-content-between align-items-center">
                                 <span class="detail-section-label">
-                                    <i class="fas fa-clipboard-check me-1"></i>Debrief
+                                    <i class="fas fa-clipboard-check me-1"></i>@PaginaUi.SectieDebrief
                                 </span>
                                 <i class="fas fa-chevron-down detail-section-chevron"></i>
                             </div>
@@ -1475,11 +1481,12 @@
                                 @if (pagina.Debrief.IsDebriefGewenst)
                                 {
                                     var vragenCount = pagina.Debrief.Vragen?.Count(v => !string.IsNullOrWhiteSpace(v)) ?? 0;
-                                    <span>Debrief gewenst@(vragenCount > 0 ? $" \u00B7 {vragenCount} vraag/vragen" : "")</span>
+                                    var vragenTekst = vragenCount == 1 ? PaginaUi.DebriefVragenOne : PaginaUi.DebriefVragenMany;
+                                    <span>@PaginaUi.DebriefGewenst@(vragenCount > 0 ? " \u00B7 " + string.Format(CultureInfo.CurrentCulture, vragenTekst, vragenCount) : "")</span>
                                 }
                                 else
                                 {
-                                    <span class="text-muted fst-italic">Geen debrief</span>
+                                    <span class="text-muted fst-italic">@PaginaUi.GeenDebrief</span>
                                 }
                             </div>
                         </div>
@@ -1493,17 +1500,17 @@
                                                id="editable-debrief-gewenst"
                                                onchange="toggleDebriefVragen()">
                                         <label class="form-check-label fw-bold" for="editable-debrief-gewenst">
-                                            Debrief gewenst
+                                            @PaginaUi.DebriefGewenst
                                         </label>
                                     </div>
                                     <small class="form-text text-muted d-block mb-2">
-                                        Laten staan als er een debrief gewenst is van de NPCs. De NPCs kunnen dan hier belangrijke details invullen, zodat dit niet na het event nog achterhaald moet worden.
+                                        @PaginaUi.DebriefGewenstUitleg
                                     </small>
                                 </div>
                                 <div id="debrief-vragen-section" style="display: @(Model.EditableDebriefGewenst ? "block" : "none");">
-                                    <label class="form-label fw-bold">Debrief vragen:</label>
+                                    <label class="form-label fw-bold">@PaginaUi.DebriefVragenLabel</label>
                                     <small class="text-muted d-block mb-2">
-                                        Optioneel. Als je specifieke dingen wilt weten bij de debrief, zet ze dan hier neer.
+                                        @PaginaUi.DebriefVragenUitleg
                                     </small>
                                     <div id="debrief-vragen-container">
                                         @if (Model.EditableDebriefVragen != null && Model.EditableDebriefVragen.Any())
@@ -1516,7 +1523,7 @@
                                                            name="EditableDebriefVragen[@i]"
                                                            value="@vraag"
                                                            class="form-control form-control-sm me-2"
-                                                           placeholder="Wat wil je weten?">
+                                                           placeholder="@PaginaUi.DebriefVraagPlaceholder">
                                                     <button type="button" class="btn btn-outline-danger btn-sm" onclick="removeDebriefVraag(this)">
                                                         <i class="fas fa-trash"></i>
                                                     </button>
@@ -1525,7 +1532,7 @@
                                         }
                                     </div>
                                     <button type="button" class="btn btn-outline-success btn-sm" onclick="addDebriefVraag()">
-                                        <i class="fas fa-plus me-1"></i>Vraag Toevoegen
+                                        <i class="fas fa-plus me-1"></i>@PaginaUi.VraagToevoegen
                                     </button>
                                 </div>
                             </div>
@@ -1536,7 +1543,7 @@
                     </fieldset>
                     <div class="d-flex justify-content-between align-items-center">
                         <button type="submit" class="btn btn-primary">
-                            <i class="fas fa-save"></i> Save
+                            <i class="fas fa-save"></i> @PaginaUi.Opslaan
                         </button>
                         <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-toggle="modal" data-bs-target="#paginaActionsModal">
                             <i class="fas fa-ellipsis-h me-1"></i>...
@@ -1618,7 +1625,8 @@
                             var btn = document.getElementById('btn-genereer-elevator-pitch');
                             if (btn) {
                                 btn.disabled = true;
-                                btn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Bezig...';
+                                btn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>';
+                                btn.appendChild(document.createTextNode(@Json.Serialize(PaginaUi.Bezig)));
                             }
                             // Ensure the global flag prevents the beforeunload prompt. Use requestSubmit if available
                             if (typeof window.isFormSubmitting !== 'undefined') window.isFormSubmitting = true;
@@ -1642,7 +1650,7 @@
 
                                 // Update the document title to indicate there are unsaved changes
                                 window.__originalDocumentTitle = window.__originalDocumentTitle || document.title;
-                                document.title = window.__originalDocumentTitle + ' · Niet opgeslagen';
+                                document.title = window.__originalDocumentTitle + ' · ' + @Json.Serialize(PaginaUi.NietOpgeslagen);
 
                                 // Hide the modal programmatically
                                 var modalEl = document.getElementById('elevatorPitchPreviewModal');
@@ -1668,18 +1676,18 @@
                         <div class="modal-dialog modal-lg">
                             <div class="modal-content">
                                 <div class="modal-header">
-                                    <h5 class="modal-title" id="elevatorPitchPreviewLabel">Gegenereerde Elevator Pitch</h5>
-                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    <h5 class="modal-title" id="elevatorPitchPreviewLabel">@PaginaUi.GegenereerdeElevatorPitchTitel</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="@PaginaUi.Sluiten"></button>
                                 </div>
                                 <div class="modal-body">
-                                    <p>Bestaande elevator pitch vervangen?</p>
+                                    <p>@PaginaUi.ElevatorPitchVervangenVraag</p>
                                     <div class="border rounded p-3 bg-body-tertiary small" id="elevator-pitch-preview-content">
                                         <pre style="white-space: pre-wrap;">@Model.GeneratedElevatorPitchPreview</pre>
                                     </div>
                                 </div>
                                 <div class="modal-footer">
-                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Nee</button>
-                                    <button type="button" class="btn btn-primary" onclick="confirmReplaceElevatorPitch()">Ja, vervangen</button>
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">@PaginaUi.Nee</button>
+                                    <button type="button" class="btn btn-primary" onclick="confirmReplaceElevatorPitch()">@PaginaUi.JaVervangen</button>
                                 </div>
                             </div>
                         </div>
@@ -1697,7 +1705,8 @@
                     var btn = document.getElementById('btn-genereer-elevator-pitch');
                     if (btn) {
                         btn.disabled = false;
-                        btn.innerHTML = '<i class="fas fa-robot me-1"></i>Genereer elevator pitch';
+                        btn.innerHTML = '<i class="fas fa-robot me-1"></i>';
+                        btn.appendChild(document.createTextNode(@Json.Serialize(PaginaUi.GenereerElevatorPitch)));
                     }
                         });
                     </script>
@@ -1705,7 +1714,7 @@
             }
             else
             {
-                <p class="text-muted">Select a plotboek pagina to view details.</p>
+                <p class="text-muted">@PaginaUi.GeenPaginaGeselecteerd</p>
             }
         </div>
     </div>

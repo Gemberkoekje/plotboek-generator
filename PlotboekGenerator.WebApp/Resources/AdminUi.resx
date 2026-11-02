@@ -1,0 +1,814 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="AccountsSamengevoegd" xml:space="preserve">
+    <value>'{0}' is samengevoegd met '{1}'. Het bronaccount is verwijderd.</value>
+  </data>
+  <data name="ActiefLabel" xml:space="preserve">
+    <value>Actief</value>
+  </data>
+  <data name="AdminKop" xml:space="preserve">
+    <value>Admin</value>
+  </data>
+  <data name="AfkortingLabel" xml:space="preserve">
+    <value>Afkorting</value>
+  </data>
+  <data name="AnnulerenButton" xml:space="preserve">
+    <value>Annuleren</value>
+  </data>
+  <data name="BeschikbaarEersteDag" xml:space="preserve">
+    <value>Beschikbaar op de eerste dag</value>
+  </data>
+  <data name="BeschikbaarLaatsteDag" xml:space="preserve">
+    <value>Beschikbaar op de laatste dag</value>
+  </data>
+  <data name="BeschikbaarTussendagen" xml:space="preserve">
+    <value>Beschikbaar op tussendagen</value>
+  </data>
+  <data name="BeschrijvingLabel" xml:space="preserve">
+    <value>Beschrijving</value>
+  </data>
+  <data name="BewaarAlsStandaardKnop" xml:space="preserve">
+    <value>Bewaar als standaard</value>
+    <comment>Must match the button on the plot page</comment>
+  </data>
+  <data name="BewerkenTitel" xml:space="preserve">
+    <value>Bewerken</value>
+  </data>
+  <data name="BlokvensterPlaceholder" xml:space="preserve">
+    <value>Blokvenster, bv. {0}</value>
+    <comment>{0} is an example time range</comment>
+  </data>
+  <data name="CallbackGeenCode" xml:space="preserve">
+    <value>Geen autorisatiecode ontvangen van Google.</value>
+  </data>
+  <data name="CallbackGeenRefreshToken" xml:space="preserve">
+    <value>Geen refresh token ontvangen. Ga naar {0}, verwijder de toegang voor deze app en probeer het opnieuw.</value>
+    <comment>{0} is Google's account permissions URL</comment>
+  </data>
+  <data name="CallbackGekopieerd" xml:space="preserve">
+    <value>Gekopieerd!</value>
+  </data>
+  <data name="CallbackGeslaagd" xml:space="preserve">
+    <value>Autorisatie geslaagd!</value>
+  </data>
+  <data name="CallbackGeweigerd" xml:space="preserve">
+    <value>Google Drive autorisatie geweigerd: {0}</value>
+    <comment>{0} is Google's error code</comment>
+  </data>
+  <data name="CallbackHerstarten" xml:space="preserve">
+    <value>Herstart de applicatie na het toevoegen van de token.</value>
+  </data>
+  <data name="CallbackKopieren" xml:space="preserve">
+    <value>Kopiëren</value>
+  </data>
+  <data name="CallbackLaden" xml:space="preserve">
+    <value>Laden...</value>
+  </data>
+  <data name="CallbackMislukt" xml:space="preserve">
+    <value>Autorisatie mislukt</value>
+  </data>
+  <data name="CallbackNietGeconfigureerd" xml:space="preserve">
+    <value>Google OAuth credentials zijn niet geconfigureerd.</value>
+  </data>
+  <data name="CallbackRefreshTokenToevoegenHtml" xml:space="preserve">
+    <value>Voeg dit toe aan je {0} onder {1}:</value>
+    <comment>{0} is the secrets file, {1} the section, both rendered as code</comment>
+  </data>
+  <data name="CallbackSucces" xml:space="preserve">
+    <value>Google Drive autorisatie geslaagd! Kopieer de refresh token hieronder en voeg deze toe aan je secrets.json.</value>
+  </data>
+  <data name="CallbackTerugNaarAdmin" xml:space="preserve">
+    <value>Terug naar Admin</value>
+  </data>
+  <data name="CallbackTitel" xml:space="preserve">
+    <value>Google Drive Autorisatie</value>
+  </data>
+  <data name="CallbackUitwisselenMislukt" xml:space="preserve">
+    <value>Fout bij het uitwisselen van de autorisatiecode: {0}</value>
+    <comment>{0} is Google's error code</comment>
+  </data>
+  <data name="CallbackVerwerken" xml:space="preserve">
+    <value>Bezig met verwerken...</value>
+  </data>
+  <data name="CancelButton" xml:space="preserve">
+    <value>Annuleren</value>
+  </data>
+  <data name="CastingInstructieLabel" xml:space="preserve">
+    <value>Casting-instructie</value>
+  </data>
+  <data name="CategorieAangemaakt" xml:space="preserve">
+    <value>Categorie '{0}' aangemaakt.</value>
+  </data>
+  <data name="CategorieBijgewerkt" xml:space="preserve">
+    <value>Categorie '{0}' bijgewerkt.</value>
+  </data>
+  <data name="CategorieKiezen" xml:space="preserve">
+    <value>-- Kies een categorie --</value>
+  </data>
+  <data name="CategorieLabel" xml:space="preserve">
+    <value>Categorie</value>
+  </data>
+  <data name="CategorieNaamBestaatVerversen" xml:space="preserve">
+    <value>Er bestaat al een categorie met deze naam ('{0}'). Ververs de pagina en bewerk die.</value>
+  </data>
+  <data name="CategorieNietGevonden" xml:space="preserve">
+    <value>Categorie niet gevonden.</value>
+  </data>
+  <data name="CategorieSleutelBestaat" xml:space="preserve">
+    <value>Er bestaat al een categorie met sleutel '{0}'.</value>
+  </data>
+  <data name="CategorieToevoegenButton" xml:space="preserve">
+    <value>Categorie Toevoegen</value>
+  </data>
+  <data name="CategorieVerplicht" xml:space="preserve">
+    <value>Categorie is verplicht.</value>
+  </data>
+  <data name="ClearButton" xml:space="preserve">
+    <value>Wissen</value>
+  </data>
+  <data name="DagtypeLabel" xml:space="preserve">
+    <value>Dagtype</value>
+  </data>
+  <data name="DomainAangemaakt" xml:space="preserve">
+    <value>Domein '{0}' is aangemaakt.</value>
+  </data>
+  <data name="DomainBijgewerkt" xml:space="preserve">
+    <value>Domein '{0}' is bijgewerkt.</value>
+  </data>
+  <data name="DomainNietGeselecteerd" xml:space="preserve">
+    <value>Er is geen domein gekozen om te verwijderen.</value>
+  </data>
+  <data name="DomainNietGevonden" xml:space="preserve">
+    <value>Domein niet gevonden.</value>
+  </data>
+  <data name="DomainsHerordend" xml:space="preserve">
+    <value>De volgorde van de domeinen is opgeslagen.</value>
+  </data>
+  <data name="DomainsHerordenenMislukt" xml:space="preserve">
+    <value>De volgorde van de domeinen kon niet worden opgeslagen.</value>
+  </data>
+  <data name="DomainsUitleg" xml:space="preserve">
+    <value>Beheer de domeinen (categorieën) waarin de pagina's van een plotboek worden ingedeeld. In de export staat de afkorting van het domein voor de titel (bijv. "Ti - Daar komt de koopman").</value>
+  </data>
+  <data name="DomainVerplicht" xml:space="preserve">
+    <value>Afkorting en omschrijving zijn verplicht.</value>
+  </data>
+  <data name="DomainVerwijderd" xml:space="preserve">
+    <value>Domein '{0}' is verwijderd.</value>
+  </data>
+  <data name="DomeinToevoegenButton" xml:space="preserve">
+    <value>Domein Toevoegen</value>
+  </data>
+  <data name="DomeinVerwijderenConfirm" xml:space="preserve">
+    <value>Weet je zeker dat je domein '{0}' wilt verwijderen?</value>
+    <comment>{0} is the domain's shorthand</comment>
+  </data>
+  <data name="DriveAuthEndpointOntbreekt" xml:space="preserve">
+    <value>Het autorisatie-endpoint van Google OAuth is niet ingesteld.</value>
+  </data>
+  <data name="DriveAutorisatieHernieuwenButton" xml:space="preserve">
+    <value>Hernieuw Google Drive Autorisatie</value>
+  </data>
+  <data name="DriveAutorisatieStatusKop" xml:space="preserve">
+    <value>Autorisatie Status</value>
+  </data>
+  <data name="DriveAutoriserenButton" xml:space="preserve">
+    <value>Autoriseer Google Drive</value>
+  </data>
+  <data name="DriveClientIdOntbreekt" xml:space="preserve">
+    <value>De client-ID van Google OAuth is niet ingesteld.</value>
+  </data>
+  <data name="DriveGeconfigureerd" xml:space="preserve">
+    <value>Google Drive is geconfigureerd en klaar voor gebruik.</value>
+  </data>
+  <data name="DriveHandmatigeSyncKop" xml:space="preserve">
+    <value>Handmatige Sync</value>
+  </data>
+  <data name="DriveHandmatigeSyncUitleg" xml:space="preserve">
+    <value>Start een handmatige sync van alle plotboeken naar Google Drive. Alleen plotboeken met een ingestelde Google Drive folder URL en wijzigingen sinds de laatste sync worden geüpload.</value>
+  </data>
+  <data name="DriveNietGeautoriseerd" xml:space="preserve">
+    <value>Google Drive is nog niet geautoriseerd. Er is een refresh token nodig om bestanden te kunnen uploaden.</value>
+  </data>
+  <data name="DriveOAuthInstellenHtml" xml:space="preserve">
+    <value>Stel {0} en {1} in via de user secrets.</value>
+  </data>
+  <data name="DriveOAuthNietGeconfigureerd" xml:space="preserve">
+    <value>Google OAuth Client ID en Client Secret zijn niet geconfigureerd.</value>
+  </data>
+  <data name="DriveSyncMetFoutenMany" xml:space="preserve">
+    <value>Sync voltooid met fouten — {0} gecontroleerd, {1} geüpload, {2} fouten: {3}</value>
+    <comment>{0} checked, {1} uploaded, {2} the number of errors, {3} the errors</comment>
+  </data>
+  <data name="DriveSyncMetFoutenOne" xml:space="preserve">
+    <value>Sync voltooid met fouten — {0} gecontroleerd, {1} geüpload, {2} fout: {3}</value>
+    <comment>{0} checked, {1} uploaded, {2} the number of errors, {3} the errors</comment>
+  </data>
+  <data name="DriveSyncNuButton" xml:space="preserve">
+    <value>Sync Nu</value>
+  </data>
+  <data name="DriveSyncVoltooidMany" xml:space="preserve">
+    <value>Sync voltooid — {0} plotboeken gecontroleerd, {1} geüpload.</value>
+    <comment>{0} plot books checked, {1} uploaded</comment>
+  </data>
+  <data name="DriveSyncVoltooidOne" xml:space="preserve">
+    <value>Sync voltooid — {0} plotboek gecontroleerd, {1} geüpload.</value>
+    <comment>{0} plot books checked, {1} uploaded</comment>
+  </data>
+  <data name="DriveTokenVerlopen" xml:space="preserve">
+    <value>Het Google Drive refresh token is verlopen of ingetrokken. Autoriseer opnieuw om de sync te herstellen.</value>
+  </data>
+  <data name="DummyBadge" xml:space="preserve">
+    <value>DUMMY</value>
+  </data>
+  <data name="DummyLogins" xml:space="preserve">
+    <value>Plaatshouder</value>
+  </data>
+  <data name="DummySlAangemaakt" xml:space="preserve">
+    <value>Dummy-SL '{0}' is aangemaakt. Je kunt dit account later samenvoegen met een echte gebruiker.</value>
+  </data>
+  <data name="DummySlAanmaken" xml:space="preserve">
+    <value>Dummy-SL aanmaken</value>
+  </data>
+  <data name="DummySlNaamVerplicht" xml:space="preserve">
+    <value>Geef een gebruikersnaam op voor de dummy-SL.</value>
+  </data>
+  <data name="DummySlUitleg" xml:space="preserve">
+    <value>Maak een plaatshouder-account voor een SL die nog niet heeft ingelogd. Je kunt het later samenvoegen met de echte gebruiker, zodra die inlogt.</value>
+  </data>
+  <data name="EditButton" xml:space="preserve">
+    <value>Bewerken</value>
+  </data>
+  <data name="EditUserKop" xml:space="preserve">
+    <value>Gebruiker bewerken</value>
+  </data>
+  <data name="ErnstLabel" xml:space="preserve">
+    <value>Ernst</value>
+  </data>
+  <data name="ExternalLogins" xml:space="preserve">
+    <value>Externe logins</value>
+  </data>
+  <data name="FilterPlaceholder" xml:space="preserve">
+    <value>Filter op naam of e-mail...</value>
+  </data>
+  <data name="GebruikerNietGevonden" xml:space="preserve">
+    <value>Gebruiker niet gevonden.</value>
+  </data>
+  <data name="GeenCategorieen" xml:space="preserve">
+    <value>Nog geen categorieën. Voeg er een toe om te beginnen.</value>
+  </data>
+  <data name="GeenDomainOptie" xml:space="preserve">
+    <value>-- Geen domein --</value>
+  </data>
+  <data name="GeenDomeinen" xml:space="preserve">
+    <value>Geen domeinen gevonden. Voeg een domein toe om te beginnen.</value>
+  </data>
+  <data name="GeenExternalLogins" xml:space="preserve">
+    <value>Er zijn geen externe logins aan dit account gekoppeld.</value>
+  </data>
+  <data name="GeenGeldigeSleutel" xml:space="preserve">
+    <value>Uit deze naam kan geen geldige sleutel worden afgeleid. Gebruik letters of cijfers.</value>
+  </data>
+  <data name="GeenMeetingsEersteDag" xml:space="preserve">
+    <value>Geen meetings gevonden voor eerste dag.</value>
+  </data>
+  <data name="GeenMeetingsLaatsteDag" xml:space="preserve">
+    <value>Geen meetings gevonden voor laatste dag.</value>
+  </data>
+  <data name="GeenMeetingsTussendag" xml:space="preserve">
+    <value>Geen meetings gevonden voor tussendag.</value>
+  </data>
+  <data name="GeenNamen" xml:space="preserve">
+    <value>Geen namen gevonden. Voeg een naam toe om te beginnen.</value>
+  </data>
+  <data name="GeenQuestLocaties" xml:space="preserve">
+    <value>Nog geen questlocaties. Voeg er een toe om te beginnen.</value>
+  </data>
+  <data name="GeenRol" xml:space="preserve">
+    <value>— geen —</value>
+  </data>
+  <data name="GeenSlotsBeschikbaar" xml:space="preserve">
+    <value>geen slots beschikbaar</value>
+  </data>
+  <data name="GeenStandaardNpcs" xml:space="preserve">
+    <value>Nog geen standaard-NPC's.</value>
+  </data>
+  <data name="GeenStandaardNpcsBewarenHtml" xml:space="preserve">
+    <value>Voeg er hier een toe, of bewaar een rol vanuit een plot met {0}.</value>
+    <comment>{0} is the name of the plot page's button, in bold</comment>
+  </data>
+  <data name="GeenStarttijden" xml:space="preserve">
+    <value>Nog geen starttijden. Voeg er een toe om te beginnen.</value>
+  </data>
+  <data name="GeenUsersGevonden" xml:space="preserve">
+    <value>Geen gebruikers gevonden die aan je filter voldoen.</value>
+  </data>
+  <data name="GeenUsersInRol" xml:space="preserve">
+    <value>Geen gebruikers met deze rol.</value>
+  </data>
+  <data name="GeenVerwijderdePaginas" xml:space="preserve">
+    <value>Geen verwijderde paginas gevonden.</value>
+  </data>
+  <data name="GeenWerelden" xml:space="preserve">
+    <value>Geen werelden gevonden. Voeg een wereld toe om te beginnen.</value>
+  </data>
+  <data name="HerstellenButton" xml:space="preserve">
+    <value>Herstellen</value>
+  </data>
+  <data name="Ja" xml:space="preserve">
+    <value>Ja</value>
+  </data>
+  <data name="KledingEnSchminkLabel" xml:space="preserve">
+    <value>Kleding &amp; Schmink</value>
+  </data>
+  <data name="KolomActies" xml:space="preserve">
+    <value>Acties</value>
+  </data>
+  <data name="KolomActions" xml:space="preserve">
+    <value>Acties</value>
+  </data>
+  <data name="KolomCreated" xml:space="preserve">
+    <value>Aangemaakt</value>
+  </data>
+  <data name="KolomDomain" xml:space="preserve">
+    <value>Domein</value>
+  </data>
+  <data name="KolomEersteDag" xml:space="preserve">
+    <value>Eerste dag</value>
+  </data>
+  <data name="KolomEmail" xml:space="preserve">
+    <value>E-mail</value>
+  </data>
+  <data name="KolomLaatstBewaard" xml:space="preserve">
+    <value>Laatst bewaard</value>
+  </data>
+  <data name="KolomLaatsteDag" xml:space="preserve">
+    <value>Laatste dag</value>
+  </data>
+  <data name="KolomTussendagen" xml:space="preserve">
+    <value>Tussendagen</value>
+  </data>
+  <data name="LaatsteLoginOntkoppelen" xml:space="preserve">
+    <value>De enige externe login van deze gebruiker kan niet worden losgekoppeld.</value>
+  </data>
+  <data name="LinkAccountsKiesBeide" xml:space="preserve">
+    <value>Kies zowel een bron- als een doelgebruiker.</value>
+  </data>
+  <data name="LinkAccountsKop" xml:space="preserve">
+    <value>Accounts koppelen (gebruikers samenvoegen)</value>
+  </data>
+  <data name="LinkAccountsUitleg" xml:space="preserve">
+    <value>Voeg twee accounts samen tot één. Alle externe logins van de brongebruiker gaan naar de doelgebruiker, en het account van de brongebruiker wordt verwijderd.</value>
+  </data>
+  <data name="LinkAccountsZelfdeUser" xml:space="preserve">
+    <value>De bron- en doelgebruiker moeten verschillen.</value>
+  </data>
+  <data name="LoginEmailOnbekend" xml:space="preserve">
+    <value>Onbekend</value>
+  </data>
+  <data name="LoginNietGeselecteerd" xml:space="preserve">
+    <value>Er is geen login gekozen om los te koppelen.</value>
+  </data>
+  <data name="LoginNietGevonden" xml:space="preserve">
+    <value>Externe login niet gevonden.</value>
+  </data>
+  <data name="LoginOntkoppeld" xml:space="preserve">
+    <value>De login van {0} is losgekoppeld.</value>
+  </data>
+  <data name="LoginsGeen" xml:space="preserve">
+    <value>Geen</value>
+  </data>
+  <data name="MeetingAangemaakt" xml:space="preserve">
+    <value>Meeting '{0} {1}' aangemaakt.</value>
+    <comment>{0} is the time, {1} the name</comment>
+  </data>
+  <data name="MeetingBijgewerkt" xml:space="preserve">
+    <value>Meeting '{0} {1}' bijgewerkt.</value>
+    <comment>{0} is the time, {1} the name</comment>
+  </data>
+  <data name="MeetingNietGeselecteerd" xml:space="preserve">
+    <value>Geen meeting geselecteerd om te verwijderen.</value>
+  </data>
+  <data name="MeetingNietGevonden" xml:space="preserve">
+    <value>Meeting niet gevonden.</value>
+  </data>
+  <data name="MeetingsHerordend" xml:space="preserve">
+    <value>Meetings volgorde opgeslagen.</value>
+  </data>
+  <data name="MeetingsUitleg" xml:space="preserve">
+    <value>Beheer de standaard meetings per dagtype. Deze worden gebruikt als basis voor de tijdschema's.</value>
+  </data>
+  <data name="MeetingToevoegenButton" xml:space="preserve">
+    <value>Meeting Toevoegen</value>
+  </data>
+  <data name="MeetingVerplicht" xml:space="preserve">
+    <value>Tijd en naam zijn verplicht.</value>
+  </data>
+  <data name="MeetingVerwijderd" xml:space="preserve">
+    <value>Meeting '{0} {1}' verwijderd.</value>
+    <comment>{0} is the time, {1} the name</comment>
+  </data>
+  <data name="MeetingVerwijderenConfirm" xml:space="preserve">
+    <value>Weet je zeker dat je deze meeting wilt verwijderen?</value>
+  </data>
+  <data name="MergeButton" xml:space="preserve">
+    <value>Samenvoegen</value>
+  </data>
+  <data name="MergeConfirm" xml:space="preserve">
+    <value>Weet je zeker dat je deze accounts wilt samenvoegen? De brongebruiker wordt definitief verwijderd.</value>
+  </data>
+  <data name="NaamAangemaakt" xml:space="preserve">
+    <value>Naam '{0}' aangemaakt.</value>
+  </data>
+  <data name="NaamBijgewerkt" xml:space="preserve">
+    <value>Naam '{0}' bijgewerkt.</value>
+  </data>
+  <data name="NaamLabel" xml:space="preserve">
+    <value>Naam</value>
+  </data>
+  <data name="NaamNietGeselecteerd" xml:space="preserve">
+    <value>Geen naam geselecteerd om te verwijderen.</value>
+  </data>
+  <data name="NaamNietGevonden" xml:space="preserve">
+    <value>Naam niet gevonden.</value>
+  </data>
+  <data name="NaamToevoegenButton" xml:space="preserve">
+    <value>Naam Toevoegen</value>
+  </data>
+  <data name="NaamVerplicht" xml:space="preserve">
+    <value>Naam is verplicht.</value>
+  </data>
+  <data name="NaamVerwijderd" xml:space="preserve">
+    <value>Naam '{0}' verwijderd.</value>
+  </data>
+  <data name="NaamVerwijderenConfirm" xml:space="preserve">
+    <value>Weet je zeker dat je naam '{0}' wilt verwijderen?</value>
+  </data>
+  <data name="NamenAantalMany" xml:space="preserve">
+    <value>{0} namen</value>
+  </data>
+  <data name="NamenAantalOne" xml:space="preserve">
+    <value>{0} naam</value>
+  </data>
+  <data name="NamenUitleg" xml:space="preserve">
+    <value>Beheer de karakternamen die worden afgedrukt in de plotboek export. Namen worden altijd op alfabetische volgorde weergegeven.</value>
+  </data>
+  <data name="Nee" xml:space="preserve">
+    <value>Nee</value>
+  </data>
+  <data name="NotitieLabel" xml:space="preserve">
+    <value>Notitie</value>
+  </data>
+  <data name="OnbekendeRol" xml:space="preserve">
+    <value>Onbekende rol '{0}'.</value>
+  </data>
+  <data name="OverlaptMetLabel" xml:space="preserve">
+    <value>Overlapt met</value>
+  </data>
+  <data name="OverlaptMetMeerdereLabel" xml:space="preserve">
+    <value>Overlapt met (meerdere mogelijk)</value>
+  </data>
+  <data name="OverrideRoleGeen" xml:space="preserve">
+    <value>— Geen (volg de rol van de inlogdienst) —</value>
+  </data>
+  <data name="OverrideRoleHelp" xml:space="preserve">
+    <value>Gaat voor de rol van de inlogdienst. Laat “Geen” staan om de inlogdienst te volgen.</value>
+  </data>
+  <data name="OverrideRoleLabel" xml:space="preserve">
+    <value>Handmatige rol</value>
+  </data>
+  <data name="PaginaHersteld" xml:space="preserve">
+    <value>Pagina '{0}' is hersteld.</value>
+    <comment>{0} is the page's title</comment>
+  </data>
+  <data name="PaginaNietGeselecteerd" xml:space="preserve">
+    <value>Geen pagina geselecteerd om te herstellen.</value>
+  </data>
+  <data name="PaginaNietGevonden" xml:space="preserve">
+    <value>Pagina niet gevonden.</value>
+  </data>
+  <data name="PlotdagKop" xml:space="preserve">
+    <value>Zo ziet een plotdag eruit</value>
+  </data>
+  <data name="PrimaryDomainLabel" xml:space="preserve">
+    <value>Hoofddomein</value>
+  </data>
+  <data name="PrimaryLogin" xml:space="preserve">
+    <value>(Hoofdlogin)</value>
+  </data>
+  <data name="ProviderRoleHelp" xml:space="preserve">
+    <value>Van de inlogdienst, bij de laatste keer inloggen daarmee; geldt zolang er geen handmatige rol is.</value>
+  </data>
+  <data name="ProviderRoleLabel" xml:space="preserve">
+    <value>Rol van de inlogdienst</value>
+  </data>
+  <data name="QuestLocatieAangemaakt" xml:space="preserve">
+    <value>Questlocatie '{0}' aangemaakt.</value>
+  </data>
+  <data name="QuestLocatieBijgewerkt" xml:space="preserve">
+    <value>Questlocatie '{0}' bijgewerkt.</value>
+  </data>
+  <data name="QuestLocatieCategorieenKop" xml:space="preserve">
+    <value>Questlocatie Categorieën</value>
+  </data>
+  <data name="QuestLocatieCategorieenUitleg" xml:space="preserve">
+    <value>Categorieën vormen de groepen in de questlocatie-keuzelijst. De notitie verschijnt onder het veld zodra iemand een locatie uit deze categorie kiest; de ernst bepaalt of dat een blauwe of een oranje melding is. Categorieën worden nooit verwijderd — de sleutel moet opzoekbaar blijven voor oude plots.</value>
+  </data>
+  <data name="QuestLocatieNaamBestaatVerversen" xml:space="preserve">
+    <value>Er bestaat al een questlocatie met deze naam ('{0}'). Ververs de pagina en bewerk die.</value>
+  </data>
+  <data name="QuestLocatieNietGevonden" xml:space="preserve">
+    <value>Questlocatie niet gevonden.</value>
+  </data>
+  <data name="QuestLocatiesAantalMany" xml:space="preserve">
+    <value>{0} questlocaties</value>
+  </data>
+  <data name="QuestLocatiesAantalOne" xml:space="preserve">
+    <value>{0} questlocatie</value>
+  </data>
+  <data name="QuestLocatieSleutelBestaat" xml:space="preserve">
+    <value>Er bestaat al een questlocatie met sleutel '{0}'.</value>
+  </data>
+  <data name="QuestLocatiesOverlapHtml" xml:space="preserve">
+    <value>{0} hoeft maar aan één kant ingevuld te worden; de omgekeerde relatie wordt automatisch afgeleid.</value>
+    <comment>{0} is the Overlaps with label, emphasised</comment>
+  </data>
+  <data name="QuestLocatiesUitleg" xml:space="preserve">
+    <value>De locaties die bij een questveld gekozen kunnen worden. Hernoemen mag altijd — de sleutel blijft staan, dus de nieuwe naam verschijnt overal, ook bij oude plots.</value>
+  </data>
+  <data name="QuestLocatiesVerwijderenHtml" xml:space="preserve">
+    <value>Verwijderen kan niet: zet {0} uit om een locatie uit de keuzelijst te halen zonder de historie te breken.</value>
+    <comment>{0} is the Active label, emphasised</comment>
+  </data>
+  <data name="QuestLocatieToevoegenButton" xml:space="preserve">
+    <value>Questlocatie Toevoegen</value>
+  </data>
+  <data name="RolLabel" xml:space="preserve">
+    <value>Rol</value>
+  </data>
+  <data name="RolPlaceholder" xml:space="preserve">
+    <value>bijv. Stadswacht</value>
+  </data>
+  <data name="RolVerplicht" xml:space="preserve">
+    <value>Rol is verplicht.</value>
+  </data>
+  <data name="SaveChangesButton" xml:space="preserve">
+    <value>Wijzigingen opslaan</value>
+  </data>
+  <data name="SearchButton" xml:space="preserve">
+    <value>Zoeken</value>
+  </data>
+  <data name="SectieDomains" xml:space="preserve">
+    <value>Domeinbeheer</value>
+  </data>
+  <data name="SectieMeetings" xml:space="preserve">
+    <value>Meeting Management</value>
+  </data>
+  <data name="SectieNamen" xml:space="preserve">
+    <value>Namen Management</value>
+  </data>
+  <data name="SectieQuestLocaties" xml:space="preserve">
+    <value>Questlocaties</value>
+  </data>
+  <data name="SectieStandaardNpcs" xml:space="preserve">
+    <value>Standaard-NPC's</value>
+  </data>
+  <data name="SectieStarttijden" xml:space="preserve">
+    <value>Starttijden &amp; blokken</value>
+  </data>
+  <data name="SectieUsers" xml:space="preserve">
+    <value>Gebruikersbeheer</value>
+  </data>
+  <data name="SectieVerwijderd" xml:space="preserve">
+    <value>Verwijderde Paginas</value>
+  </data>
+  <data name="SectieWerelden" xml:space="preserve">
+    <value>Werelden Management</value>
+  </data>
+  <data name="SleutelHint" xml:space="preserve">
+    <value>Sleutel: {0} (wijzigt niet)</value>
+    <comment>{0} is the stored key of the item being edited</comment>
+  </data>
+  <data name="SlotZonderBlok" xml:space="preserve">
+    <value>{0} (geen blok)</value>
+    <comment>{0} is the slot's name</comment>
+  </data>
+  <data name="SluitenLabel" xml:space="preserve">
+    <value>Sluiten</value>
+  </data>
+  <data name="SourceUserKiezen" xml:space="preserve">
+    <value>-- Kies de brongebruiker --</value>
+  </data>
+  <data name="SourceUserLabel" xml:space="preserve">
+    <value>Brongebruiker (wordt verwijderd)</value>
+  </data>
+  <data name="StandaardNpcAangemaakt" xml:space="preserve">
+    <value>Standaard-NPC '{0}' aangemaakt.</value>
+  </data>
+  <data name="StandaardNpcBestaat" xml:space="preserve">
+    <value>Er bestaat al een standaard-NPC '{0}'.</value>
+  </data>
+  <data name="StandaardNpcBijgewerkt" xml:space="preserve">
+    <value>Standaard-NPC '{0}' bijgewerkt.</value>
+  </data>
+  <data name="StandaardNpcNietGeselecteerd" xml:space="preserve">
+    <value>Geen standaard-NPC geselecteerd om te verwijderen.</value>
+  </data>
+  <data name="StandaardNpcNietGevonden" xml:space="preserve">
+    <value>Standaard-NPC niet gevonden.</value>
+  </data>
+  <data name="StandaardNpcsAantalMany" xml:space="preserve">
+    <value>{0} standaard-NPC's</value>
+  </data>
+  <data name="StandaardNpcsAantalOne" xml:space="preserve">
+    <value>{0} standaard-NPC</value>
+  </data>
+  <data name="StandaardNpcsUitleg" xml:space="preserve">
+    <value>NPC-rollen die vaak terugkomen, zoals een stadswacht of een bandiet. SL's bewaren ze vanuit een plot en voegen ze in een volgend plot toe als ingevulde rol. Een plot houdt zijn eigen kopie: wijzigen of verwijderen hier verandert geen bestaand plot.</value>
+  </data>
+  <data name="StandaardNpcToevoegenButton" xml:space="preserve">
+    <value>Standaard-NPC Toevoegen</value>
+  </data>
+  <data name="StandaardNpcVerwijderd" xml:space="preserve">
+    <value>Standaard-NPC '{0}' verwijderd.</value>
+  </data>
+  <data name="StandaardNpcVerwijderenConfirm" xml:space="preserve">
+    <value>Weet je zeker dat je standaard-NPC '{0}' wilt verwijderen? Bestaande plots houden hun eigen kopie.</value>
+  </data>
+  <data name="StarttijdAangemaakt" xml:space="preserve">
+    <value>Starttijd '{0}' aangemaakt.</value>
+  </data>
+  <data name="StarttijdBijgewerkt" xml:space="preserve">
+    <value>Starttijd '{0}' bijgewerkt.</value>
+  </data>
+  <data name="StarttijdenUitleg" xml:space="preserve">
+    <value>De tijdblokken die een plot als starttijd kan krijgen. Per dagtype bepaal je of een slot gekozen kan worden en welk blokvenster erachter staat; het bloknummer ("Blok 3.1") is de plek van het slot tussen de andere slots mét venster van die dag. Een slot zonder venster krijgt dus geen nummer en telt niet mee — zo blijft "19:30: Introquest" ongenummerd.</value>
+  </data>
+  <data name="StarttijdenUitlegBeheer" xml:space="preserve">
+    <value>Verwijderen kan niet: zet alle drie de vinkjes uit om een slot uit de keuzelijsten te halen zonder oude plots te breken. Hernoemen mag altijd — de sleutel blijft staan, dus de nieuwe naam verschijnt overal. De volgorde volgt automatisch uit de tijd in de naam.</value>
+  </data>
+  <data name="StarttijdLegeWaarde" xml:space="preserve">
+    <value>De lege waarde kan niet bewerkt worden.</value>
+  </data>
+  <data name="StarttijdNaamBestaat" xml:space="preserve">
+    <value>Er bestaat al een starttijd met de naam '{0}'.</value>
+  </data>
+  <data name="StarttijdNaamHelp" xml:space="preserve">
+    <value>Moet met een tijd beginnen: daar komen de volgorde en (bij een nieuw slot) de sleutel uit. Er is geen volgordeveld.</value>
+  </data>
+  <data name="StarttijdNaamPlaceholder" xml:space="preserve">
+    <value>bv. 11:30 of 19:30: Introquest</value>
+  </data>
+  <data name="StarttijdNietGevonden" xml:space="preserve">
+    <value>Starttijd niet gevonden.</value>
+  </data>
+  <data name="StarttijdSleutelBestaat" xml:space="preserve">
+    <value>Er bestaat al een starttijd met sleutel '{0}'.</value>
+  </data>
+  <data name="StarttijdSleutelBestaatVerversen" xml:space="preserve">
+    <value>Er bestaat al een starttijd met sleutel '{0}'. Ververs de pagina en bewerk die.</value>
+  </data>
+  <data name="StarttijdToevoegenButton" xml:space="preserve">
+    <value>Starttijd Toevoegen</value>
+  </data>
+  <data name="StarttijdZonderTijd" xml:space="preserve">
+    <value>De naam moet met een tijd beginnen, bijvoorbeeld "11:30" of "19:30: Introquest".</value>
+  </data>
+  <data name="TargetUserKiezen" xml:space="preserve">
+    <value>-- Kies de doelgebruiker --</value>
+  </data>
+  <data name="TargetUserLabel" xml:space="preserve">
+    <value>Doelgebruiker (blijft bestaan)</value>
+  </data>
+  <data name="TijdLabel" xml:space="preserve">
+    <value>Tijd</value>
+  </data>
+  <data name="TijdPlaceholder" xml:space="preserve">
+    <value>bijv. 14:00</value>
+  </data>
+  <data name="TitelDomains" xml:space="preserve">
+    <value>Admin - Domeinbeheer</value>
+  </data>
+  <data name="TitelGoogleDrive" xml:space="preserve">
+    <value>Admin - Google Drive</value>
+  </data>
+  <data name="TitelMeetings" xml:space="preserve">
+    <value>Admin - Meeting Management</value>
+  </data>
+  <data name="TitelNamen" xml:space="preserve">
+    <value>Admin - Namen Management</value>
+  </data>
+  <data name="TitelQuestLocaties" xml:space="preserve">
+    <value>Admin - Questlocaties</value>
+  </data>
+  <data name="TitelStandaardNpcs" xml:space="preserve">
+    <value>Admin - Standaard-NPC's</value>
+  </data>
+  <data name="TitelStarttijden" xml:space="preserve">
+    <value>Admin - Starttijden &amp; blokken</value>
+  </data>
+  <data name="TitelUsers" xml:space="preserve">
+    <value>Admin - Gebruikersbeheer</value>
+  </data>
+  <data name="TitelVerwijderd" xml:space="preserve">
+    <value>Admin - Verwijderde Paginas</value>
+  </data>
+  <data name="TitelWerelden" xml:space="preserve">
+    <value>Admin - Werelden Management</value>
+  </data>
+  <data name="Uitgeschakeld" xml:space="preserve">
+    <value>uitgeschakeld</value>
+  </data>
+  <data name="UnlinkButton" xml:space="preserve">
+    <value>Loskoppelen</value>
+  </data>
+  <data name="UnlinkConfirm" xml:space="preserve">
+    <value>Weet je zeker dat je deze externe login wilt loskoppelen?</value>
+  </data>
+  <data name="UserBijgewerkt" xml:space="preserve">
+    <value>De gebruiker is bijgewerkt.</value>
+  </data>
+  <data name="UsernameBijwerkenMislukt" xml:space="preserve">
+    <value>De gebruikersnaam kon niet worden bijgewerkt: {0}</value>
+  </data>
+  <data name="UsernameLabel" xml:space="preserve">
+    <value>Gebruikersnaam</value>
+  </data>
+  <data name="UserNietGeselecteerd" xml:space="preserve">
+    <value>Er is geen gebruiker gekozen om te bewerken.</value>
+  </data>
+  <data name="UserNietGevonden" xml:space="preserve">
+    <value>Gebruiker niet gevonden.</value>
+  </data>
+  <data name="UserOptie" xml:space="preserve">
+    <value>{0} ({1}) - Logins: {2}</value>
+    <comment>{0} user name, {1} email, {2} the login providers</comment>
+  </data>
+  <data name="UserOptieDummy" xml:space="preserve">
+    <value>{0} ({1}) - Logins: {2} [DUMMY]</value>
+    <comment>{0} user name, {1} email, {2} the login providers</comment>
+  </data>
+  <data name="UsersNietGevonden" xml:space="preserve">
+    <value>Een of beide gebruikers zijn niet gevonden.</value>
+  </data>
+  <data name="VerwijderenTitel" xml:space="preserve">
+    <value>Verwijderen</value>
+  </data>
+  <data name="Volgorde" xml:space="preserve">
+    <value>Volgorde</value>
+  </data>
+  <data name="VolgordeOpslaanButton" xml:space="preserve">
+    <value>Volgorde Opslaan</value>
+  </data>
+  <data name="VolgordeOpslaanMislukt" xml:space="preserve">
+    <value>Volgorde opslaan mislukt.</value>
+  </data>
+  <data name="WereldAangemaakt" xml:space="preserve">
+    <value>Wereld '{0}' aangemaakt.</value>
+  </data>
+  <data name="WereldBijgewerkt" xml:space="preserve">
+    <value>Wereld '{0}' bijgewerkt.</value>
+  </data>
+  <data name="WereldenAantalMany" xml:space="preserve">
+    <value>{0} werelden</value>
+  </data>
+  <data name="WereldenAantalOne" xml:space="preserve">
+    <value>{0} wereld</value>
+  </data>
+  <data name="WereldenUitleg" xml:space="preserve">
+    <value>Beheer de wereldnamen die worden afgedrukt in de plotboek export. Werelden worden altijd op alfabetische volgorde weergegeven.</value>
+  </data>
+  <data name="WereldLabel" xml:space="preserve">
+    <value>Wereld</value>
+  </data>
+  <data name="WereldNietGeselecteerd" xml:space="preserve">
+    <value>Geen wereld geselecteerd om te verwijderen.</value>
+  </data>
+  <data name="WereldNietGevonden" xml:space="preserve">
+    <value>Wereld niet gevonden.</value>
+  </data>
+  <data name="WereldToevoegenButton" xml:space="preserve">
+    <value>Wereld Toevoegen</value>
+  </data>
+  <data name="WereldVerwijderd" xml:space="preserve">
+    <value>Wereld '{0}' verwijderd.</value>
+  </data>
+  <data name="WereldVerwijderenConfirm" xml:space="preserve">
+    <value>Weet je zeker dat je wereld '{0}' wilt verwijderen?</value>
+  </data>
+  <data name="WijzigingenOpslaanButton" xml:space="preserve">
+    <value>Wijzigingen Opslaan</value>
+  </data>
+</root>

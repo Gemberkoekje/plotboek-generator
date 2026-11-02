@@ -57,13 +57,24 @@ public sealed partial class PlotboekModel : PageModel
 
     public bool HasPlotboekAccess => string.IsNullOrWhiteSpace(PlotboekAccessMessage);
 
-    public bool NoNpcPlotboekenAvailable { get; set; }
+    /// <summary>A reading role (see <see cref="IsReadOnlyRole"/>) has no plotboek it may open.</summary>
+    public bool NoPlotboekenToRead { get; set; }
 
     public bool IsAdmin => User?.IsInRole(UserRoles.Admin) == true;
 
+    /// <summary>An NPC reads the plotboeken marked fully done, without their feedback.</summary>
     public bool IsNpc => User?.IsInRole(UserRoles.NPC) == true && !IsAdmin && User?.IsInRole(UserRoles.User) != true;
 
-    public bool IsPlotboekReadOnly => IsNpc || (PlotboekSettings?.IsVolledigKlaar == true && !IsAdmin);
+    /// <summary>A Reader reads every plotboek, finished or not, with its feedback.</summary>
+    public bool IsReader => User?.IsInRole(UserRoles.Reader) == true && !IsAdmin && User?.IsInRole(UserRoles.User) != true;
+
+    /// <summary>
+    /// The role only reads: an NPC or a Reader. Enforced on the server by
+    /// <c>CanEditCurrentPlotboek()</c>, not just by the read-only form.
+    /// </summary>
+    public bool IsReadOnlyRole => IsNpc || IsReader;
+
+    public bool IsPlotboekReadOnly => IsReadOnlyRole || (PlotboekSettings?.IsVolledigKlaar == true && !IsAdmin);
 
     /// <summary>
     /// A pagina is read-only when the whole plotboek is read-only, or when the pagina itself is

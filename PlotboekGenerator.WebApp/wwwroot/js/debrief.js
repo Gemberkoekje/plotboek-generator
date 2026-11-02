@@ -24,7 +24,7 @@ function addDebriefVraag() {
             <input type="text"
                    name="EditableDebriefVragen[${i}]"
                    class="form-control form-control-sm me-2"
-                   placeholder="Wat wil je weten?">
+                   placeholder="${escapeTekst(pbT('DebriefVraagPlaceholder'))}">
             <button type="button" class="btn btn-outline-danger btn-sm" onclick="removeDebriefVraag(this)">
                 <i class="fas fa-trash"></i>
             </button>

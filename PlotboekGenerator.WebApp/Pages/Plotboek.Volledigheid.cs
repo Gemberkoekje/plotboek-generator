@@ -1,3 +1,5 @@
+using PlotboekGenerator.WebApp.Resources;
+
 namespace PlotboekGenerator.WebApp.Pages;
 
 /// <summary>
@@ -47,29 +49,29 @@ public sealed partial class PlotboekModel
         ArgumentNullException.ThrowIfNull(pagina);
 
         var titel = new List<string>();
-        if (string.IsNullOrEmpty(pagina.Title)) titel.Add("Naam Encounter");
-        if (pagina.DomainId == Guid.Empty) titel.Add("Domein");
+        if (string.IsNullOrEmpty(pagina.Title)) titel.Add(PaginaUi.VeldNaamEncounter);
+        if (pagina.DomainId == Guid.Empty) titel.Add(PaginaUi.VeldDomein);
 
         var planning = new List<string>();
-        if (string.IsNullOrEmpty(pagina.VerantwoordelijkeSlName)) planning.Add("Verantwoordelijke SL");
-        if (!pagina.IsSpelerGedreven && !isEvergreen && pagina.StarttijdId == "None") planning.Add("Dagdeel");
-        if (pagina.AantalBlokkenId == "None") planning.Add("Geschatte Tijdsduur");
+        if (string.IsNullOrEmpty(pagina.VerantwoordelijkeSlName)) planning.Add(PaginaUi.VeldVerantwoordelijkeSl);
+        if (!pagina.IsSpelerGedreven && !isEvergreen && pagina.StarttijdId == "None") planning.Add(PaginaUi.VeldDagdeel);
+        if (pagina.AantalBlokkenId == "None") planning.Add(PaginaUi.VeldGeschatteTijdsduur);
 
         var encounter = new List<string>();
-        if (!pagina.EncounterTypeIds.HasValue) encounter.Add("Soort Encounter");
-        if (!pagina.LocatieEncounter.HasValue) encounter.Add("Locatie Encounter");
+        if (!pagina.EncounterTypeIds.HasValue) encounter.Add(PaginaUi.VeldSoortEncounter);
+        if (!pagina.LocatieEncounter.HasValue) encounter.Add(PaginaUi.VeldLocatieEncounter);
 
         var npc = new List<string>();
-        if (!pagina.AantalNpcs.HasValue) npc.Add("Aantal NPCs");
-        if (!pagina.AantalNpcs.GeenNpcsNodig && pagina.AantalNpcs.Rollen?.Any(r => r.HasValue && !string.IsNullOrWhiteSpace(r.KledingEnSchmink)) != true) npc.Add("Kleding & Schmink");
+        if (!pagina.AantalNpcs.HasValue) npc.Add(PaginaUi.VeldAantalNpcs);
+        if (!pagina.AantalNpcs.GeenNpcsNodig && pagina.AantalNpcs.Rollen?.Any(r => r.HasValue && !string.IsNullOrWhiteSpace(r.KledingEnSchmink)) != true) npc.Add(PaginaUi.VeldKledingEnSchmink);
 
         var plot = new List<string>();
-        if (string.IsNullOrEmpty(pagina.ElevatorPitch)) plot.Add("Elevator Pitch");
-        if (string.IsNullOrEmpty(pagina.SamenvattingPlot)) plot.Add("Samenvatting Plot");
+        if (string.IsNullOrEmpty(pagina.ElevatorPitch)) plot.Add(PaginaUi.VeldElevatorPitch);
+        if (string.IsNullOrEmpty(pagina.SamenvattingPlot)) plot.Add(PaginaUi.VeldSamenvattingPlot);
 
         var propsEnLoot = new List<string>();
-        if (pagina.PropsEnLoot.Props?.Any(IsSlZonderNaam) == true) propsEnLoot.Add("Verantwoordelijke SL bij prop(s)");
-        if (pagina.PropsEnLoot.Loot?.Any(IsSlZonderNaam) == true) propsEnLoot.Add("Verantwoordelijke SL bij loot");
+        if (pagina.PropsEnLoot.Props?.Any(IsSlZonderNaam) == true) propsEnLoot.Add(PaginaUi.VeldVerantwoordelijkeSlProps);
+        if (pagina.PropsEnLoot.Loot?.Any(IsSlZonderNaam) == true) propsEnLoot.Add(PaginaUi.VeldVerantwoordelijkeSlLoot);
 
         return new OntbrekendeVelden
         {

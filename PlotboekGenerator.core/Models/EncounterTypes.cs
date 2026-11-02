@@ -1,3 +1,6 @@
+using System.Globalization;
+using PlotboekGenerator.core.Resources;
+
 namespace PlotboekGenerator.core.Models;
 
 /// <summary>
@@ -79,7 +82,7 @@ public readonly record struct EncounterTypes : IEquatable<EncounterTypes>
         if (Minor?.Count > 0)
         {
             var minorText = string.Join(", ", Minor);
-            return $"{majorText} (mogelijk {minorText})";
+            return string.Format(CultureInfo.CurrentCulture, CoreTekst.EncounterTypesMetMogelijk, majorText, minorText);
         }
 
         return majorText;

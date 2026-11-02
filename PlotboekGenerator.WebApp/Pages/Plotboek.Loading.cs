@@ -1,6 +1,8 @@
 using PlotboekGenerator.Application.DTOs;
 using PlotboekGenerator.Application.Queries.Plotboek;
 using PlotboekGenerator.infrastructure.Generator;
+using PlotboekGenerator.WebApp.Resources;
+using System.Globalization;
 using System.Text.Json;
 
 namespace PlotboekGenerator.WebApp.Pages;
@@ -65,9 +67,10 @@ public sealed partial class PlotboekModel
             });
         }
 
-        if (IsNpc)
+        // A reading role opens what exists; it gets no next plotboek to start.
+        if (IsReadOnlyRole)
         {
-            NoNpcPlotboekenAvailable = AvailablePlotboeken.Count == 0;
+            NoPlotboekenToRead = AvailablePlotboeken.Count == 0;
             return;
         }
 
@@ -206,15 +209,15 @@ public sealed partial class PlotboekModel
         if (selectedPlotboek == null)
         {
             PlotboekAccessMessage = IsNpc
-                ? "Er is nog geen plotboek volledig klaar voor NPC's. Kom later terug; de spelleiding zet het plotboek open zodra alles klaar is."
-                : "Het geselecteerde plotboek is niet beschikbaar.";
-            NoNpcPlotboekenAvailable = IsNpc && AvailablePlotboeken.Count == 0;
+                ? PlotboekUi.AccessGeenPlotboekVoorNpcs
+                : PlotboekUi.AccessNietBeschikbaar;
+            NoPlotboekenToRead = IsReadOnlyRole && AvailablePlotboeken.Count == 0;
             return false;
         }
 
         if (IsNpc && !selectedPlotboek.IsVolledigKlaar)
         {
-            PlotboekAccessMessage = "Dit plotboek is nog niet volledig klaar voor NPC's.";
+            PlotboekAccessMessage = PlotboekUi.AccessNogNietKlaarVoorNpcs;
             return false;
         }
 
@@ -774,7 +777,7 @@ public sealed partial class PlotboekModel
         AvailableQuestLocatieConfigs = [.. questLocaties.OrderBy(q => q.Order).ThenBy(q => q.DisplayName, StringComparer.Ordinal)];
 
         // Only people who can edit a plot pick from (or save to) the standaard-NPC's.
-        if (!IsNpc)
+        if (!IsReadOnlyRole)
         {
             var standaardNpcs = await session.QueryAllAsync<StandaardNpc>();
             AvailableStandaardNpcs = [.. standaardNpcs.OrderBy(s => s.Rol, StringComparer.CurrentCultureIgnoreCase)];
@@ -889,7 +892,7 @@ public sealed partial class PlotboekModel
 
         return blokNummer == 0 || string.IsNullOrWhiteSpace(venster)
             ? string.Empty
-            : $"Blok {dayIndex + 1}.{blokNummer}: {venster}";
+            : string.Format(CultureInfo.CurrentCulture, PlotboekUi.BlokLabel, dayIndex + 1, blokNummer, venster);
     }
 
     /// <summary>
@@ -926,7 +929,7 @@ public sealed partial class PlotboekModel
         var label = blokLabel.Length == 0 ? displayName : $"{displayName} · {blokLabel}";
 
         return IsStarttijdNietBeschikbaarOpDag(dag, starttijdId, startDag, eindDag, starttijdConfigs)
-            ? $"{label} (niet beschikbaar op deze dag)"
+            ? string.Format(CultureInfo.CurrentCulture, PlotboekUi.StarttijdNietBeschikbaarOpDag, label)
             : label;
     }
 

@@ -1,3 +1,5 @@
+using PlotboekGenerator.core.Resources;
+
 namespace PlotboekGenerator.core.Events;
 
 public sealed record PlotboekPaginaDomainAangepast : AuditTrailEvent
@@ -18,6 +20,6 @@ public sealed record PlotboekPaginaDomainAangepast : AuditTrailEvent
     public string DomainDescription { get; init; }
 
     public override string What => DomainId != Guid.Empty
-        ? $"<strong>Domein aangepast:</strong> {DomainShorthand} - {DomainDescription}"
-        : "<strong>Domein verwijderd</strong>";
+        ? $"<strong>{CoreTekst.DomeinAangepast}</strong> {DomainShorthand} - {DomainDescription}"
+        : $"<strong>{CoreTekst.DomeinVerwijderd}</strong>";
 }

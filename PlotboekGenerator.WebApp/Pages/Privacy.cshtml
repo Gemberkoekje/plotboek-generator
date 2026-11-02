@@ -1,8 +1,65 @@
 @page
 @model PrivacyModel
 @{
-    ViewData["Title"] = "Privacy Policy";
+    ViewData["Title"] = Ui.PrivacyTitel;
 }
-<h1>@ViewData["Title"]</h1>
+<div class="row">
+    <div class="col-lg-8">
+        <h1>@ViewData["Title"]</h1>
+        <p class="lead">@string.Format(System.Globalization.CultureInfo.CurrentCulture, Ui.PrivacyIntro, Model.Naam)</p>
 
-<p>Use this page to detail your site's privacy policy.</p>
+        @if (Model.IsDemo)
+        {
+            <div class="alert alert-info" role="note">
+                <strong>@Ui.DemoBannerTitel</strong>
+                @Ui.PrivacyDemoTekst
+            </div>
+        }
+
+        <h2 class="h4 mt-4">@Ui.PrivacyAccountKop</h2>
+        <p>@Ui.PrivacyAccountTekst</p>
+
+        <h2 class="h4 mt-4">@Ui.PrivacySchrijvenKop</h2>
+        <p>@Ui.PrivacySchrijvenTekst</p>
+
+        <h2 class="h4 mt-4">@Ui.PrivacyCookiesKop</h2>
+        <ul>
+            <li>@Ui.PrivacyCookieInloggen</li>
+            <li>@Ui.PrivacyCookieFormulieren</li>
+            <li>@Ui.PrivacyCookieThema</li>
+            @if (Model.HeeftTaalkeuze)
+            {
+                <li>@Ui.PrivacyCookieTaal</li>
+            }
+        </ul>
+        <p>@Ui.PrivacyGeenVolgcookies</p>
+
+        @if (Model.GebruiktGemini || Model.GebruiktGoogleDrive)
+        {
+            <h2 class="h4 mt-4">@Ui.PrivacyDienstenKop</h2>
+            <ul>
+                @if (Model.GebruiktGemini)
+                {
+                    <li>@Ui.PrivacyGemini</li>
+                }
+                @if (Model.GebruiktGoogleDrive)
+                {
+                    <li>@Ui.PrivacyGoogleDrive</li>
+                }
+            </ul>
+        }
+
+        <h2 class="h4 mt-4">@Ui.PrivacyInzienKop</h2>
+        <p>
+            @Ui.PrivacyInzienVraag
+            @if (string.IsNullOrWhiteSpace(Model.ContactUrl))
+            {
+                @Ui.PrivacyContactBeheerder
+            }
+            else
+            {
+                <a href="@Model.ContactUrl">@Ui.PrivacyContactLink</a><text>.</text>
+            }
+        </p>
+    </div>
+</div>

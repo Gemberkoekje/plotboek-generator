@@ -1,3 +1,6 @@
+using System.Globalization;
+using PlotboekGenerator.WebApp.Resources;
+
 namespace PlotboekGenerator.WebApp.Pages;
 
 /// <summary>
@@ -75,7 +78,7 @@ public sealed partial class AdminModel
     {
         if (string.IsNullOrWhiteSpace(EditQuestLocatieCategorieNaam))
         {
-            ErrorMessage = "Naam is verplicht.";
+            ErrorMessage = AdminUi.NaamVerplicht;
             return;
         }
 
@@ -92,7 +95,7 @@ public sealed partial class AdminModel
             var existing = await session.LoadAsync<QuestLocatieCategorieConfig>(EditQuestLocatieCategorieId);
             if (existing == null)
             {
-                ErrorMessage = "Categorie niet gevonden.";
+                ErrorMessage = AdminUi.CategorieNietGevonden;
                 return;
             }
 
@@ -104,20 +107,20 @@ public sealed partial class AdminModel
                 Order = EditQuestLocatieCategorieOrder,
             });
             logger.LogInformation("Admin {AdminUser} updated questlocatie categorie {CategorieId}: {Naam}", User.Identity?.Name, EditQuestLocatieCategorieId, naam);
-            SuccessMessage = $"Categorie '{naam}' bijgewerkt.";
+            SuccessMessage = string.Format(CultureInfo.CurrentCulture, AdminUi.CategorieBijgewerkt, naam);
         }
         else
         {
             var id = ReferenceDataId.Derive(naam);
             if (string.IsNullOrEmpty(id))
             {
-                ErrorMessage = "Uit deze naam kan geen geldige sleutel worden afgeleid. Gebruik letters of cijfers.";
+                ErrorMessage = AdminUi.GeenGeldigeSleutel;
                 return;
             }
 
             if (await session.LoadAsync<QuestLocatieCategorieConfig>(id) != null)
             {
-                ErrorMessage = $"Er bestaat al een categorie met sleutel '{id}'.";
+                ErrorMessage = string.Format(CultureInfo.CurrentCulture, AdminUi.CategorieSleutelBestaat, id);
                 return;
             }
 
@@ -134,7 +137,7 @@ public sealed partial class AdminModel
                 Order = EditQuestLocatieCategorieOrder > 0 ? EditQuestLocatieCategorieOrder : maxOrder + 1,
             });
             logger.LogInformation("Admin {AdminUser} created questlocatie categorie {CategorieId}: {Naam}", User.Identity?.Name, id, naam);
-            SuccessMessage = $"Categorie '{naam}' aangemaakt.";
+            SuccessMessage = string.Format(CultureInfo.CurrentCulture, AdminUi.CategorieAangemaakt, naam);
         }
 
         try
@@ -145,7 +148,7 @@ public sealed partial class AdminModel
         {
             logger.LogWarning(ex, "Admin {AdminUser} lost a create race for questlocatie categorie {Naam}", User.Identity?.Name, naam);
             SuccessMessage = null;
-            ErrorMessage = $"Er bestaat al een categorie met deze naam ('{naam}'). Ververs de pagina en bewerk die.";
+            ErrorMessage = string.Format(CultureInfo.CurrentCulture, AdminUi.CategorieNaamBestaatVerversen, naam);
             return;
         }
 
@@ -156,13 +159,13 @@ public sealed partial class AdminModel
     {
         if (string.IsNullOrWhiteSpace(EditQuestLocatieNaam))
         {
-            ErrorMessage = "Naam is verplicht.";
+            ErrorMessage = AdminUi.NaamVerplicht;
             return;
         }
 
         if (string.IsNullOrWhiteSpace(EditQuestLocatieCategorie))
         {
-            ErrorMessage = "Categorie is verplicht.";
+            ErrorMessage = AdminUi.CategorieVerplicht;
             return;
         }
 
@@ -173,7 +176,7 @@ public sealed partial class AdminModel
 
         if (await session.LoadAsync<QuestLocatieCategorieConfig>(EditQuestLocatieCategorie) == null)
         {
-            ErrorMessage = "Categorie niet gevonden.";
+            ErrorMessage = AdminUi.CategorieNietGevonden;
             return;
         }
 
@@ -189,7 +192,7 @@ public sealed partial class AdminModel
             var existing = await session.LoadAsync<QuestLocatieConfig>(EditQuestLocatieId);
             if (existing == null)
             {
-                ErrorMessage = "Questlocatie niet gevonden.";
+                ErrorMessage = AdminUi.QuestLocatieNietGevonden;
                 return;
             }
 
@@ -203,20 +206,20 @@ public sealed partial class AdminModel
                 Order = EditQuestLocatieOrder,
             });
             logger.LogInformation("Admin {AdminUser} updated questlocatie {LocatieId}: {Naam}", User.Identity?.Name, EditQuestLocatieId, naam);
-            SuccessMessage = $"Questlocatie '{naam}' bijgewerkt.";
+            SuccessMessage = string.Format(CultureInfo.CurrentCulture, AdminUi.QuestLocatieBijgewerkt, naam);
         }
         else
         {
             var id = ReferenceDataId.Derive(naam);
             if (string.IsNullOrEmpty(id))
             {
-                ErrorMessage = "Uit deze naam kan geen geldige sleutel worden afgeleid. Gebruik letters of cijfers.";
+                ErrorMessage = AdminUi.GeenGeldigeSleutel;
                 return;
             }
 
             if (await session.LoadAsync<QuestLocatieConfig>(id) != null)
             {
-                ErrorMessage = $"Er bestaat al een questlocatie met sleutel '{id}'.";
+                ErrorMessage = string.Format(CultureInfo.CurrentCulture, AdminUi.QuestLocatieSleutelBestaat, id);
                 return;
             }
 
@@ -239,7 +242,7 @@ public sealed partial class AdminModel
                 Order = EditQuestLocatieOrder > 0 ? EditQuestLocatieOrder : maxOrder + 1,
             });
             logger.LogInformation("Admin {AdminUser} created questlocatie {LocatieId}: {Naam}", User.Identity?.Name, id, naam);
-            SuccessMessage = $"Questlocatie '{naam}' aangemaakt.";
+            SuccessMessage = string.Format(CultureInfo.CurrentCulture, AdminUi.QuestLocatieAangemaakt, naam);
         }
 
         try
@@ -250,7 +253,7 @@ public sealed partial class AdminModel
         {
             logger.LogWarning(ex, "Admin {AdminUser} lost a create race for questlocatie {Naam}", User.Identity?.Name, naam);
             SuccessMessage = null;
-            ErrorMessage = $"Er bestaat al een questlocatie met deze naam ('{naam}'). Ververs de pagina en bewerk die.";
+            ErrorMessage = string.Format(CultureInfo.CurrentCulture, AdminUi.QuestLocatieNaamBestaatVerversen, naam);
             return;
         }
 

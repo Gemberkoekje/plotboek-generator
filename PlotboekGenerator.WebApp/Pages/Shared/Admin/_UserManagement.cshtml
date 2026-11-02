@@ -1,4 +1,5 @@
 @model AdminModel
+@using System.Globalization
 
 <!-- Filter Section -->
 <div class="row mb-4">
@@ -8,15 +9,15 @@
             <input type="text"
                    name="Filter"
                    class="form-control"
-                   placeholder="Filter by name or email..."
+                   placeholder="@AdminUi.FilterPlaceholder"
                    value="@Model.Filter" />
             <button type="submit" class="btn btn-primary">
-                <i class="fas fa-search"></i> Search
+                <i class="fas fa-search"></i> @AdminUi.SearchButton
             </button>
             @if (!string.IsNullOrEmpty(Model.Filter))
             {
                 <a href="@Url.Page("/Admin", new { Section = "users" })" class="btn btn-outline-secondary">
-                    <i class="fas fa-times"></i> Clear
+                    <i class="fas fa-times"></i> @AdminUi.ClearButton
                 </a>
             }
         </form>
@@ -27,24 +28,23 @@
 <div class="card mb-4">
     <div class="card-header text-bg-info">
         <h5 class="mb-0">
-            <i class="fas fa-user-plus"></i> Create Dummy SL
+            <i class="fas fa-user-plus"></i> @AdminUi.DummySlAanmaken
         </h5>
     </div>
     <div class="card-body">
         <p class="text-muted mb-3">
-            Create a placeholder SL account for someone who hasn't logged in yet.
-            You can merge this account with a real user later when they register.
+            @AdminUi.DummySlUitleg
         </p>
         <form method="post" class="row g-3 align-items-end">
             <input type="hidden" name="Action" value="createDummySl" />
             <input type="hidden" name="Section" value="users" />
             <div class="col-md-8">
-                <label for="newDummySlUserName" class="form-label">Username</label>
+                <label for="newDummySlUserName" class="form-label">@AdminUi.UsernameLabel</label>
                 <input type="text" class="form-control" id="newDummySlUserName" name="NewDummySlUserName" required />
             </div>
             <div class="col-md-4">
                 <button type="submit" class="btn btn-info w-100">
-                    <i class="fas fa-plus"></i> Create Dummy SL
+                    <i class="fas fa-plus"></i> @AdminUi.DummySlAanmaken
                 </button>
             </div>
         </form>
@@ -55,40 +55,39 @@
 <div class="card mb-4">
     <div class="card-header text-bg-warning">
         <h5 class="mb-0">
-            <i class="fas fa-link"></i> Link Accounts (Merge Users)
+            <i class="fas fa-link"></i> @AdminUi.LinkAccountsKop
         </h5>
     </div>
     <div class="card-body">
         <p class="text-muted mb-3">
-            Merge two accounts into one. All external logins from the source user will be transferred to the target user,
-            and the source user account will be deleted.
+            @AdminUi.LinkAccountsUitleg
         </p>
         <form method="post" class="row g-3 align-items-end">
             <input type="hidden" name="Action" value="linkAccounts" />
             <input type="hidden" name="Section" value="users" />
             <div class="col-md-5">
-                <label for="sourceUserId" class="form-label">Source User (will be deleted)</label>
+                <label for="sourceUserId" class="form-label">@AdminUi.SourceUserLabel</label>
                 <select class="form-select" id="sourceUserId" name="SourceUserId" required>
-                    <option value="">-- Select source user --</option>
+                    <option value="">@AdminUi.SourceUserKiezen</option>
                     @foreach (var user in Model.AllUsers.OrderBy(u => u.UserName))
                     {
-                        <option value="@user.Id">@user.UserName (@user.Email) - Logins: @user.DisplayLogins @(user.IsDummy ? " [DUMMY]" : "")</option>
+                        <option value="@user.Id">@string.Format(CultureInfo.CurrentCulture, user.IsDummy ? AdminUi.UserOptieDummy : AdminUi.UserOptie, user.UserName, user.Email, user.DisplayLogins)</option>
                     }
                 </select>
             </div>
             <div class="col-md-5">
-                <label for="targetUserId" class="form-label">Target User (will keep)</label>
+                <label for="targetUserId" class="form-label">@AdminUi.TargetUserLabel</label>
                 <select class="form-select" id="targetUserId" name="TargetUserId" required>
-                    <option value="">-- Select target user --</option>
+                    <option value="">@AdminUi.TargetUserKiezen</option>
                     @foreach (var user in Model.AllUsers.OrderBy(u => u.UserName))
                     {
-                        <option value="@user.Id">@user.UserName (@user.Email) - Logins: @user.DisplayLogins @(user.IsDummy ? " [DUMMY]" : "")</option>
+                        <option value="@user.Id">@string.Format(CultureInfo.CurrentCulture, user.IsDummy ? AdminUi.UserOptieDummy : AdminUi.UserOptie, user.UserName, user.Email, user.DisplayLogins)</option>
                     }
                 </select>
             </div>
             <div class="col-md-2">
-                <button type="submit" class="btn btn-warning w-100" onclick="return confirm('Are you sure you want to merge these accounts? The source user will be permanently deleted.');">
-                    <i class="fas fa-compress-arrows-alt"></i> Merge
+                <button type="submit" class="btn btn-warning w-100" data-confirm="@AdminUi.MergeConfirm" onclick="return confirm(this.dataset.confirm);">
+                    <i class="fas fa-compress-arrows-alt"></i> @AdminUi.MergeButton
                 </button>
             </div>
         </form>
@@ -101,10 +100,11 @@
     {
         ["Admin"] = 0,
         ["User"] = 1,
-        ["NPC"] = 2,
-        ["Guest"] = 3
+        ["Reader"] = 2,
+        ["NPC"] = 3,
+        ["Guest"] = 4
     };
-    int GetRolePriority(string role) => roleSortOrder.GetValueOrDefault(role, 4);
+    int GetRolePriority(string role) => roleSortOrder.GetValueOrDefault(role, 5);
 }
 @foreach (var roleGroup in Model.UsersByRole.OrderBy(r => GetRolePriority(r.Key)))
 {
@@ -118,7 +118,7 @@
         <div class="card-body">
             @if (roleGroup.Value.Count == 0)
             {
-                <p class="text-muted">No users in this role.</p>
+                <p class="text-muted">@AdminUi.GeenUsersInRol</p>
             }
             else
             {
@@ -126,12 +126,12 @@
                     <table class="table table-hover">
                         <thead>
                             <tr>
-                                <th>Username</th>
-                                <th>Email</th>
-                                <th>Domain</th>
-                                <th>External Logins</th>
-                                <th>Created</th>
-                                <th>Actions</th>
+                                <th>@AdminUi.UsernameLabel</th>
+                                <th>@AdminUi.KolomEmail</th>
+                                <th>@AdminUi.KolomDomain</th>
+                                <th>@AdminUi.ExternalLogins</th>
+                                <th>@AdminUi.KolomCreated</th>
+                                <th>@AdminUi.KolomActions</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -142,7 +142,7 @@
                                         @user.UserName
                                         @if (user.IsDummy)
                                         {
-                                            <span class="badge text-bg-warning ms-1">DUMMY</span>
+                                            <span class="badge text-bg-warning ms-1">@AdminUi.DummyBadge</span>
                                         }
                                     </td>
                                     <td>@user.Email</td>
@@ -150,11 +150,11 @@
                                     <td>
                                         @if (user.IsDummy)
                                         {
-                                            <span class="text-muted"><i class="fas fa-ghost me-1"></i>Placeholder</span>
+                                            <span class="text-muted"><i class="fas fa-ghost me-1"></i>@AdminUi.DummyLogins</span>
                                         }
                                         else if (user.ExternalLogins.Count == 0)
                                         {
-                                            <span class="text-muted">None</span>
+                                            <span class="text-muted">@AdminUi.LoginsGeen</span>
                                         }
                                         else
                                         {
@@ -177,7 +177,7 @@
                                                 data-user-domain-id="@(user.PrimaryDomainId.ToString() ?? "")"
                                                 data-external-logins='@Html.Raw(System.Text.Json.JsonSerializer.Serialize(user.ExternalLogins))'
                                                 onclick="openEditModalFromButton(this)">
-                                            <i class="fas fa-edit"></i> Edit
+                                            <i class="fas fa-edit"></i> @AdminUi.EditButton
                                         </button>
                                     </td>
                                 </tr>
@@ -193,7 +193,7 @@
 @if (Model.UsersByRole.Count == 0)
 {
     <div class="alert alert-info text-center">
-        <i class="fas fa-info-circle"></i> No users found matching your filter criteria.
+        <i class="fas fa-info-circle"></i> @AdminUi.GeenUsersGevonden
     </div>
 }
 
@@ -204,9 +204,9 @@
             <form method="post" id="editUserForm">
                 <div class="modal-header">
                     <h5 class="modal-title" id="editUserModalLabel">
-                        <i class="fas fa-user-edit"></i> Edit User
+                        <i class="fas fa-user-edit"></i> @AdminUi.EditUserKop
                     </h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="@AdminUi.SluitenLabel"></button>
                 </div>
                 <div class="modal-body">
                     <input type="hidden" name="Action" value="save" id="editFormAction" />
@@ -217,7 +217,7 @@
                     <div class="row">
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <label for="editUserName" class="form-label">Username</label>
+                                <label for="editUserName" class="form-label">@AdminUi.UsernameLabel</label>
                                 <input type="text"
                                        class="form-control"
                                        id="editUserName"
@@ -227,15 +227,15 @@
                         </div>
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <label for="editUserRole" class="form-label">Override role</label>
+                                <label for="editUserRole" class="form-label">@AdminUi.OverrideRoleLabel</label>
                                 <select class="form-select" id="editUserRole" name="EditUserRole">
-                                    <option value="">— None (use the provider's role) —</option>
+                                    <option value="">@AdminUi.OverrideRoleGeen</option>
                                     @foreach (var role in Model.AvailableRoles)
                                     {
                                         <option value="@role">@role</option>
                                     }
                                 </select>
-                                <div class="form-text">Overrides the role from the sign-in provider. Leave “None” to follow the provider.</div>
+                                <div class="form-text">@AdminUi.OverrideRoleHelp</div>
                             </div>
                         </div>
                     </div>
@@ -243,9 +243,9 @@
                     <div class="row">
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <label for="editUserPrimaryDomainId" class="form-label">Primary Domain</label>
+                                <label for="editUserPrimaryDomainId" class="form-label">@AdminUi.PrimaryDomainLabel</label>
                                 <select class="form-select" id="editUserPrimaryDomainId" name="EditUserPrimaryDomainId">
-                                    <option value="">-- No domain --</option>
+                                    <option value="">@AdminUi.GeenDomainOptie</option>
                                     @foreach (var domain in Model.Domains)
                                     {
                                         <option value="@domain.Id">@domain.DisplayName</option>
@@ -255,25 +255,25 @@
                         </div>
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <label for="editUserProviderRole" class="form-label">Provider role</label>
+                                <label for="editUserProviderRole" class="form-label">@AdminUi.ProviderRoleLabel</label>
                                 <input type="text" class="form-control" id="editUserProviderRole" value="" readonly disabled />
-                                <div class="form-text">From the sign-in provider on the last login with it; used when no override is set.</div>
+                                <div class="form-text">@AdminUi.ProviderRoleHelp</div>
                             </div>
                         </div>
                     </div>
 
                     <hr />
 
-                    <h6><i class="fas fa-sign-in-alt"></i> External Logins</h6>
+                    <h6><i class="fas fa-sign-in-alt"></i> @AdminUi.ExternalLogins</h6>
                     <div id="externalLoginsContainer" class="mb-3">
-                        <p class="text-muted" id="noLoginsMessage">No external logins linked to this account.</p>
+                        <p class="text-muted" id="noLoginsMessage">@AdminUi.GeenExternalLogins</p>
                         <div id="loginsList"></div>
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">@AdminUi.CancelButton</button>
                     <button type="submit" class="btn btn-primary" id="saveBtn">
-                        <i class="fas fa-save"></i> Save Changes
+                        <i class="fas fa-save"></i> @AdminUi.SaveChangesButton
                     </button>
                 </div>
             </form>

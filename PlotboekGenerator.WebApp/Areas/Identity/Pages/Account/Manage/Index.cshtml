@@ -2,21 +2,21 @@
 @model PlotboekGenerator.WebApp.Areas.Identity.Pages.Account.Manage.IndexModel
 
 @{
-    ViewData["Title"] = "Profile";
+    ViewData["Title"] = Ui.ProfielTitel;
 }
 
 <div class="row justify-content-center">
     <div class="col-md-6 col-lg-4">
         <div class="card">
             <div class="card-body">
-                <h2 class="card-title text-center">Profile</h2>
-                <p class="text-center text-muted mb-4">Manage your account settings</p>
+                <h2 class="card-title text-center">@Ui.ProfielTitel</h2>
+                <p class="text-center text-muted mb-4">@Ui.ProfielUitleg</p>
 
                 @if (!string.IsNullOrEmpty(Model.StatusMessage))
                 {
                     <div class="alert alert-success alert-dismissible fade show" role="alert">
                         @Model.StatusMessage
-                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="@Ui.Sluiten"></button>
                     </div>
                 }
 
@@ -25,14 +25,14 @@
                     <div asp-validation-summary="ModelOnly" class="text-danger mb-3" role="alert"></div>
 
                     <div class="mb-3">
-                        <label asp-for="UserName" class="form-label">Username</label>
-                        <input asp-for="UserName" class="form-control" placeholder="Enter your username" />
+                        <label asp-for="UserName" class="form-label">@Ui.Gebruikersnaam</label>
+                        <input asp-for="UserName" class="form-control" placeholder="@Ui.GebruikersnaamPlaceholder" />
                         <span asp-validation-for="UserName" class="text-danger"></span>
                     </div>
 
                     <div class="d-grid gap-2">
-                        <button type="submit" class="btn btn-primary">Save Changes</button>
-                        <a asp-page="/Index" asp-area="" class="btn btn-outline-secondary">Back to Home</a>
+                        <button type="submit" class="btn btn-primary">@Ui.WijzigingenOpslaan</button>
+                        <a asp-page="/Index" asp-area="" class="btn btn-outline-secondary">@Ui.TerugNaarHome</a>
                     </div>
                 </form>
             </div>

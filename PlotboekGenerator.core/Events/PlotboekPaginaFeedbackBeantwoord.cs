@@ -1,3 +1,5 @@
+using PlotboekGenerator.core.Resources;
+
 namespace PlotboekGenerator.core.Events;
 
 /// <summary>
@@ -10,7 +12,7 @@ public sealed record PlotboekPaginaFeedbackBeantwoord : AuditTrailEvent
 
     required public string Reactie { get; init; }
 
-    public override string What => "<strong>Op feedback gereageerd</strong>";
+    public override string What => $"<strong>{CoreTekst.FeedbackBeantwoord}</strong>";
 
     public override string Details => PlainTextDetails(Reactie);
 }

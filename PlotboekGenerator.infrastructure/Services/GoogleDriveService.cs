@@ -5,6 +5,8 @@ using Google.Apis.Drive.v3;
 using Google.Apis.Services;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using PlotboekGenerator.infrastructure.Resources;
+using System.Globalization;
 using System.IO;
 using System.Text.RegularExpressions;
 
@@ -80,7 +82,8 @@ public sealed partial class GoogleDriveService(IConfiguration configuration, ILo
         var folderId = ExtractFolderId(folderUrl);
         if (string.IsNullOrEmpty(folderId))
         {
-            throw new ArgumentException($"Could not extract a folder ID from the URL: {folderUrl}", nameof(folderUrl));
+            // The folder URL is typed into the plotboek settings, so this one reaches the person uploading.
+            throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, InfraTekst.GoogleDriveFolderUrlOnleesbaar, folderUrl), nameof(folderUrl));
         }
 
         return UploadOrUpdateFileCoreAsync(folderId, fileName, content, contentType, cancellationToken);
@@ -109,7 +112,7 @@ public sealed partial class GoogleDriveService(IConfiguration configuration, ILo
 
             if (updateResult.Status != Google.Apis.Upload.UploadStatus.Completed)
             {
-                throw new InvalidOperationException($"Failed to update file in Google Drive: {updateResult.Exception?.Message}");
+                throw new InvalidOperationException(string.Format(CultureInfo.CurrentCulture, InfraTekst.GoogleDriveBijwerkenMislukt, updateResult.Exception?.Message));
             }
 
             logger.LogInformation("Updated existing file '{FileName}' (ID: {FileId}) in Google Drive folder {FolderId}", fileName, existingFileId, folderId);
@@ -131,7 +134,7 @@ public sealed partial class GoogleDriveService(IConfiguration configuration, ILo
 
             if (createResult.Status != Google.Apis.Upload.UploadStatus.Completed)
             {
-                throw new InvalidOperationException($"Failed to upload file to Google Drive: {createResult.Exception?.Message}");
+                throw new InvalidOperationException(string.Format(CultureInfo.CurrentCulture, InfraTekst.GoogleDriveUploadenMislukt, createResult.Exception?.Message));
             }
 
             var newFileId = createRequest.ResponseBody?.Id;

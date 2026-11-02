@@ -11,6 +11,25 @@
     <AddRazorSupportForMvc>true</AddRazorSupportForMvc>
   </PropertyGroup>
 
+  <!-- Dutch is the neutral language; English is a satellite (Resources/*.en.resx). Each neutral
+       file gets a typed class, so a missing key fails the build. See docs/i18n.md. -->
+  <PropertyGroup>
+    <NeutralLanguage>nl</NeutralLanguage>
+  </PropertyGroup>
+
+  <ItemGroup Label="Resources">
+    <EmbeddedResource Update="Resources/Ui.resx" StronglyTypedLanguage="CSharp" StronglyTypedNamespace="PlotboekGenerator.WebApp.Resources"
+                      StronglyTypedClassName="Ui" StronglyTypedFileName="$(IntermediateOutputPath)Ui.Designer.cs" PublicClass="true" />
+    <EmbeddedResource Update="Resources/PlotboekUi.resx" StronglyTypedLanguage="CSharp" StronglyTypedNamespace="PlotboekGenerator.WebApp.Resources"
+                      StronglyTypedClassName="PlotboekUi" StronglyTypedFileName="$(IntermediateOutputPath)PlotboekUi.Designer.cs" PublicClass="true" />
+    <EmbeddedResource Update="Resources/PaginaUi.resx" StronglyTypedLanguage="CSharp" StronglyTypedNamespace="PlotboekGenerator.WebApp.Resources"
+                      StronglyTypedClassName="PaginaUi" StronglyTypedFileName="$(IntermediateOutputPath)PaginaUi.Designer.cs" PublicClass="true" />
+    <EmbeddedResource Update="Resources/AdminUi.resx" StronglyTypedLanguage="CSharp" StronglyTypedNamespace="PlotboekGenerator.WebApp.Resources"
+                      StronglyTypedClassName="AdminUi" StronglyTypedFileName="$(IntermediateOutputPath)AdminUi.Designer.cs" PublicClass="true" />
+    <EmbeddedResource Update="Resources/ScriptTekst.resx" StronglyTypedLanguage="CSharp" StronglyTypedNamespace="PlotboekGenerator.WebApp.Resources"
+                      StronglyTypedClassName="ScriptTekst" StronglyTypedFileName="$(IntermediateOutputPath)ScriptTekst.Designer.cs" PublicClass="true" />
+  </ItemGroup>
+
   <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
   </ItemGroup>

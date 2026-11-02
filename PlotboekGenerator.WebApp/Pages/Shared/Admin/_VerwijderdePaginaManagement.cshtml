@@ -2,12 +2,12 @@
 
 <div class="card">
     <div class="card-header">
-        <h5 class="mb-0"><i class="fas fa-trash-restore me-2"></i>Verwijderde Paginas</h5>
+        <h5 class="mb-0"><i class="fas fa-trash-restore me-2"></i>@AdminUi.SectieVerwijderd</h5>
     </div>
     <div class="card-body">
         @if (Model.DeletedPaginasByPlotboek.Count == 0)
         {
-            <p class="text-muted">Geen verwijderde paginas gevonden.</p>
+            <p class="text-muted">@AdminUi.GeenVerwijderdePaginas</p>
         }
         else
         {
@@ -30,7 +30,7 @@
                                 <input type="hidden" name="Action" value="herstellenPagina" />
                                 <input type="hidden" name="HerstellenPaginaId" value="@pagina.PaginaId" />
                                 <button type="submit" class="btn btn-outline-success btn-sm">
-                                    <i class="fas fa-trash-restore me-1"></i>Herstellen
+                                    <i class="fas fa-trash-restore me-1"></i>@AdminUi.HerstellenButton
                                 </button>
                             </form>
                         </div>

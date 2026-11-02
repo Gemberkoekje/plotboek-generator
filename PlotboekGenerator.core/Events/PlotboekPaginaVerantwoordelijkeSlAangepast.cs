@@ -1,3 +1,5 @@
+using PlotboekGenerator.core.Resources;
+
 namespace PlotboekGenerator.core.Events;
 
 public sealed record PlotboekPaginaVerantwoordelijkeSlAangepast : AuditTrailEvent
@@ -18,8 +20,8 @@ public sealed record PlotboekPaginaVerantwoordelijkeSlAangepast : AuditTrailEven
             if (!string.IsNullOrEmpty(VerantwoordelijkeSlName))
                 allNames.Add(VerantwoordelijkeSlName);
             allNames.AddRange(ExtraSlNames.Where(n => !string.IsNullOrEmpty(n)));
-            var display = allNames.Count > 0 ? string.Join(", ", allNames) : "Niet ingevuld";
-            return $"<strong>Verantwoordelijke SL aangepast:</strong> {display}";
+            var display = allNames.Count > 0 ? string.Join(", ", allNames) : CoreTekst.NietIngevuld;
+            return $"<strong>{CoreTekst.VerantwoordelijkeSlAangepast}</strong> {display}";
         }
     }
 }

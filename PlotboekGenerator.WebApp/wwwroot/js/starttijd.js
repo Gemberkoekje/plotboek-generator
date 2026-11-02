@@ -13,7 +13,7 @@ function getStarttijdOptiesPerDag() {
     try {
         return JSON.parse(holder.textContent);
     } catch (error) {
-        console.error('Kon de starttijd-opties niet lezen', error);
+        console.error('Could not read the start time options', error);
         return null;
     }
 }

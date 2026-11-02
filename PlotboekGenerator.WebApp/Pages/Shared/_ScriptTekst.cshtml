@@ -1,0 +1,11 @@
+@using System.Globalization
+@* The texts the page's scripts show (ScriptTekst.resx), in the reader's language: pbT('Key'), or
+   pbT('Key', value) to fill in {0}. A page renders this in its Scripts section before the scripts that
+   use it. It is not in the layout, so a host that overrides the layout still gets it. The serializer
+   escapes <, > and &, so the data is safe inside a script element. *@
+<script>
+    window.pbTekst = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(ResourceTekst.Alle(ScriptTekst.ResourceManager, CultureInfo.CurrentUICulture)));
+    window.pbT = (key, ...values) => (window.pbTekst[key] ?? key).replace(/\{(\d+)\}/g, (match, index) => String(values[index] ?? match));
+    // For a text that goes into HTML a script builds: element text or a double-quoted attribute.
+    window.escapeTekst = value => String(value ?? '').replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+</script>

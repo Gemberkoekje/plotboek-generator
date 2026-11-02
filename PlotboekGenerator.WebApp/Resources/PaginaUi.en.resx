@@ -1,0 +1,717 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="AantalNpcsLabel" xml:space="preserve">
+    <value>Number of NPCs:</value>
+  </data>
+  <data name="AlleenVinkjeNogNa" xml:space="preserve">
+    <value>as the last step.</value>
+  </data>
+  <data name="AlleenVinkjeNogVoor" xml:space="preserve">
+    <value>Everything is filled in. Is your plot finished? Then tick</value>
+  </data>
+  <data name="AlleNpcs" xml:space="preserve">
+    <value>ALL NPCs</value>
+  </data>
+  <data name="AlleNpcsLabel" xml:space="preserve">
+    <value>ALL NPCs (e.g. a big fight)</value>
+  </data>
+  <data name="AlleNpcsUitleg" xml:space="preserve">
+    <value>Select this when every available NPC is needed.</value>
+  </data>
+  <data name="Annuleren" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
+  <data name="BenodigdeProps" xml:space="preserve">
+    <value>Props needed:</value>
+  </data>
+  <data name="BenodigdePropsUitleg" xml:space="preserve">
+    <value>Props and who provides them.</value>
+  </data>
+  <data name="BestaandePlotlijnen" xml:space="preserve">
+    <value>Existing plot lines</value>
+  </data>
+  <data name="Bezig" xml:space="preserve">
+    <value>Working...</value>
+  </data>
+  <data name="BijlagenGekoppeldMany" xml:space="preserve">
+    <value>{0} attachments linked</value>
+  </data>
+  <data name="BijlagenGekoppeldOne" xml:space="preserve">
+    <value>{0} attachment linked</value>
+  </data>
+  <data name="BijlagenUitleg" xml:space="preserve">
+    <value>Link shared attachments to this plot. Each linked attachment gets a reference "For ... see attachment on page ..." in the plot book. You manage the attachments themselves in the plot book settings.</value>
+  </data>
+  <data name="ConcurrencyConflict" xml:space="preserve">
+    <value>Someone else has made a change in the meantime. Your changes were not saved.</value>
+  </data>
+  <data name="ConcurrencyHuidigeWaarden" xml:space="preserve">
+    <value>The form now shows the current values.</value>
+  </data>
+  <data name="ConcurrencyJouwWijzigingen" xml:space="preserve">
+    <value>Your unsaved changes</value>
+  </data>
+  <data name="ConcurrencyLetOp" xml:space="preserve">
+    <value>Note:</value>
+  </data>
+  <data name="DagLabel" xml:space="preserve">
+    <value>Day:</value>
+  </data>
+  <data name="DebriefGewenst" xml:space="preserve">
+    <value>Debrief wanted</value>
+  </data>
+  <data name="DebriefGewenstUitleg" xml:space="preserve">
+    <value>Leave this on if you want a debrief from the NPCs. They can then fill in the important details here, so nobody has to chase them up after the event.</value>
+  </data>
+  <data name="DebriefVraagPlaceholder" xml:space="preserve">
+    <value>What do you want to know?</value>
+  </data>
+  <data name="DebriefVragenLabel" xml:space="preserve">
+    <value>Debrief questions:</value>
+  </data>
+  <data name="DebriefVragenMany" xml:space="preserve">
+    <value>{0} questions</value>
+  </data>
+  <data name="DebriefVragenOne" xml:space="preserve">
+    <value>{0} question</value>
+  </data>
+  <data name="DebriefVragenUitleg" xml:space="preserve">
+    <value>Optional. If you want to know specific things at the debrief, put them here.</value>
+  </data>
+  <data name="DomeinLabel" xml:space="preserve">
+    <value>Domain:</value>
+  </data>
+  <data name="ElevatorPitchLabel" xml:space="preserve">
+    <value>Elevator pitch:</value>
+  </data>
+  <data name="ElevatorPitchUitleg" xml:space="preserve">
+    <value>One sentence the NPC coordinators use to sell the plot to the NPC players while handing out the roles.</value>
+  </data>
+  <data name="ElevatorPitchVervangenVraag" xml:space="preserve">
+    <value>Replace the existing elevator pitch?</value>
+  </data>
+  <data name="EncounterSoortenMogelijk" xml:space="preserve">
+    <value>{0} (possibly {1})</value>
+  </data>
+  <data name="EvergreenGeenDag" xml:space="preserve">
+    <value>Evergreen encounters have no fixed day or start time, only an estimated duration.</value>
+  </data>
+  <data name="ExtraSlKiezen" xml:space="preserve">
+    <value>-- Select a GM --</value>
+  </data>
+  <data name="ExtraSlsLabel" xml:space="preserve">
+    <value>Additional GMs:</value>
+  </data>
+  <data name="ExtraSlToevoegen" xml:space="preserve">
+    <value>Add additional GM</value>
+  </data>
+  <data name="FeedbackAantalAfgehandeld" xml:space="preserve">
+    <value>{0} signed off</value>
+  </data>
+  <data name="FeedbackAantalBeantwoord" xml:space="preserve">
+    <value>{0} answered</value>
+  </data>
+  <data name="FeedbackAantalOpen" xml:space="preserve">
+    <value>{0} open</value>
+  </data>
+  <data name="FeedbackAfgehandeldeKop" xml:space="preserve">
+    <value>Signed-off feedback ({0})</value>
+  </data>
+  <data name="FeedbackAfhandelen" xml:space="preserve">
+    <value>Sign off</value>
+  </data>
+  <data name="FeedbackAlleenAdminsAfhandelen" xml:space="preserve">
+    <value>Only admins can sign off feedback.</value>
+  </data>
+  <data name="FeedbackAlleenAdminsGeven" xml:space="preserve">
+    <value>Only admins can give feedback.</value>
+  </data>
+  <data name="FeedbackAlleenAdminsHeropenen" xml:space="preserve">
+    <value>Only admins can reopen feedback.</value>
+  </data>
+  <data name="FeedbackAlleenAdminsVerwijderen" xml:space="preserve">
+    <value>Only admins can delete feedback.</value>
+  </data>
+  <data name="FeedbackBlokkeertVolledigKlaar" xml:space="preserve">
+    <value>blocks "ready"</value>
+  </data>
+  <data name="FeedbackGezien" xml:space="preserve">
+    <value>Seen, no action</value>
+  </data>
+  <data name="FeedbackGezienTitel" xml:space="preserve">
+    <value>Unblocks the plot without you having to type anything</value>
+  </data>
+  <data name="FeedbackHeropenen" xml:space="preserve">
+    <value>Reopen</value>
+  </data>
+  <data name="FeedbackHeropenRedenLabel" xml:space="preserve">
+    <value>Reason for reopening</value>
+  </data>
+  <data name="FeedbackHeropenRedenPlaceholder" xml:space="preserve">
+    <value>Reason for reopening (optional)</value>
+  </data>
+  <data name="FeedbackIntrekken" xml:space="preserve">
+    <value>Withdraw</value>
+  </data>
+  <data name="FeedbackIntrekkenBevestiging" xml:space="preserve">
+    <value>Withdraw this feedback point? Its response disappears from the overview along with it.</value>
+  </data>
+  <data name="FeedbackNietReageren" xml:space="preserve">
+    <value>You may not respond to feedback.</value>
+  </data>
+  <data name="FeedbackNogGeen" xml:space="preserve">
+    <value>There is no feedback on this plot yet.</value>
+  </data>
+  <data name="FeedbackOnbekendeAuteur" xml:space="preserve">
+    <value>unknown</value>
+  </data>
+  <data name="FeedbackReactieLabel" xml:space="preserve">
+    <value>Response to this feedback</value>
+  </data>
+  <data name="FeedbackReactiePlaceholder" xml:space="preserve">
+    <value>What did you do about it?</value>
+  </data>
+  <data name="FeedbackReactieVan" xml:space="preserve">
+    <value>response from</value>
+  </data>
+  <data name="FeedbackReageren" xml:space="preserve">
+    <value>Respond</value>
+  </data>
+  <data name="FeedbackSectie" xml:space="preserve">
+    <value>Feedback</value>
+  </data>
+  <data name="FeedbackToevoegen" xml:space="preserve">
+    <value>Add feedback</value>
+  </data>
+  <data name="FeedbackToevoegenLabel" xml:space="preserve">
+    <value>Add feedback:</value>
+  </data>
+  <data name="FeedbackToevoegenPlaceholder" xml:space="preserve">
+    <value>What needs to change in this plot?</value>
+  </data>
+  <data name="FeedbackToevoegenUitleg" xml:space="preserve">
+    <value>The plot can't be marked "ready" while this point is open. The GM sees it on the plot itself.</value>
+  </data>
+  <data name="FeedbackVan" xml:space="preserve">
+    <value>from</value>
+  </data>
+  <data name="Flexibel" xml:space="preserve">
+    <value>Flexible</value>
+  </data>
+  <data name="FlexibelNachtPlot" xml:space="preserve">
+    <value>Flexible night plot</value>
+  </data>
+  <data name="FlexibelNachtPlotUitleg" xml:space="preserve">
+    <value>Flexible, but belongs in an evening or night slot (20:00 or later)</value>
+  </data>
+  <data name="FlexibelUitleg" xml:space="preserve">
+    <value>The exact time matters less</value>
+  </data>
+  <data name="Gedraaid" xml:space="preserve">
+    <value>Has been run</value>
+  </data>
+  <data name="GedraaidUitleg" xml:space="preserve">
+    <value>When ticked, this encounter is no longer printed in future plot books.</value>
+  </data>
+  <data name="GeenBijlagen" xml:space="preserve">
+    <value>There are no attachments yet. Add them in the plot book settings.</value>
+  </data>
+  <data name="GeenBijlagenGekoppeld" xml:space="preserve">
+    <value>No attachments linked</value>
+  </data>
+  <data name="GeenDebrief" xml:space="preserve">
+    <value>No debrief</value>
+  </data>
+  <data name="GeenDomein" xml:space="preserve">
+    <value>-- No domain --</value>
+  </data>
+  <data name="GeenElevatorPitch" xml:space="preserve">
+    <value>No elevator pitch</value>
+  </data>
+  <data name="GeenEncounterInformatie" xml:space="preserve">
+    <value>No encounter information</value>
+  </data>
+  <data name="GeenExtraInformatie" xml:space="preserve">
+    <value>No extra information</value>
+  </data>
+  <data name="GeenFeedback" xml:space="preserve">
+    <value>No feedback</value>
+  </data>
+  <data name="GeenNachtslot" xml:space="preserve">
+    <value>No night slot</value>
+  </data>
+  <data name="GeenNpcInformatie" xml:space="preserve">
+    <value>No NPC information</value>
+  </data>
+  <data name="GeenNpcsNodig" xml:space="preserve">
+    <value>No NPCs needed</value>
+  </data>
+  <data name="GeenNpcsNodigUitleg" xml:space="preserve">
+    <value>Tick this if the plot needs no NPCs. Rules out "ALL NPCs" and separate roles.</value>
+  </data>
+  <data name="GeenPaginaGeselecteerd" xml:space="preserve">
+    <value>Select a plot book page to see its details.</value>
+  </data>
+  <data name="GeenPlanning" xml:space="preserve">
+    <value>No planning</value>
+  </data>
+  <data name="GeenPropsOfLoot" xml:space="preserve">
+    <value>No props or loot</value>
+  </data>
+  <data name="GeenTitel" xml:space="preserve">
+    <value>No title</value>
+  </data>
+  <data name="GegenereerdeElevatorPitch" xml:space="preserve">
+    <value>Generated elevator pitch:</value>
+  </data>
+  <data name="GegenereerdeElevatorPitchTitel" xml:space="preserve">
+    <value>Generated elevator pitch</value>
+  </data>
+  <data name="GenereerElevatorPitch" xml:space="preserve">
+    <value>Generate elevator pitch</value>
+  </data>
+  <data name="GeschatteDuurLabel" xml:space="preserve">
+    <value>Estimated duration:</value>
+  </data>
+  <data name="GewensteLoot" xml:space="preserve">
+    <value>Loot wanted:</value>
+  </data>
+  <data name="GewensteLootUitleg" xml:space="preserve">
+    <value>Loot bags / specific loot and who provides it.</value>
+  </data>
+  <data name="GrootPakOfKostuum" xml:space="preserve">
+    <value>Big suit or elaborate costume/make-up</value>
+  </data>
+  <data name="Hoofdsoort" xml:space="preserve">
+    <value>Main type (several allowed)</value>
+  </data>
+  <data name="IcoonAfstemming" xml:space="preserve">
+    <value>Needs agreement beforehand with the NPC player</value>
+  </data>
+  <data name="IcoonFlexibelNachtPlot" xml:space="preserve">
+    <value>Flexible night plot (belongs in a slot at 20:00 or later)</value>
+  </data>
+  <data name="IcoonLocatieDubbelGeboekt" xml:space="preserve">
+    <value>Location double-booked with: {0}</value>
+  </data>
+  <data name="IcoonMagAlsEersteGecancelled" xml:space="preserve">
+    <value>May be cancelled first</value>
+  </data>
+  <data name="IcoonQuestOpExternVeld" xml:space="preserve">
+    <value>Quest on an external field</value>
+  </data>
+  <data name="IcoonVechten" xml:space="preserve">
+    <value>Fighting</value>
+  </data>
+  <data name="IcoonVerantwoordelijkeSl" xml:space="preserve">
+    <value>Responsible GM: {0}</value>
+  </data>
+  <data name="Ingevuld" xml:space="preserve">
+    <value>Filled in</value>
+  </data>
+  <data name="JaVervangen" xml:space="preserve">
+    <value>Yes, replace</value>
+  </data>
+  <data name="KoppelenAanPlot" xml:space="preserve">
+    <value>Link to a plot (new plot line)</value>
+  </data>
+  <data name="LocatieAlInGebruik" xml:space="preserve">
+    <value>This location is already in use:</value>
+  </data>
+  <data name="LocatieDubbelGeboektMany" xml:space="preserve">
+    <value>location double-booked {0} times</value>
+  </data>
+  <data name="LocatieDubbelGeboektOne" xml:space="preserve">
+    <value>location double-booked</value>
+  </data>
+  <data name="LocatieEncounterLabel" xml:space="preserve">
+    <value>Encounter location:</value>
+  </data>
+  <data name="LocatieOverlapLetOp" xml:space="preserve">
+    <value>Note:</value>
+  </data>
+  <data name="LocatieOverlapSpeeltOp" xml:space="preserve">
+    <value>plays at {0} in the same block — make sure they don't get in each other's way.</value>
+  </data>
+  <data name="LocatieSelecteer" xml:space="preserve">
+    <value>-- Select --</value>
+  </data>
+  <data name="LocatieZonderTijdvak" xml:space="preserve">
+    <value>uses the same location but has no time slot — agree on it together.</value>
+  </data>
+  <data name="LootAantalMany" xml:space="preserve">
+    <value>{0} loot items</value>
+  </data>
+  <data name="LootAantalOne" xml:space="preserve">
+    <value>{0} loot item</value>
+  </data>
+  <data name="LootOmschrijvingPlaceholder" xml:space="preserve">
+    <value>Loot description</value>
+  </data>
+  <data name="LootToevoegen" xml:space="preserve">
+    <value>Add loot</value>
+  </data>
+  <data name="MagAlsEersteGecanceld" xml:space="preserve">
+    <value>May be cancelled first</value>
+  </data>
+  <data name="MagAlsEersteGecanceldUitleg" xml:space="preserve">
+    <value>May be the first to be cancelled when there are too few NPCs</value>
+  </data>
+  <data name="MeerInformatieLabel" xml:space="preserve">
+    <value>More information:</value>
+  </data>
+  <data name="MeerInformatieUitleg" xml:space="preserve">
+    <value>Optional. Detailed information that goes into the plot book document separately.</value>
+  </data>
+  <data name="MogelijkOok" xml:space="preserve">
+    <value>Possibly also (several allowed)</value>
+  </data>
+  <data name="NachtPlotWaarschuwingNa" xml:space="preserve">
+    <value>, but it is not in a slot at 20:00 or later. Pick an evening or night slot, or switch the option off.</value>
+  </data>
+  <data name="NachtPlotWaarschuwingNadruk" xml:space="preserve">
+    <value>flexible night plot</value>
+  </data>
+  <data name="NachtPlotWaarschuwingVoor" xml:space="preserve">
+    <value>This is a</value>
+  </data>
+  <data name="NachtPlotZonderSlotTitel" xml:space="preserve">
+    <value>Flexible night plot without a slot at 20:00 or later</value>
+  </data>
+  <data name="Nee" xml:space="preserve">
+    <value>No</value>
+  </data>
+  <data name="NietOpgeslagen" xml:space="preserve">
+    <value>Not saved</value>
+  </data>
+  <data name="NogNietBekend" xml:space="preserve">
+    <value>Not known yet</value>
+  </data>
+  <data name="NpcAfstemmingLabel" xml:space="preserve">
+    <value>Needs agreement beforehand (e.g. torture, intimacy, intense horror)</value>
+  </data>
+  <data name="NpcAfstemmingPlaceholder" xml:space="preserve">
+    <value>What needs to be agreed?</value>
+  </data>
+  <data name="NpcAfstemmingUitleg" xml:space="preserve">
+    <value>The NPC coordinators agree this with the player beforehand.</value>
+  </data>
+  <data name="NpcAlGekozen" xml:space="preserve">
+    <value>Already cast/briefed</value>
+  </data>
+  <data name="NpcBewaarAlsStandaard" xml:space="preserve">
+    <value>Save as template</value>
+  </data>
+  <data name="NpcBewaarAlsStandaardTitel" xml:space="preserve">
+    <value>Saves the plot and keeps this role (name, costume &amp; make-up, casting) as an NPC template.</value>
+  </data>
+  <data name="NpcCastingLabel" xml:space="preserve">
+    <value>Casting — what kind of NPC player are we looking for?</value>
+  </data>
+  <data name="NpcCastingPlaceholder" xml:space="preserve">
+    <value>e.g. feminine look, good roleplayer, sturdy build</value>
+  </data>
+  <data name="NpcDoorWie" xml:space="preserve">
+    <value>By whom?</value>
+  </data>
+  <data name="NpcEerderGespeeld" xml:space="preserve">
+    <value>Played before</value>
+  </data>
+  <data name="NpcGekozenWaarschuwing" xml:space="preserve">
+    <value>The NPC coordinators cast the NPCs. Only use this for roles that need a very long briefing that can't be given at the event itself.</value>
+  </data>
+  <data name="NpcIconenLabel" xml:space="preserve">
+    <value>NPC icons:</value>
+  </data>
+  <data name="NpcKledingEnSchmink" xml:space="preserve">
+    <value>Costume &amp; make-up</value>
+  </data>
+  <data name="NpcLetOp" xml:space="preserve">
+    <value>NOTE:</value>
+  </data>
+  <data name="NpcMaximum" xml:space="preserve">
+    <value>Maximum</value>
+  </data>
+  <data name="NpcMaxPlaceholder" xml:space="preserve">
+    <value>Max (optional)</value>
+  </data>
+  <data name="NpcMinimum" xml:space="preserve">
+    <value>Minimum</value>
+  </data>
+  <data name="NpcMinPlaceholder" xml:space="preserve">
+    <value>Min</value>
+  </data>
+  <data name="NpcRolLabel" xml:space="preserve">
+    <value>Role/NPC type</value>
+  </data>
+  <data name="NpcRolToevoegen" xml:space="preserve">
+    <value>Add NPC role</value>
+  </data>
+  <data name="NpcTerugkerend" xml:space="preserve">
+    <value>Recurring after this plot</value>
+  </data>
+  <data name="NpcVerwijderen" xml:space="preserve">
+    <value>Delete</value>
+  </data>
+  <data name="NpcWie" xml:space="preserve">
+    <value>Who?</value>
+  </data>
+  <data name="OpenFeedbackBlokkeert" xml:space="preserve">
+    <value>This plot still has open feedback; respond to it first.</value>
+  </data>
+  <data name="OpmerkingenLabel" xml:space="preserve">
+    <value>Notes:</value>
+  </data>
+  <data name="OpmerkingenUitleg" xml:space="preserve">
+    <value>Optional. Free notes about this plot.</value>
+  </data>
+  <data name="Opslaan" xml:space="preserve">
+    <value>Save</value>
+  </data>
+  <data name="PaginaDetailsKop" xml:space="preserve">
+    <value>Plot book page details</value>
+  </data>
+  <data name="PlanningIconenLabel" xml:space="preserve">
+    <value>Planning icons:</value>
+  </data>
+  <data name="PlanningOptiesLabel" xml:space="preserve">
+    <value>Planning options:</value>
+  </data>
+  <data name="PlanningSlSamenvatting" xml:space="preserve">
+    <value>GM: {0}</value>
+  </data>
+  <data name="PlotboekAlleenLezen" xml:space="preserve">
+    <value>This plot book is ready and read-only.</value>
+  </data>
+  <data name="PlotCruciaal" xml:space="preserve">
+    <value>Plot crucial</value>
+  </data>
+  <data name="PlotCruciaalUitleg" xml:space="preserve">
+    <value>Must not be cancelled when there are too few NPCs (in consultation with the head GM/EC)</value>
+  </data>
+  <data name="PlotlijnLabel" xml:space="preserve">
+    <value>Plot line:</value>
+  </data>
+  <data name="PlotlijnUitleg" xml:space="preserve">
+    <value>Select an existing plot line to link to, or pick another plot to form a new plot line together.</value>
+  </data>
+  <data name="PlotVolledigKlaar" xml:space="preserve">
+    <value>Plot ready</value>
+  </data>
+  <data name="PropOmschrijvingPlaceholder" xml:space="preserve">
+    <value>Prop description</value>
+  </data>
+  <data name="PropsAantalMany" xml:space="preserve">
+    <value>{0} props</value>
+  </data>
+  <data name="PropsAantalOne" xml:space="preserve">
+    <value>{0} prop</value>
+  </data>
+  <data name="PropsBronAnders" xml:space="preserve">
+    <value>Other</value>
+  </data>
+  <data name="PropsBronSl" xml:space="preserve">
+    <value>GM</value>
+  </data>
+  <data name="PropsBronSpelerOfNpc" xml:space="preserve">
+    <value>Player or NPC</value>
+  </data>
+  <data name="PropsSlKiezen" xml:space="preserve">
+    <value>-- GM --</value>
+  </data>
+  <data name="PropsVrijeTekstPlaceholder" xml:space="preserve">
+    <value>Player or name</value>
+  </data>
+  <data name="PropToevoegen" xml:space="preserve">
+    <value>Add prop</value>
+  </data>
+  <data name="QuestLocatieAnders" xml:space="preserve">
+    <value>Other… (fill in yourself)</value>
+  </data>
+  <data name="QuestLocatieNietMeerInGebruik" xml:space="preserve">
+    <value>{0} (no longer in use)</value>
+  </data>
+  <data name="RestoreDoor" xml:space="preserve">
+    <value>(by {0})</value>
+  </data>
+  <data name="RestoreEerderMoment" xml:space="preserve">
+    <value>an earlier moment</value>
+  </data>
+  <data name="RestoreKlikOp" xml:space="preserve">
+    <value>Click</value>
+  </data>
+  <data name="RestoreNogNietOpgeslagen" xml:space="preserve">
+    <value>not saved yet</value>
+  </data>
+  <data name="RestoreOmTeHerstellen" xml:space="preserve">
+    <value>to restore the content.</value>
+  </data>
+  <data name="RestoreVersieVan" xml:space="preserve">
+    <value>You are viewing the version from</value>
+  </data>
+  <data name="RestoreVolgordeOngewijzigd" xml:space="preserve">
+    <value>The order and the deleted status stay as they are.</value>
+  </data>
+  <data name="RestoreWaardenZijn" xml:space="preserve">
+    <value>these values are</value>
+  </data>
+  <data name="SamenvattingPlotLabel" xml:space="preserve">
+    <value>Plot summary:</value>
+  </data>
+  <data name="SectieBijlagen" xml:space="preserve">
+    <value>Attachments</value>
+  </data>
+  <data name="SectieDebrief" xml:space="preserve">
+    <value>Debrief</value>
+  </data>
+  <data name="SectieEncounter" xml:space="preserve">
+    <value>Encounter</value>
+  </data>
+  <data name="SectieExtraInformatie" xml:space="preserve">
+    <value>Extra information</value>
+  </data>
+  <data name="SectieNpcs" xml:space="preserve">
+    <value>NPCs</value>
+  </data>
+  <data name="SectiePlanning" xml:space="preserve">
+    <value>Planning</value>
+  </data>
+  <data name="SectiePlot" xml:space="preserve">
+    <value>Plot</value>
+  </data>
+  <data name="SectiePropsEnLoot" xml:space="preserve">
+    <value>Props &amp; loot</value>
+  </data>
+  <data name="SectieTitel" xml:space="preserve">
+    <value>Title</value>
+  </data>
+  <data name="Sluiten" xml:space="preserve">
+    <value>Close</value>
+  </data>
+  <data name="SoortEncounterLabel" xml:space="preserve">
+    <value>Encounter type:</value>
+  </data>
+  <data name="SpelerGedreven" xml:space="preserve">
+    <value>Player-driven</value>
+  </data>
+  <data name="SpelerGedrevenUitleg" xml:space="preserve">
+    <value>Day and start time are not used</value>
+  </data>
+  <data name="StandaardNpcBewaard" xml:space="preserve">
+    <value>'{0}' has been saved as an NPC template.</value>
+  </data>
+  <data name="StandaardNpcPlotZonderNaam" xml:space="preserve">
+    <value>Give the plot a name first; the role has not been saved yet.</value>
+  </data>
+  <data name="StandaardNpcRolZonderNaam" xml:space="preserve">
+    <value>Fill in a name for the role first.</value>
+  </data>
+  <data name="StandaardNpcToevoegenLabel" xml:space="preserve">
+    <value>Add NPC template</value>
+  </data>
+  <data name="StandaardNpcToevoegenOptie" xml:space="preserve">
+    <value>+ Add NPC template…</value>
+  </data>
+  <data name="StarttijdLabel" xml:space="preserve">
+    <value>Start time:</value>
+  </data>
+  <data name="TerreinKaartBekijken" xml:space="preserve">
+    <value>View: {0}</value>
+  </data>
+  <data name="TimingCruciaal" xml:space="preserve">
+    <value>Timing crucial</value>
+  </data>
+  <data name="TimingCruciaalUitleg" xml:space="preserve">
+    <value>The plot has to be in this block</value>
+  </data>
+  <data name="TitelLabel" xml:space="preserve">
+    <value>Title:</value>
+  </data>
+  <data name="UitgebreideBriefing" xml:space="preserve">
+    <value>Extended briefing</value>
+  </data>
+  <data name="VeldAantalNpcs" xml:space="preserve">
+    <value>Number of NPCs</value>
+  </data>
+  <data name="VeldDagdeel" xml:space="preserve">
+    <value>Time slot</value>
+  </data>
+  <data name="VeldDomein" xml:space="preserve">
+    <value>Domain</value>
+  </data>
+  <data name="VeldElevatorPitch" xml:space="preserve">
+    <value>Elevator pitch</value>
+  </data>
+  <data name="VeldGeschatteTijdsduur" xml:space="preserve">
+    <value>Estimated duration</value>
+  </data>
+  <data name="VeldKledingEnSchmink" xml:space="preserve">
+    <value>Costume &amp; make-up</value>
+  </data>
+  <data name="VeldLocatieEncounter" xml:space="preserve">
+    <value>Encounter location</value>
+  </data>
+  <data name="VeldLocatieSpecificatie" xml:space="preserve">
+    <value>Location details</value>
+  </data>
+  <data name="VeldMeerInformatie" xml:space="preserve">
+    <value>More information</value>
+  </data>
+  <data name="VeldNaamEncounter" xml:space="preserve">
+    <value>Encounter name</value>
+  </data>
+  <data name="VeldOpmerkingen" xml:space="preserve">
+    <value>Notes</value>
+  </data>
+  <data name="VeldSamenvattingPlot" xml:space="preserve">
+    <value>Plot summary</value>
+  </data>
+  <data name="VeldSoortEncounter" xml:space="preserve">
+    <value>Encounter type</value>
+  </data>
+  <data name="VeldTitel" xml:space="preserve">
+    <value>Title</value>
+  </data>
+  <data name="VeldVerantwoordelijkeSl" xml:space="preserve">
+    <value>Responsible GM</value>
+  </data>
+  <data name="VeldVerantwoordelijkeSlLoot" xml:space="preserve">
+    <value>Responsible GM for loot</value>
+  </data>
+  <data name="VeldVerantwoordelijkeSlProps" xml:space="preserve">
+    <value>Responsible GM for props</value>
+  </data>
+  <data name="VerantwoordelijkeSlLabel" xml:space="preserve">
+    <value>Responsible GM:</value>
+  </data>
+  <data name="VerplichteVeldenEerst" xml:space="preserve">
+    <value>Fill in all required fields first: {0}</value>
+  </data>
+  <data name="VraagToevoegen" xml:space="preserve">
+    <value>Add question</value>
+  </data>
+  <data name="WelkeQuestlocatie" xml:space="preserve">
+    <value>Which quest location?</value>
+  </data>
+  <data name="WelkVeld" xml:space="preserve">
+    <value>Which field?</value>
+  </data>
+  <data name="Wijzigingen" xml:space="preserve">
+    <value>Changes</value>
+  </data>
+  <data name="ZelfstandigeEncounter" xml:space="preserve">
+    <value>-- Standalone encounter (no plot line) --</value>
+  </data>
+</root>

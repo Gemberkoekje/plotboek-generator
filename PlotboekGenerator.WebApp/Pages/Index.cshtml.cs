@@ -46,6 +46,7 @@ public sealed class IndexModel : PageModel
         return User.Identity?.IsAuthenticated == true
             && (User.IsInRole(UserRoles.User)
                 || User.IsInRole(UserRoles.Admin)
+                || User.IsInRole(UserRoles.Reader)
                 || User.IsInRole(UserRoles.NPC));
     }
 }

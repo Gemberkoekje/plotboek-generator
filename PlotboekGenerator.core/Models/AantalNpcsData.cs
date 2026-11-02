@@ -1,3 +1,6 @@
+using System.Globalization;
+using PlotboekGenerator.core.Resources;
+
 namespace PlotboekGenerator.core.Models;
 
 /// <summary>
@@ -108,7 +111,7 @@ public readonly record struct AantalNpcsData : IEquatable<AantalNpcsData>
     public override string ToString()
     {
         if (GeenNpcsNodig)
-            return "Geen NPC's nodig";
+            return CoreTekst.AantalNpcsGeenNodig;
 
         if (!HasValue)
             return string.Empty;
@@ -117,7 +120,7 @@ public readonly record struct AantalNpcsData : IEquatable<AantalNpcsData>
 
         if (AlleNpcs)
         {
-            parts.Add("ALLE NPCs");
+            parts.Add(CoreTekst.NpcsAlle);
         }
 
         var validRollen = Rollen?.Where(r => r.HasValue).ToList() ?? [];
@@ -128,9 +131,10 @@ public readonly record struct AantalNpcsData : IEquatable<AantalNpcsData>
             // Add total if multiple roles and not "all NPCs"
             if (!AlleNpcs && validRollen.Count > 1)
             {
-                var totalText = TotaalMinimum == TotaalMaximum
-                    ? $"Totaal: {TotaalMinimum} NPC's"
-                    : $"Totaal: {TotaalMinimum}-{TotaalMaximum} NPC's";
+                var totalText = string.Format(
+                    CultureInfo.CurrentCulture,
+                    IsPreciesEen ? CoreTekst.AantalNpcsTotaalOne : CoreTekst.AantalNpcsTotaalMany,
+                    AantalTekst());
                 parts.Add(totalText);
             }
         }
@@ -152,9 +156,11 @@ public readonly record struct AantalNpcsData : IEquatable<AantalNpcsData>
         if (AlleNpcs)
         {
             var validRollen = Rollen?.Where(r => r.HasValue).ToList() ?? [];
-            return validRollen.Count > 0
-                ? $"ALLE NPCs ({validRollen.Count} rollen)"
-                : "ALLE NPCs";
+            if (validRollen.Count == 0)
+                return CoreTekst.NpcsAlle;
+
+            var metRollen = validRollen.Count == 1 ? CoreTekst.NpcsAlleMetRollenOne : CoreTekst.NpcsAlleMetRollenMany;
+            return string.Format(CultureInfo.CurrentCulture, metRollen, validRollen.Count);
         }
 
         var roles = Rollen?.Where(r => r.HasValue).ToList() ?? [];
@@ -168,9 +174,11 @@ public readonly record struct AantalNpcsData : IEquatable<AantalNpcsData>
         }
 
         // Multiple roles: show summary
-        return TotaalMinimum == TotaalMaximum
-            ? $"{TotaalMinimum} NPC's ({roles.Count} rollen)"
-            : $"{TotaalMinimum}-{TotaalMaximum} NPC's ({roles.Count} rollen)";
+        return string.Format(
+            CultureInfo.CurrentCulture,
+            IsPreciesEen ? CoreTekst.AantalNpcsMeerdereRollenOne : CoreTekst.AantalNpcsMeerdereRollenMany,
+            AantalTekst(),
+            roles.Count);
     }
 
     /// <summary>
@@ -202,7 +210,7 @@ public readonly record struct AantalNpcsData : IEquatable<AantalNpcsData>
     public string ToKledingEnSchminkString()
     {
         if (GeenNpcsNodig)
-            return "Geen NPC's nodig";
+            return CoreTekst.AantalNpcsGeenNodig;
 
         var validRollen = Rollen?.Where(r => r.HasValue).ToList() ?? [];
         if (validRollen.Count == 0)
@@ -237,9 +245,9 @@ public readonly record struct AantalNpcsData : IEquatable<AantalNpcsData>
 
         var blokken = new[]
         {
-            ("\U0001F91D Vereist afstemming vooraf:", afstemming),
-            ("Casting:", casting),
-            ("Kleding & schmink:", kleding),
+            ($"\U0001F91D {CoreTekst.KledingEnSchminkAfstemmingKop}", afstemming),
+            (CoreTekst.KledingEnSchminkCastingKop, casting),
+            (CoreTekst.KledingEnSchminkKledingKop, kleding),
         }
         .Where(b => b.Item2.Count > 0)
         .ToList();
@@ -278,10 +286,16 @@ public readonly record struct AantalNpcsData : IEquatable<AantalNpcsData>
             return string.Empty;
 
         if (AlleNpcs)
-            return "ALLE";
+            return CoreTekst.NpcsAlleKort;
 
-        return TotaalMinimum == TotaalMaximum
-            ? $"{TotaalMinimum}"
-            : $"{TotaalMinimum}-{TotaalMaximum}";
+        return AantalTekst();
     }
+
+    /// <summary>Whether exactly one NPC is needed, which picks the singular text.</summary>
+    private bool IsPreciesEen => TotaalMinimum == 1 && TotaalMaximum == 1;
+
+    /// <summary>The total as a number or a range, e.g. "3" or "2-5".</summary>
+    private string AantalTekst() => TotaalMinimum == TotaalMaximum
+        ? $"{TotaalMinimum}"
+        : $"{TotaalMinimum}-{TotaalMaximum}";
 }

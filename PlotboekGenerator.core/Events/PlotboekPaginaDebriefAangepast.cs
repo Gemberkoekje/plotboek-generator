@@ -1,3 +1,5 @@
+using PlotboekGenerator.core.Resources;
+
 namespace PlotboekGenerator.core.Events;
 
 public sealed record PlotboekPaginaDebriefAangepast : AuditTrailEvent
@@ -12,16 +14,16 @@ public sealed record PlotboekPaginaDebriefAangepast : AuditTrailEvent
         {
             if (!IsDebriefGewenst)
             {
-                return "<strong>Debrief uitgeschakeld</strong>";
+                return $"<strong>{CoreTekst.DebriefUitgeschakeld}</strong>";
             }
 
             var validVragen = Vragen?.Where(v => !string.IsNullOrWhiteSpace(v)).ToList() ?? [];
             if (validVragen.Count == 0)
             {
-                return "<strong>Debrief ingeschakeld</strong>";
+                return $"<strong>{CoreTekst.DebriefIngeschakeld}</strong>";
             }
 
-            return "<strong>Debrief ingeschakeld met vragen</strong>";
+            return $"<strong>{CoreTekst.DebriefIngeschakeldMetVragen}</strong>";
         }
     }
 

@@ -58,7 +58,7 @@ public sealed class GenericHost_specs
 
         var html = await client.GetStringAsync("/Privacy");
 
-        html.Should().Contain("<title>Privacy Policy · De Verloren Kroon</title>")
+        html.Should().Contain("<title>Privacy · De Verloren Kroon</title>")
             .And.Contain("Gemaakt door de spelleiding");
     }
 
@@ -83,7 +83,7 @@ public sealed class GenericHost_specs
         var html = await client.GetStringAsync("/Identity/Account/Login");
 
         html.Should().Contain($"name=\"provider\" value=\"{PlotboekWebApplicationFactory.OidcScheme}\"")
-            .And.Contain($"Sign in with {PlotboekWebApplicationFactory.OidcDisplayName}");
+            .And.Contain($"Inloggen met {PlotboekWebApplicationFactory.OidcDisplayName}", "a deployment without language settings speaks Dutch");
     }
 
     [Test]

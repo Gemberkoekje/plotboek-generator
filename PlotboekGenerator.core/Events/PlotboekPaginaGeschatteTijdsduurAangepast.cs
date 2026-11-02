@@ -1,3 +1,5 @@
+using PlotboekGenerator.core.Resources;
+
 namespace PlotboekGenerator.core.Events;
 
 public sealed record PlotboekPaginaGeschatteTijdsduurAangepast : AuditTrailEvent
@@ -11,7 +13,7 @@ public sealed record PlotboekPaginaGeschatteTijdsduurAangepast : AuditTrailEvent
         get
         {
             var tijdsduur = GeschatteTijdsduur.Create(MinimumMinuten, MaximumMinuten);
-            return $"<strong>Geschatte tijdsduur aangepast:</strong> {(tijdsduur.HasValue ? tijdsduur.ToString() : "(leeg)")}";
+            return $"<strong>{CoreTekst.GeschatteTijdsduurAangepast}</strong> {(tijdsduur.HasValue ? tijdsduur.ToString() : CoreTekst.Leeg)}";
         }
     }
 }

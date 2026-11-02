@@ -1,3 +1,6 @@
+using System.Globalization;
+using PlotboekGenerator.core.Resources;
+
 namespace PlotboekGenerator.core.Events;
 
 public sealed record PlotboekPaginaAantalNpcsAangepast : AuditTrailEvent
@@ -13,10 +16,10 @@ public sealed record PlotboekPaginaAantalNpcsAangepast : AuditTrailEvent
             var aantalNpcs = AantalNpcsData.Create(Rollen, AlleNpcs);
             if (!aantalNpcs.HasValue)
             {
-                return "<strong>Aantal NPCs aangepast:</strong> (leeg)";
+                return $"<strong>{CoreTekst.AantalNpcsAangepastLabel}</strong> {CoreTekst.Leeg}";
             }
 
-            return "<strong>Aantal NPCs aangepast</strong>";
+            return $"<strong>{CoreTekst.AantalNpcsAangepast}</strong>";
         }
     }
 
@@ -34,7 +37,7 @@ public sealed record PlotboekPaginaAantalNpcsAangepast : AuditTrailEvent
 
             if (AlleNpcs)
             {
-                parts.Add("<strong style=\"color: #dc3545;\">ALLE NPCs</strong>");
+                parts.Add($"<strong style=\"color: #dc3545;\">{CoreTekst.NpcsAlle}</strong>");
             }
 
             var rollenHtml = Rollen.Where(r => r.HasValue).Select(FormatRol).ToList();
@@ -73,18 +76,18 @@ public sealed record PlotboekPaginaAantalNpcsAangepast : AuditTrailEvent
         parts.Add($"• {countPart}");
 
         var annotations = new List<string>();
-        if (rol.IsTerukerend) annotations.Add("terugkerend");
+        if (rol.IsTerukerend) annotations.Add(CoreTekst.NpcRolTerugkerend);
         if (rol.IsEerderGespeeld)
         {
             annotations.Add(string.IsNullOrWhiteSpace(rol.GespeeldDoor)
-                ? "eerder gespeeld"
-                : $"eerder gespeeld door {PlainTextInline(rol.GespeeldDoor)}");
+                ? CoreTekst.NpcRolEerderGespeeld
+                : string.Format(CultureInfo.CurrentCulture, CoreTekst.NpcRolEerderGespeeldDoor, PlainTextInline(rol.GespeeldDoor)));
         }
         if (rol.IsAlGekozen)
         {
             annotations.Add(string.IsNullOrWhiteSpace(rol.GekozenPersoon)
-                ? "al gekozen"
-                : $"gekozen: {PlainTextInline(rol.GekozenPersoon)}");
+                ? CoreTekst.NpcRolAlGekozen
+                : string.Format(CultureInfo.CurrentCulture, CoreTekst.NpcRolGekozen, PlainTextInline(rol.GekozenPersoon)));
         }
 
         if (annotations.Count > 0)
@@ -94,7 +97,7 @@ public sealed record PlotboekPaginaAantalNpcsAangepast : AuditTrailEvent
 
         if (!string.IsNullOrWhiteSpace(rol.KledingEnSchmink))
         {
-            parts.Add($"<br/>&nbsp;&nbsp;<i class=\"fas fa-tshirt\"></i> <em>Kleding: {PlainTextInline(rol.KledingEnSchmink)}</em>");
+            parts.Add($"<br/>&nbsp;&nbsp;<i class=\"fas fa-tshirt\"></i> <em>{string.Format(CultureInfo.CurrentCulture, CoreTekst.NpcRolKleding, PlainTextInline(rol.KledingEnSchmink))}</em>");
         }
 
         return string.Join(" ", parts);

@@ -1,7 +1,8 @@
 @page
 @model GoogleDriveCallbackModel
+@using System.Globalization
 @{
-    ViewData["Title"] = "Google Drive Autorisatie";
+    ViewData["Title"] = AdminUi.CallbackTitel;
 }
 
 <div class="container mt-5">
@@ -12,22 +13,23 @@
                 <div class="alert @(Model.Success ? "alert-success" : "alert-danger")" role="alert">
                     <h4 class="alert-heading">
                         <i class="fas @(Model.Success ? "fa-check-circle" : "fa-exclamation-circle") me-2"></i>
-                        @(Model.Success ? "Autorisatie geslaagd!" : "Autorisatie mislukt")
+                        @(Model.Success ? AdminUi.CallbackGeslaagd : AdminUi.CallbackMislukt)
                     </h4>
                     <p>@Model.Message</p>
                     @if (Model.Success && !string.IsNullOrEmpty(Model.RefreshToken))
                     {
                         <hr>
-                        <p class="mb-1"><strong>Voeg dit toe aan je <code>secrets.json</code> onder <code>"GoogleDrive"</code>:</strong></p>
+                        <p class="mb-1"><strong>@Html.Raw(string.Format(CultureInfo.CurrentCulture, AdminUi.CallbackRefreshTokenToevoegenHtml, "<code>secrets.json</code>", "<code>\"GoogleDrive\"</code>"))</strong></p>
                         <div class="input-group mb-3">
                             <span class="input-group-text"><code>"RefreshToken":</code></span>
                             <input type="text" class="form-control font-monospace" value="@Model.RefreshToken" id="refreshTokenValue" readonly>
                             <button class="btn btn-outline-secondary" type="button"
-                                    onclick="navigator.clipboard.writeText(document.getElementById('refreshTokenValue').value); this.innerHTML='<i class=\'fas fa-check\'></i> Gekopieerd!';">
-                                <i class="fas fa-copy"></i> Kopiëren
+                                    data-gekopieerd="@AdminUi.CallbackGekopieerd"
+                                    onclick="navigator.clipboard.writeText(document.getElementById('refreshTokenValue').value); this.innerHTML='<i class=\'fas fa-check\'></i> '; this.append(this.dataset.gekopieerd);">
+                                <i class="fas fa-copy"></i> @AdminUi.CallbackKopieren
                             </button>
                         </div>
-                        <p class="small text-muted mb-0">Herstart de applicatie na het toevoegen van de token.</p>
+                        <p class="small text-muted mb-0">@AdminUi.CallbackHerstarten</p>
                     }
                 </div>
             }
@@ -35,13 +37,13 @@
             {
                 <div class="text-center">
                     <div class="spinner-border text-primary" role="status">
-                        <span class="visually-hidden">Laden...</span>
+                        <span class="visually-hidden">@AdminUi.CallbackLaden</span>
                     </div>
-                    <p class="mt-2 text-muted">Bezig met verwerken...</p>
+                    <p class="mt-2 text-muted">@AdminUi.CallbackVerwerken</p>
                 </div>
             }
             <a href="@Url.Page("/Admin", new { Section = "googledrive" })" class="btn btn-primary">
-                <i class="fas fa-arrow-left me-1"></i> Terug naar Admin
+                <i class="fas fa-arrow-left me-1"></i> @AdminUi.CallbackTerugNaarAdmin
             </a>
         </div>
     </div>

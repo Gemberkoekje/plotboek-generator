@@ -1,3 +1,5 @@
+using PlotboekGenerator.core.Resources;
+
 namespace PlotboekGenerator.core.Events;
 
 /// <summary>
@@ -20,7 +22,7 @@ public sealed record PlotboekPaginaLocatieEncounterAangepastV2 : AuditTrailEvent
             var locatieData = LocatieEncounterData.Create(Locatie, Specificatie, LocatieId);
             if (!locatieData.HasValue)
             {
-                return "<strong>Locatie encounter aangepast:</strong> (leeg)";
+                return $"<strong>{CoreTekst.LocatieEncounterAangepast}</strong> {CoreTekst.Leeg}";
             }
 
             // Both parts carry free text the user typed, and the audit modal writes What with
@@ -28,8 +30,8 @@ public sealed record PlotboekPaginaLocatieEncounterAangepastV2 : AuditTrailEvent
             // The raw id is shown here on purpose: resolving it would freeze the display name of the
             // moment, while a rename should flow through to the whole history.
             return locatieData.HasQuestLocatieKeuze
-                ? $"<strong>Locatie encounter aangepast:</strong> {PlainTextInline(locatieData.ToString())} ({PlainTextInline(locatieData.LocatieId)})"
-                : $"<strong>Locatie encounter aangepast:</strong> {PlainTextInline(locatieData.ToString())}";
+                ? $"<strong>{CoreTekst.LocatieEncounterAangepast}</strong> {PlainTextInline(locatieData.ToString())} ({PlainTextInline(locatieData.LocatieId)})"
+                : $"<strong>{CoreTekst.LocatieEncounterAangepast}</strong> {PlainTextInline(locatieData.ToString())}";
         }
     }
 }

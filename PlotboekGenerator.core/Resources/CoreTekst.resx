@@ -1,0 +1,496 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="AantalBlokkenAangepast" xml:space="preserve">
+    <value>Aantal blokken aangepast:</value>
+  </data>
+  <data name="AantalNpcsAangepast" xml:space="preserve">
+    <value>Aantal NPCs aangepast</value>
+  </data>
+  <data name="AantalNpcsAangepastLabel" xml:space="preserve">
+    <value>Aantal NPCs aangepast:</value>
+  </data>
+  <data name="AantalNpcsGeenNodig" xml:space="preserve">
+    <value>Geen NPC's nodig</value>
+  </data>
+  <data name="AantalNpcsMeerdereRollenMany" xml:space="preserve">
+    <value>{0} NPC's ({1} rollen)</value>
+    <comment>{0} is the number of NPCs or a range like "2-5", {1} the number of roles.</comment>
+  </data>
+  <data name="AantalNpcsMeerdereRollenOne" xml:space="preserve">
+    <value>{0} NPC ({1} rollen)</value>
+  </data>
+  <data name="AantalNpcsTotaalMany" xml:space="preserve">
+    <value>Totaal: {0} NPC's</value>
+    <comment>{0} is the number of NPCs, or a range like "2-5".</comment>
+  </data>
+  <data name="AantalNpcsTotaalOne" xml:space="preserve">
+    <value>Totaal: {0} NPC</value>
+  </data>
+  <data name="BijlagenAangepast" xml:space="preserve">
+    <value>Bijlagen aangepast ({0})</value>
+    <comment>{0} is the number of attachments.</comment>
+  </data>
+  <data name="BlokNpcTotaalInclusief" xml:space="preserve">
+    <value>(incl. {0})</value>
+    <comment>{0} is a list of the NPCs still busy from earlier blocks.</comment>
+  </data>
+  <data name="BlokNpcTotaalMany" xml:space="preserve">
+    <value>{0} NPCs</value>
+    <comment>{0} is the number of NPCs, or a range like "2-5".</comment>
+  </data>
+  <data name="BlokNpcTotaalOne" xml:space="preserve">
+    <value>{0} NPC</value>
+  </data>
+  <data name="BlokNpcTotaalOverloopVan" xml:space="preserve">
+    <value>{0} van {1}</value>
+    <comment>{0} NPCs still busy from the encounter that started at {1}.</comment>
+  </data>
+  <data name="DagAangepast" xml:space="preserve">
+    <value>Dag aangepast:</value>
+  </data>
+  <data name="DagDinsdag" xml:space="preserve">
+    <value>Dinsdag</value>
+  </data>
+  <data name="DagDonderdag" xml:space="preserve">
+    <value>Donderdag</value>
+  </data>
+  <data name="DagenAangepast" xml:space="preserve">
+    <value>Dagen aangepast:</value>
+  </data>
+  <data name="DagGeen" xml:space="preserve">
+    <value>Geen dag</value>
+    <comment>Dag.None</comment>
+  </data>
+  <data name="DagMaandag" xml:space="preserve">
+    <value>Maandag</value>
+  </data>
+  <data name="DagVrijdag" xml:space="preserve">
+    <value>Vrijdag</value>
+  </data>
+  <data name="DagWoensdag" xml:space="preserve">
+    <value>Woensdag</value>
+  </data>
+  <data name="DagZaterdag" xml:space="preserve">
+    <value>Zaterdag</value>
+  </data>
+  <data name="DagZondag" xml:space="preserve">
+    <value>Zondag</value>
+  </data>
+  <data name="DatumsAangepast" xml:space="preserve">
+    <value>Datums aangepast:</value>
+  </data>
+  <data name="DebriefIngeschakeld" xml:space="preserve">
+    <value>Debrief ingeschakeld</value>
+  </data>
+  <data name="DebriefIngeschakeldMetVragen" xml:space="preserve">
+    <value>Debrief ingeschakeld met vragen</value>
+  </data>
+  <data name="DebriefUitgeschakeld" xml:space="preserve">
+    <value>Debrief uitgeschakeld</value>
+  </data>
+  <data name="DomeinAangepast" xml:space="preserve">
+    <value>Domein aangepast:</value>
+  </data>
+  <data name="DomeinVerwijderd" xml:space="preserve">
+    <value>Domein verwijderd</value>
+  </data>
+  <data name="ElevatorPitchAangepast" xml:space="preserve">
+    <value>Elevator pitch aangepast:</value>
+  </data>
+  <data name="EncounterFlexibel" xml:space="preserve">
+    <value>Encounter gemarkeerd als flexibel</value>
+  </data>
+  <data name="EncounterFlexibelNachtPlot" xml:space="preserve">
+    <value>Encounter gemarkeerd als flexibel nacht plot</value>
+  </data>
+  <data name="EncounterGedraaid" xml:space="preserve">
+    <value>Encounter gemarkeerd als gedraaid</value>
+  </data>
+  <data name="EncounterNietFlexibel" xml:space="preserve">
+    <value>Encounter gemarkeerd als niet flexibel</value>
+  </data>
+  <data name="EncounterNietFlexibelNachtPlot" xml:space="preserve">
+    <value>Encounter gemarkeerd als niet flexibel nacht plot</value>
+  </data>
+  <data name="EncounterNietGedraaid" xml:space="preserve">
+    <value>Encounter gemarkeerd als niet gedraaid</value>
+  </data>
+  <data name="EncounterNietSpelerGedreven" xml:space="preserve">
+    <value>Encounter gemarkeerd als niet speler gedreven</value>
+  </data>
+  <data name="EncounterSpelerGedreven" xml:space="preserve">
+    <value>Encounter gemarkeerd als speler gedreven</value>
+  </data>
+  <data name="EncounterTypesMetMogelijk" xml:space="preserve">
+    <value>{0} (mogelijk {1})</value>
+    <comment>{0} are the main encounter types, {1} the ones it may also be.</comment>
+  </data>
+  <data name="ExportNogNietIngevuld" xml:space="preserve">
+    <value>Nog niet ingevuld</value>
+    <comment>Placeholder in the export for a field nobody filled in.</comment>
+  </data>
+  <data name="FeedbackAfgehandeld" xml:space="preserve">
+    <value>Feedback afgehandeld</value>
+  </data>
+  <data name="FeedbackAfhandelenAlleenBeantwoord" xml:space="preserve">
+    <value>Alleen beantwoorde feedback kan afgehandeld worden.</value>
+  </data>
+  <data name="FeedbackAlAfgehandeld" xml:space="preserve">
+    <value>Deze feedback is al afgehandeld; vraag de HSL om hem te heropenen.</value>
+  </data>
+  <data name="FeedbackAlOpen" xml:space="preserve">
+    <value>Deze feedback staat al open.</value>
+  </data>
+  <data name="FeedbackBeantwoord" xml:space="preserve">
+    <value>Op feedback gereageerd</value>
+  </data>
+  <data name="FeedbackBestaatNiet" xml:space="preserve">
+    <value>Deze feedback bestaat niet (meer) op dit plot.</value>
+  </data>
+  <data name="FeedbackHeropend" xml:space="preserve">
+    <value>Feedback heropend</value>
+  </data>
+  <data name="FeedbackReactieZonderTekst" xml:space="preserve">
+    <value>Een reactie zonder tekst telt niet als reageren.</value>
+  </data>
+  <data name="FeedbackStatusAfgehandeld" xml:space="preserve">
+    <value>Afgehandeld</value>
+  </data>
+  <data name="FeedbackStatusBeantwoord" xml:space="preserve">
+    <value>Beantwoord</value>
+  </data>
+  <data name="FeedbackStatusGeen" xml:space="preserve">
+    <value>Geen</value>
+  </data>
+  <data name="FeedbackStatusOpen" xml:space="preserve">
+    <value>Open</value>
+  </data>
+  <data name="FeedbackToegevoegd" xml:space="preserve">
+    <value>Feedback toegevoegd</value>
+  </data>
+  <data name="FeedbackVerwijderd" xml:space="preserve">
+    <value>Feedback verwijderd</value>
+  </data>
+  <data name="FeedbackZonderTekst" xml:space="preserve">
+    <value>Feedback zonder tekst kan niet worden toegevoegd.</value>
+  </data>
+  <data name="GekoppeldeBijlagenAangepast" xml:space="preserve">
+    <value>Gekoppelde bijlagen aangepast</value>
+  </data>
+  <data name="GeschatteTijdsduurAangepast" xml:space="preserve">
+    <value>Geschatte tijdsduur aangepast:</value>
+  </data>
+  <data name="GoogleDriveBestandUrlAangepast" xml:space="preserve">
+    <value>Google Drive bestand URL aangepast</value>
+  </data>
+  <data name="GoogleDriveFolderUrlAangepast" xml:space="preserve">
+    <value>Google Drive folder URL aangepast</value>
+  </data>
+  <data name="HistorieAangemaakt" xml:space="preserve">
+    <value>Aangemaakt</value>
+  </data>
+  <data name="HistorieEvent" xml:space="preserve">
+    <value>Event:</value>
+  </data>
+  <data name="HistorieJaar" xml:space="preserve">
+    <value>Jaar:</value>
+  </data>
+  <data name="HistorieTotEnMet" xml:space="preserve">
+    <value>t/m</value>
+    <comment>Between the first and the last day of a plot book, in bold on its own.</comment>
+  </data>
+  <data name="HistorieVan" xml:space="preserve">
+    <value>Van:</value>
+  </data>
+  <data name="IconenAangepast" xml:space="preserve">
+    <value>Iconen aangepast:</value>
+  </data>
+  <data name="IconenVerwijderd" xml:space="preserve">
+    <value>Iconen verwijderd</value>
+  </data>
+  <data name="IcoonGrootPakOfKostuum" xml:space="preserve">
+    <value>Groot pak of kostuum/schmink</value>
+  </data>
+  <data name="IcoonMagAlsEersteCancelled" xml:space="preserve">
+    <value>Mag als eerste gecancelled</value>
+  </data>
+  <data name="IcoonPlotCruciaal" xml:space="preserve">
+    <value>Plot Cruciaal</value>
+  </data>
+  <data name="IcoonTimingCruciaal" xml:space="preserve">
+    <value>Timing Cruciaal</value>
+  </data>
+  <data name="IcoonUitgebreideBriefing" xml:space="preserve">
+    <value>Uitgebreide briefing</value>
+  </data>
+  <data name="InstructieTechniekAangepast" xml:space="preserve">
+    <value>{0} aangepast</value>
+    <comment>{0} is the deployment's name for the tech crew's instructions.</comment>
+  </data>
+  <data name="KledingEnSchminkAfstemmingKop" xml:space="preserve">
+    <value>Vereist afstemming vooraf:</value>
+    <comment>Heading in the export's costume cell, after a handshake symbol.</comment>
+  </data>
+  <data name="KledingEnSchminkCastingKop" xml:space="preserve">
+    <value>Casting:</value>
+    <comment>Heading in the export's costume cell.</comment>
+  </data>
+  <data name="KledingEnSchminkKledingKop" xml:space="preserve">
+    <value>Kleding &amp; schmink:</value>
+    <comment>Heading in the export's costume cell.</comment>
+  </data>
+  <data name="Leeg" xml:space="preserve">
+    <value>(leeg)</value>
+    <comment>Shown in the change history when a field was emptied.</comment>
+  </data>
+  <data name="LocatieEncounterAangepast" xml:space="preserve">
+    <value>Locatie encounter aangepast:</value>
+  </data>
+  <data name="LocatieEncounterGeen" xml:space="preserve">
+    <value>Geen locatie</value>
+    <comment>LocatieEncounter.None</comment>
+  </data>
+  <data name="LocatieEncounterGroeperingsveld" xml:space="preserve">
+    <value>Groeperingsveld</value>
+  </data>
+  <data name="LocatieEncounterHoofdveld" xml:space="preserve">
+    <value>Hoofdveld</value>
+  </data>
+  <data name="LocatieEncounterQuestveld" xml:space="preserve">
+    <value>Questveld</value>
+  </data>
+  <data name="LootLabel" xml:space="preserve">
+    <value>Loot:</value>
+  </data>
+  <data name="MeerInformatieAangepast" xml:space="preserve">
+    <value>Meer informatie aangepast</value>
+  </data>
+  <data name="MeetingDagTypeEersteDag" xml:space="preserve">
+    <value>Eerste dag</value>
+  </data>
+  <data name="MeetingDagTypeLaatsteDag" xml:space="preserve">
+    <value>Laatste dag</value>
+  </data>
+  <data name="MeetingDagTypeTussendag" xml:space="preserve">
+    <value>Tussendag</value>
+  </data>
+  <data name="NietIngevuld" xml:space="preserve">
+    <value>Niet ingevuld</value>
+  </data>
+  <data name="NpcRolAlGekozen" xml:space="preserve">
+    <value>al gekozen</value>
+  </data>
+  <data name="NpcRolCasting" xml:space="preserve">
+    <value>Casting: {0}</value>
+  </data>
+  <data name="NpcRolEerderGespeeld" xml:space="preserve">
+    <value>eerder gespeeld</value>
+  </data>
+  <data name="NpcRolEerderGespeeldDoor" xml:space="preserve">
+    <value>eerder gespeeld door {0}</value>
+  </data>
+  <data name="NpcRolGekozen" xml:space="preserve">
+    <value>gekozen: {0}</value>
+    <comment>{0} is the person cast for the role.</comment>
+  </data>
+  <data name="NpcRolKleding" xml:space="preserve">
+    <value>Kleding: {0}</value>
+  </data>
+  <data name="NpcRolTerugkerend" xml:space="preserve">
+    <value>terugkerend</value>
+  </data>
+  <data name="NpcRolTerugkerendNadruk" xml:space="preserve">
+    <value>TERUGKEREND</value>
+  </data>
+  <data name="NpcRolVereistAfstemming" xml:space="preserve">
+    <value>Vereist afstemming</value>
+  </data>
+  <data name="NpcRolVereistAfstemmingMetToelichting" xml:space="preserve">
+    <value>Vereist afstemming: {0}</value>
+  </data>
+  <data name="NpcsAlle" xml:space="preserve">
+    <value>ALLE NPCs</value>
+    <comment>An encounter that needs every NPC.</comment>
+  </data>
+  <data name="NpcsAlleKort" xml:space="preserve">
+    <value>ALLE</value>
+    <comment>Short form of "ALLE NPCs", in a count column.</comment>
+  </data>
+  <data name="NpcsAlleMetRollenMany" xml:space="preserve">
+    <value>ALLE NPCs ({0} rollen)</value>
+    <comment>{0} is the number of roles.</comment>
+  </data>
+  <data name="NpcsAlleMetRollenOne" xml:space="preserve">
+    <value>ALLE NPCs ({0} rol)</value>
+  </data>
+  <data name="NpcsDagTotalenAangepast" xml:space="preserve">
+    <value>NPC-aantallen per dag aangepast: {0}</value>
+    <comment>{0} is a list like "Vrijdag: 12, Zaterdag: 20".</comment>
+  </data>
+  <data name="OpmerkingenAangepast" xml:space="preserve">
+    <value>Opmerkingen aangepast</value>
+  </data>
+  <data name="PaginaHersteld" xml:space="preserve">
+    <value>Pagina hersteld</value>
+  </data>
+  <data name="PaginaToegevoegd" xml:space="preserve">
+    <value>Pagina toegevoegd</value>
+  </data>
+  <data name="PaginaToegevoegdAanPlotboek" xml:space="preserve">
+    <value>aan plotboek {0}</value>
+    <comment>Follows "Pagina toegevoegd"; {0} is the plot book's name.</comment>
+  </data>
+  <data name="PaginaVerwijderd" xml:space="preserve">
+    <value>Pagina verwijderd</value>
+  </data>
+  <data name="PlotboekNietKlaar" xml:space="preserve">
+    <value>Plotboek gemarkeerd als nog niet klaar</value>
+  </data>
+  <data name="PlotboekVolledigKlaar" xml:space="preserve">
+    <value>Plotboek gemarkeerd als volledig klaar</value>
+  </data>
+  <data name="PlotlijnAangepast" xml:space="preserve">
+    <value>Plotlijn aangepast:</value>
+  </data>
+  <data name="PlotlijnTitelMeer" xml:space="preserve">
+    <value>{0} (+{1} plots)</value>
+    <comment>{0} is the first plot's title, {1} the number of other plots (3 or more).</comment>
+  </data>
+  <data name="PlotlijnToegevoegd" xml:space="preserve">
+    <value>Toegevoegd aan plotlijn</value>
+  </data>
+  <data name="PlotlijnVerwijderd" xml:space="preserve">
+    <value>Plotlijn verwijderd:</value>
+  </data>
+  <data name="PlotlijnZelfstandig" xml:space="preserve">
+    <value>Dit is nu een zelfstandige encounter</value>
+  </data>
+  <data name="PlotNietKlaar" xml:space="preserve">
+    <value>Plot gemarkeerd als nog niet klaar</value>
+  </data>
+  <data name="PlotVolledigKlaar" xml:space="preserve">
+    <value>Plot gemarkeerd als volledig klaar</value>
+  </data>
+  <data name="PropsEnLootAangepast" xml:space="preserve">
+    <value>Props &amp; Loot aangepast</value>
+  </data>
+  <data name="PropsEnLootAangepastLabel" xml:space="preserve">
+    <value>Props &amp; Loot aangepast:</value>
+  </data>
+  <data name="PropsLabel" xml:space="preserve">
+    <value>Props:</value>
+  </data>
+  <data name="QuestLocatieErnstAfgeraden" xml:space="preserve">
+    <value>Afgeraden</value>
+  </data>
+  <data name="QuestLocatieErnstGeen" xml:space="preserve">
+    <value>Geen</value>
+  </data>
+  <data name="QuestLocatieErnstLetOp" xml:space="preserve">
+    <value>Let op</value>
+  </data>
+  <data name="SamenvattingAlgemeenPlotAangepast" xml:space="preserve">
+    <value>Samenvatting Algemeen Plot aangepast</value>
+  </data>
+  <data name="SamenvattingPlotAangepast" xml:space="preserve">
+    <value>Samenvatting plot aangepast</value>
+  </data>
+  <data name="SoortEncounterAangepast" xml:space="preserve">
+    <value>Soort encounter aangepast:</value>
+  </data>
+  <data name="StarttijdAangepast" xml:space="preserve">
+    <value>Starttijd aangepast:</value>
+  </data>
+  <data name="TerminologieEventBreed" xml:space="preserve">
+    <value>Eventbreed</value>
+    <comment>An encounter that needs every NPC</comment>
+  </data>
+  <data name="TerminologieEventBreedUitleg" xml:space="preserve">
+    <value>Eventbreed (grote groepen spelers)</value>
+    <comment>The tooltip of that icon</comment>
+  </data>
+  <data name="TerminologieGeenTechniekInformatie" xml:space="preserve">
+    <value>Geen techniek informatie</value>
+    <comment>Shown when an encounter asks nothing of that crew</comment>
+  </data>
+  <data name="TerminologieInstructieTechniek" xml:space="preserve">
+    <value>Instructie techniek</value>
+    <comment>The field with the instructions for that crew</comment>
+  </data>
+  <data name="TerminologieInstructieTechniekUitleg" xml:space="preserve">
+    <value>Instructies voor de techniek (muziek, licht, rook, etc.).</value>
+    <comment>The help text under that field</comment>
+  </data>
+  <data name="TerminologieLichtOfRookVanuitTechniek" xml:space="preserve">
+    <value>Specifiek licht/rook vanuit de techniek</value>
+    <comment>An icon</comment>
+  </data>
+  <data name="TerminologieMuziekVanuitTechniek" xml:space="preserve">
+    <value>Muziek vanuit de techniek</value>
+    <comment>An icon</comment>
+  </data>
+  <data name="TerminologieOrganisatie" xml:space="preserve">
+    <value>de organisatie</value>
+    <comment>Who hands out rights, inside a sentence: Neem contact op met {this}</comment>
+  </data>
+  <data name="TerminologieTechniek" xml:space="preserve">
+    <value>Techniek</value>
+    <comment>The section about the crew that runs music, light and smoke</comment>
+  </data>
+  <data name="TerminologieTechniekInstructie" xml:space="preserve">
+    <value>techniek-instructie</value>
+    <comment>In a filter: Met {this}</comment>
+  </data>
+  <data name="TerminologieTechniekInzet" xml:space="preserve">
+    <value>techniek-inzet</value>
+    <comment>In a filter: Met {this}</comment>
+  </data>
+  <data name="TijdsduurMinutenMany" xml:space="preserve">
+    <value>{0} minuten</value>
+  </data>
+  <data name="TijdsduurMinutenOne" xml:space="preserve">
+    <value>{0} minuut</value>
+  </data>
+  <data name="TijdsduurUurEnMinuten" xml:space="preserve">
+    <value>{0} en {1}</value>
+    <comment>{0} is the hours, {1} the minutes, e.g. "1 uur en 30 minuten".</comment>
+  </data>
+  <data name="TijdsduurUurMany" xml:space="preserve">
+    <value>{0} uur</value>
+  </data>
+  <data name="TijdsduurUurOne" xml:space="preserve">
+    <value>{0} uur</value>
+  </data>
+  <data name="TitelAangepast" xml:space="preserve">
+    <value>Titel aangepast:</value>
+  </data>
+  <data name="VanTotEnMet" xml:space="preserve">
+    <value>{0} t/m {1}</value>
+    <comment>A range of days or dates, first and last included.</comment>
+  </data>
+  <data name="VerantwoordelijkeSlAangepast" xml:space="preserve">
+    <value>Verantwoordelijke SL aangepast:</value>
+  </data>
+  <data name="VolgordeAangepast" xml:space="preserve">
+    <value>Volgorde aangepast:</value>
+  </data>
+  <data name="VolgordePositie" xml:space="preserve">
+    <value>positie {0} in {1} - {2}</value>
+    <comment>{0} is the position, {1} the day, {2} the start time.</comment>
+  </data>
+  <data name="VolledigKlaarOpenstaandeFeedback" xml:space="preserve">
+    <value>Dit plot heeft nog openstaande feedback; reageer daar eerst op.</value>
+  </data>
+</root>

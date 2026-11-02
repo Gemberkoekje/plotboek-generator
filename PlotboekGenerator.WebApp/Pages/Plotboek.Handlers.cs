@@ -1,5 +1,7 @@
+using System.Globalization;
 using System.Linq;
 using PlotboekGenerator.infrastructure.Generator;
+using PlotboekGenerator.WebApp.Resources;
 
 namespace PlotboekGenerator.WebApp.Pages;
 
@@ -271,13 +273,13 @@ public sealed partial class PlotboekModel
             // Timeout or explicit cancellation
             logger.LogWarning(ex, "Elevator pitch generation cancelled/timeout");
             GeneratedElevatorPitchPreview = string.Empty;
-            ElevatorPitchError = "Het genereren van de elevator pitch is geannuleerd of nam te veel tijd in beslag. Probeer het opnieuw.";
+            ElevatorPitchError = PlotboekUi.ElevatorPitchGeannuleerd;
         }
         catch (Exception ex)
         {
             logger.LogError(ex, "Failed to generate elevator pitch via Gemini");
             GeneratedElevatorPitchPreview = string.Empty;
-            ElevatorPitchError = "Het genereren van de elevator pitch is mislukt. Probeer het opnieuw.";
+            ElevatorPitchError = PlotboekUi.ElevatorPitchMislukt;
         }
 
         // Ensure UI state is present
@@ -341,7 +343,7 @@ public sealed partial class PlotboekModel
 
         if (PlotboekId.HasValue)
         {
-            var titel = string.IsNullOrWhiteSpace(NewPaginaTitel) ? "Nieuwe Pagina" : NewPaginaTitel.Trim();
+            var titel = string.IsNullOrWhiteSpace(NewPaginaTitel) ? PlotboekUi.NieuwePaginaStandaardTitel : NewPaginaTitel.Trim();
             var result = await CreateNewPlotboekPagina(Jaar, EventId, titel);
             if (!result.IsValid)
             {
@@ -403,7 +405,7 @@ public sealed partial class PlotboekModel
         var duplicated = copy.Aanpassen(
             new PlotboekPagina.Data
             {
-                Titel = $"{source.Titel} (kopie)",
+                Titel = string.Format(CultureInfo.CurrentCulture, PlotboekUi.KopieTitel, source.Titel),
                 DomainId = source.DomainId,
                 DomainShorthand = source.DomainShorthand,
                 DomainDescription = source.DomainDescription,
@@ -522,7 +524,10 @@ public sealed partial class PlotboekModel
 
         try
         {
-            var result = await exportPlotboekHandler.HandleAsync(new ExportPlotboekCommand(PlotboekId), HttpContext.RequestAborted);
+            // One document language per deployment, whoever exports it.
+            var result = await CultuurScope.InAsync(
+                localization?.DefaultCulture,
+                () => exportPlotboekHandler.HandleAsync(new ExportPlotboekCommand(PlotboekId), HttpContext.RequestAborted));
             if (!result.IsValid)
             {
                 logger.LogWarning("Failed to export DOCX for {Jaar}-{EventId}: {Errors}", Jaar, EventId, string.Join(", ", result.Messages.Select(message => message.Message)));

@@ -10,6 +10,17 @@
     <InternalsVisibleTo Include="PlotboekGenerator.test" />
   </ItemGroup>
 
+  <!-- Dutch is the neutral language; English is a satellite (Resources/*.en.resx). Each neutral
+       file gets a typed class, so a missing key fails the build. See docs/i18n.md. -->
+  <PropertyGroup>
+    <NeutralLanguage>nl</NeutralLanguage>
+  </PropertyGroup>
+
+  <ItemGroup Label="Resources">
+    <EmbeddedResource Update="Resources/CoreTekst.resx" StronglyTypedLanguage="CSharp" StronglyTypedNamespace="PlotboekGenerator.core.Resources"
+                      StronglyTypedClassName="CoreTekst" StronglyTypedFileName="$(IntermediateOutputPath)CoreTekst.Designer.cs" PublicClass="true" />
+  </ItemGroup>
+
   <ItemGroup>
     <EmbeddedResource Include="**/*.docx" />
   </ItemGroup>

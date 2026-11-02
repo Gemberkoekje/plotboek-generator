@@ -178,22 +178,23 @@ public sealed class BuildTijdschemasData_specs
         result.Tijdschema[0].PaginaBookmark.Should().Be(PlotboekExportBuilder.SanitizePageBookmarkName(paginaId));
     }
 
-    [Test]
-    public void Sets_PageBreakBefore_on_meeting_after_Avondeten()
+    [TestCase("Avondeten")]
+    [TestCase("Dinner")]
+    public void Sets_PageBreakBefore_on_meeting_after_Avondeten(string avondeten)
     {
         var pages = new List<PlotboekPagina.ExportData>();
         var nummers = new Dictionary<PlotboekPaginaId, string>();
         var userLookup = new Dictionary<string, string>();
         var meetings = new List<Meeting>
         {
-            Meeting.Create(MeetingDagType.Tussendag, "17:30", "Avondeten", 1),
+            Meeting.Create(MeetingDagType.Tussendag, "17:30", avondeten, 1),
             Meeting.Create(MeetingDagType.Tussendag, "19:00", "Blok 20:00 Rolverdeling", 2),
         };
 
         var result = PlotboekExportBuilder.BuildTijdschemasData("Zaterdag", pages, nummers, userLookup, meetings);
 
         result.Tijdschema.Should().HaveCount(2);
-        result.Tijdschema[0].NaamEncounter.Should().Be("Avondeten");
+        result.Tijdschema[0].NaamEncounter.Should().Be(avondeten);
         result.Tijdschema[0].PageBreakBefore.Should().BeFalse();
         result.Tijdschema[1].NaamEncounter.Should().Be("Blok 20:00 Rolverdeling");
         result.Tijdschema[1].PageBreakBefore.Should().BeTrue();
@@ -270,4 +271,3 @@ public sealed class BuildTijdschemasData_specs
         };
     }
 }
-

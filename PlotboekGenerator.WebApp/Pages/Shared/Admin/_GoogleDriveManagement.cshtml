@@ -1,44 +1,45 @@
 @model AdminModel
+@using System.Globalization
 
 <h3 class="mb-4"><i class="fab fa-google-drive me-2"></i>Google Drive</h3>
 
 <div class="card">
     <div class="card-body">
-        <h5 class="card-title">Autorisatie Status</h5>
+        <h5 class="card-title">@AdminUi.DriveAutorisatieStatusKop</h5>
 
         @if (Model.GoogleDriveConfigured && Model.GoogleDriveTokenInvalid)
         {
             <div class="alert alert-danger">
                 <i class="fas fa-exclamation-circle me-1"></i>
-                Het Google Drive refresh token is verlopen of ingetrokken. Autoriseer opnieuw om de sync te herstellen.
+                @AdminUi.DriveTokenVerlopen
             </div>
             <a href="@Url.Page("/Admin", "AuthorizeGoogleDrive")" class="btn btn-danger">
-                <i class="fab fa-google me-1"></i> Hernieuw Google Drive Autorisatie
+                <i class="fab fa-google me-1"></i> @AdminUi.DriveAutorisatieHernieuwenButton
             </a>
         }
         else if (Model.GoogleDriveConfigured)
         {
             <div class="alert alert-success mb-0">
                 <i class="fas fa-check-circle me-1"></i>
-                Google Drive is geconfigureerd en klaar voor gebruik.
+                @AdminUi.DriveGeconfigureerd
             </div>
         }
         else if (Model.GoogleDriveNeedsAuthorization)
         {
             <div class="alert alert-warning">
                 <i class="fas fa-exclamation-triangle me-1"></i>
-                Google Drive is nog niet geautoriseerd. Er is een refresh token nodig om bestanden te kunnen uploaden.
+                @AdminUi.DriveNietGeautoriseerd
             </div>
             <a href="@Url.Page("/Admin", "AuthorizeGoogleDrive")" class="btn btn-warning">
-                <i class="fab fa-google me-1"></i> Autoriseer Google Drive
+                <i class="fab fa-google me-1"></i> @AdminUi.DriveAutoriserenButton
             </a>
         }
         else
         {
             <div class="alert alert-secondary mb-0">
                 <i class="fas fa-info-circle me-1"></i>
-                Google OAuth Client ID en Client Secret zijn niet geconfigureerd.
-                Stel <code>Authentication:Google:ClientId</code> en <code>Authentication:Google:ClientSecret</code> in via user secrets.
+                @AdminUi.DriveOAuthNietGeconfigureerd
+                @Html.Raw(string.Format(CultureInfo.CurrentCulture, AdminUi.DriveOAuthInstellenHtml, "<code>Authentication:Google:ClientId</code>", "<code>Authentication:Google:ClientSecret</code>"))
             </div>
         }
     </div>
@@ -48,16 +49,15 @@
 {
     <div class="card mt-3">
         <div class="card-body">
-            <h5 class="card-title">Handmatige Sync</h5>
+            <h5 class="card-title">@AdminUi.DriveHandmatigeSyncKop</h5>
             <p class="card-text text-muted">
-                Start een handmatige sync van alle plotboeken naar Google Drive.
-                Alleen plotboeken met een ingestelde Google Drive folder URL en wijzigingen sinds de laatste sync worden geüpload.
+                @AdminUi.DriveHandmatigeSyncUitleg
             </p>
             <form method="post" asp-page="/Admin">
                 <input type="hidden" asp-for="Section" value="googledrive" />
                 <input type="hidden" asp-for="Action" value="syncGoogleDrive" />
                 <button type="submit" class="btn btn-primary">
-                    <i class="fas fa-sync me-1"></i> Sync Nu
+                    <i class="fas fa-sync me-1"></i> @AdminUi.DriveSyncNuButton
                 </button>
             </form>
         </div>

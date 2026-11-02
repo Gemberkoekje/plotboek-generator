@@ -126,7 +126,7 @@ public sealed class AantalNpcsData_specs
     public void ToShortString_alle_npcs_with_roles()
     {
         var data = AantalNpcsData.Create([NpcRolData.Create("guard", 1)], alleNpcs: true);
-        data.ToShortString().Should().Be("ALLE NPCs (1 rollen)");
+        data.ToShortString().Should().Be("ALLE NPCs (1 rol)");
     }
 
     [Test]
@@ -404,4 +404,3 @@ public sealed class AantalNpcsData_specs
         a.Should().NotBe(b);
     }
 }
-

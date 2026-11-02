@@ -1,3 +1,5 @@
+using PlotboekGenerator.core.Resources;
+
 namespace PlotboekGenerator.core.Events;
 
 public sealed record PlotboekPaginaIsGedraaidAangepast : AuditTrailEvent
@@ -5,6 +7,6 @@ public sealed record PlotboekPaginaIsGedraaidAangepast : AuditTrailEvent
     required public bool IsGedraaid { get; init; }
 
     public override string What => IsGedraaid
-        ? "<strong>Encounter gemarkeerd als gedraaid</strong>"
-        : "<strong>Encounter gemarkeerd als niet gedraaid</strong>";
+        ? $"<strong>{CoreTekst.EncounterGedraaid}</strong>"
+        : $"<strong>{CoreTekst.EncounterNietGedraaid}</strong>";
 }

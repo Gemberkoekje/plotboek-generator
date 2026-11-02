@@ -1,7 +1,7 @@
 @page
 @model PlotboekModel
 @{
-    ViewData["Title"] = "Plotboek";
+    ViewData["Title"] = PlotboekUi.Titel;
 }
 
 @section Styles {
@@ -13,7 +13,7 @@
 <div class="container-fluid">
     <div class="row">
         <div class="col-12">
-            <h1 class="display-4 text-center mb-4">Plotboek</h1>
+            <h1 class="display-4 text-center mb-4">@PlotboekUi.Titel</h1>
         </div>
     </div>
 
@@ -33,7 +33,7 @@
         <div class="row mb-4">
             <div class="col-md-8 mx-auto">
                 <div class="alert alert-info text-center" role="alert">
-                    <h4 class="alert-heading">Nog geen plotboek beschikbaar</h4>
+                    <h4 class="alert-heading">@PlotboekUi.GeenPlotboekBeschikbaar</h4>
                     <p class="mb-0">@Model.PlotboekAccessMessage</p>
                 </div>
             </div>
@@ -53,6 +53,7 @@
 <partial name="Shared/Plotboek/_Modals" model="Model" />
 
 @section Scripts {
+    <partial name="Shared/_ScriptTekst" />
     <script src="~/_content/PlotboekGenerator.WebApp/js/timestamps.js"></script>
     <script src="~/_content/PlotboekGenerator.WebApp/js/audit-trail.js"></script>
     <script src="~/_content/PlotboekGenerator.WebApp/js/drag-drop.js"></script>

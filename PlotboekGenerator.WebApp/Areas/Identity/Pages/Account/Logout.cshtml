@@ -1,7 +1,7 @@
 @page
 @model PlotboekGenerator.WebApp.Areas.Identity.Pages.Account.LogoutModel
 @{
-    ViewData["Title"] = "Log out";
+    ViewData["Title"] = Ui.LogoutTitel;
 }
 
 <header>
@@ -10,12 +10,12 @@
         if (User.Identity?.IsAuthenticated ?? false)
         {
             <form class="form-inline" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Page("/Index", new { area = "" })" method="post">
-                <button type="submit" class="btn btn-link p-0 align-baseline">Click here to Logout</button>
+                <button type="submit" class="btn btn-link p-0 align-baseline">@Ui.LogoutKlikHier</button>
             </form>
         }
         else
         {
-            <p>You have successfully logged out of the application.</p>
+            <p>@Ui.LogoutGelukt</p>
         }
     }
 </header>

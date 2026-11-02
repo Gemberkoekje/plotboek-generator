@@ -1,3 +1,5 @@
+using PlotboekGenerator.core.Resources;
+
 namespace PlotboekGenerator.core.Models;
 
 public partial class PlotboekPagina
@@ -39,7 +41,7 @@ public partial class PlotboekPagina
         if (string.IsNullOrWhiteSpace(tekst))
         {
             return Result.WithMessages<PlotboekPagina>(
-                ValidationMessage.Error("Feedback zonder tekst kan niet worden toegevoegd."));
+                ValidationMessage.Error(CoreTekst.FeedbackZonderTekst));
         }
 
         var id = FeedbackId.Next();
@@ -73,13 +75,13 @@ public partial class PlotboekPagina
         if (string.IsNullOrWhiteSpace(reactie))
         {
             return Result.WithMessages<PlotboekPagina>(
-                ValidationMessage.Error("Een reactie zonder tekst telt niet als reageren."));
+                ValidationMessage.Error(CoreTekst.FeedbackReactieZonderTekst));
         }
 
         if (feedback.Status == FeedbackStatus.Afgehandeld)
         {
             return Result.WithMessages<PlotboekPagina>(
-                ValidationMessage.Error("Deze feedback is al afgehandeld; vraag de HSL om hem te heropenen."));
+                ValidationMessage.Error(CoreTekst.FeedbackAlAfgehandeld));
         }
 
         return ApplyEvent(new PlotboekPaginaFeedbackBeantwoord
@@ -110,7 +112,7 @@ public partial class PlotboekPagina
         if (feedback.Status != FeedbackStatus.Beantwoord)
         {
             return Result.WithMessages<PlotboekPagina>(
-                ValidationMessage.Error("Alleen beantwoorde feedback kan afgehandeld worden."));
+                ValidationMessage.Error(CoreTekst.FeedbackAfhandelenAlleenBeantwoord));
         }
 
         return ApplyEvent(new PlotboekPaginaFeedbackAfgehandeld
@@ -141,7 +143,7 @@ public partial class PlotboekPagina
         if (feedback.Status == FeedbackStatus.Open)
         {
             return Result.WithMessages<PlotboekPagina>(
-                ValidationMessage.Error("Deze feedback staat al open."));
+                ValidationMessage.Error(CoreTekst.FeedbackAlOpen));
         }
 
         // Same reasoning as FeedbackToevoegen: the point blocks again, so the plot is no longer done.
@@ -231,5 +233,5 @@ public partial class PlotboekPagina
 
     private static Result<PlotboekPagina> OnbekendeFeedback()
         => Result.WithMessages<PlotboekPagina>(
-            ValidationMessage.Error("Deze feedback bestaat niet (meer) op dit plot."));
+            ValidationMessage.Error(CoreTekst.FeedbackBestaatNiet));
 }

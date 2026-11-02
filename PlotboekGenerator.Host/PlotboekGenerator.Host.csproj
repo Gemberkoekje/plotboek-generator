@@ -11,9 +11,9 @@
     <PublishReadyToRun>true</PublishReadyToRun>
     <SelfContained>false</SelfContained>
     <CopyOutputSymbolsToPublishDirectory>false</CopyOutputSymbolsToPublishDirectory>
-    <AssemblyVersion>1.0.0.0</AssemblyVersion>
-    <FileVersion>1.0.0.0</FileVersion>
-    <InformationalVersion>1.0.0</InformationalVersion>
+    <AssemblyVersion>1.1.0.0</AssemblyVersion>
+    <FileVersion>1.1.0.0</FileVersion>
+    <InformationalVersion>1.1.0</InformationalVersion>
     <OutputType>exe</OutputType>
     <TargetFramework>net10.0</TargetFramework>
     <Nullable>enable</Nullable>
@@ -22,7 +22,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <EmbeddedResource Include="Templates/*.docx" />
+    <!-- WithCulture: PlotboekTemplate.en.docx is a template of its own, not a satellite resource. -->
+    <EmbeddedResource Include="Templates/*.docx" WithCulture="false" />
   </ItemGroup>
 
   <ItemGroup>

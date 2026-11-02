@@ -1,3 +1,6 @@
+using System.Globalization;
+using PlotboekGenerator.core.Resources;
+
 namespace PlotboekGenerator.core.Events;
 
 public sealed record PlotboekPaginaEncounterTypesAangepastV2 : AuditTrailEvent
@@ -17,16 +20,16 @@ public sealed record PlotboekPaginaEncounterTypesAangepastV2 : AuditTrailEvent
 
             if (major.Count == 0)
             {
-                return "<strong>Soort encounter aangepast:</strong> (leeg)";
+                return $"<strong>{CoreTekst.SoortEncounterAangepast}</strong> {CoreTekst.Leeg}";
             }
 
             var display = string.Join(" / ", major);
             if (minor.Count > 0)
             {
-                display += $" (mogelijk {string.Join(", ", minor)})";
+                display = string.Format(CultureInfo.CurrentCulture, CoreTekst.EncounterTypesMetMogelijk, display, string.Join(", ", minor));
             }
 
-            return $"<strong>Soort encounter aangepast:</strong> {display}";
+            return $"<strong>{CoreTekst.SoortEncounterAangepast}</strong> {display}";
         }
     }
 }

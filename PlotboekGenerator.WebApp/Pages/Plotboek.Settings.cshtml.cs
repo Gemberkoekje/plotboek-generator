@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Http;
 using PlotboekGenerator.core;
+using PlotboekGenerator.WebApp.Resources;
 using System.Globalization;
 using System.Net;
 using System.Text.RegularExpressions;
@@ -127,26 +128,24 @@ public sealed partial class PlotboekModel
     /// </summary>
     public Dictionary<string, string?> AttemptedSettingsChanges { get; set; } = [];
 
-    private const string BijlageInhoudLabelSuffix = " inhoud";
-
     /// <summary>
     /// Snapshots every free-text settings field, including the bijlagen rows, so a rejected save can
     /// still show the user what they typed. Bijlagen are keyed by list position rather than by id:
     /// the position is what the reloaded form shows, and a position that shifted underneath the user
     /// only ever makes a value look changed — which errs towards showing the text, never towards
-    /// dropping it.
+    /// dropping it. The keys are the labels the user reads, in the language of the request.
     /// </summary>
     internal Dictionary<string, string?> CaptureEditablePlotboekTextFields()
     {
         var fields = new Dictionary<string, string?>
         {
-            ["Titel"] = EditablePlotboekTitel,
-            ["Samenvatting Algemeen Plot"] = EditableSamenvattingAlgemeenPlot,
-            ["Google Drive Folder URL"] = EditableGoogleDriveFolderUrl,
-            ["NPCs Donderdag"] = EditableNpcsDonderdag?.ToString(),
-            ["NPCs Vrijdag"] = EditableNpcsVrijdag?.ToString(),
-            ["NPCs Zaterdag"] = EditableNpcsZaterdag?.ToString(),
-            ["NPCs Zondag"] = EditableNpcsZondag?.ToString(),
+            [PlotboekUi.WijzigingTitel] = EditablePlotboekTitel,
+            [PlotboekUi.WijzigingSamenvattingAlgemeenPlot] = EditableSamenvattingAlgemeenPlot,
+            [PlotboekUi.WijzigingGoogleDriveFolderUrl] = EditableGoogleDriveFolderUrl,
+            [NpcsDagLabel(Dag.Donderdag)] = EditableNpcsDonderdag?.ToString(),
+            [NpcsDagLabel(Dag.Vrijdag)] = EditableNpcsVrijdag?.ToString(),
+            [NpcsDagLabel(Dag.Zaterdag)] = EditableNpcsZaterdag?.ToString(),
+            [NpcsDagLabel(Dag.Zondag)] = EditableNpcsZondag?.ToString(),
         };
 
         var bijlagen = EditableBijlagen ?? [];
@@ -164,27 +163,52 @@ public sealed partial class PlotboekModel
         return fields;
     }
 
+    /// <summary>Label under which the expected number of NPCs on <paramref name="dag"/> is captured for the recovery panel.</summary>
+    /// <param name="dag">The day.</param>
+    /// <returns>The dictionary key, which doubles as the label shown to the user.</returns>
+    private static string NpcsDagLabel(Dag dag)
+        => string.Format(CultureInfo.CurrentCulture, PlotboekUi.WijzigingNpcsDag, dag.Naam());
+
     /// <summary>Label under which bijlage <paramref name="nummer"/>'s name is captured for the recovery panel.</summary>
     /// <param name="nummer">The bijlage's 1-based position in the settings form.</param>
     /// <returns>The dictionary key, which doubles as the label shown to the user.</returns>
     internal static string BijlageNaamLabel(int nummer)
-        => $"Bijlage {nummer.ToString(CultureInfo.InvariantCulture)} naam";
+        => string.Format(CultureInfo.CurrentCulture, PlotboekUi.WijzigingBijlageNaam, nummer.ToString(CultureInfo.InvariantCulture));
 
     /// <summary>Label under which bijlage <paramref name="nummer"/>'s rich-text content is captured for the recovery panel.</summary>
     /// <param name="nummer">The bijlage's 1-based position in the settings form.</param>
     /// <returns>The dictionary key, which doubles as the label shown to the user.</returns>
     internal static string BijlageInhoudLabel(int nummer)
-        => $"Bijlage {nummer.ToString(CultureInfo.InvariantCulture)}{BijlageInhoudLabelSuffix}";
+        => string.Format(CultureInfo.CurrentCulture, PlotboekUi.WijzigingBijlageInhoud, nummer.ToString(CultureInfo.InvariantCulture));
 
     /// <summary>
     /// Whether an <see cref="AttemptedSettingsChanges"/> entry holds rich-text HTML and must be rendered
     /// as markup instead of as escaped text.
     /// </summary>
-    /// <param name="label">The dictionary key of the attempted change.</param>
+    /// <param name="label">The dictionary key of the attempted change, in the language of the request.</param>
     /// <returns><c>true</c> for the Quill-backed fields, <c>false</c> for plain text ones.</returns>
     public static bool IsHtmlSettingsChangeLabel(string label)
-        => label is "Samenvatting Algemeen Plot"
-        || label.EndsWith(BijlageInhoudLabelSuffix, StringComparison.Ordinal);
+        => string.Equals(label, PlotboekUi.WijzigingSamenvattingAlgemeenPlot, StringComparison.Ordinal)
+        || IsBijlageInhoudLabel(label);
+
+    /// <summary>
+    /// Whether <paramref name="label"/> is a <see cref="BijlageInhoudLabel"/>: the translated label with a
+    /// row number where its <c>{0}</c> is.
+    /// </summary>
+    private static bool IsBijlageInhoudLabel(string label)
+    {
+        ArgumentNullException.ThrowIfNull(label);
+
+        var format = PlotboekUi.WijzigingBijlageInhoud;
+        var plek = format.IndexOf("{0}", StringComparison.Ordinal);
+        var voor = format[..plek];
+        var na = format[(plek + "{0}".Length)..];
+
+        return label.Length > voor.Length + na.Length
+            && label.StartsWith(voor, StringComparison.Ordinal)
+            && label.EndsWith(na, StringComparison.Ordinal)
+            && label[voor.Length..^na.Length].All(char.IsAsciiDigit);
+    }
 
     internal void InitializePlotboekEditableFields()
     {
@@ -284,24 +308,24 @@ public sealed partial class PlotboekModel
         {
             if (EditablePlotboekIsVolledigKlaar != plotboek.Value.IsVolledigKlaar)
             {
-                return Result.WithMessages(ValidationMessage.Error("Alleen admins kunnen de status 'Plotboek volledig klaar' aanpassen."));
+                return Result.WithMessages(ValidationMessage.Error(PlotboekUi.AlleenAdminsPlotboekVolledigKlaar));
             }
 
-            return Result.WithMessages(ValidationMessage.Error("Dit plotboek is volledig klaar en kan niet meer aangepast worden."));
+            return Result.WithMessages(ValidationMessage.Error(PlotboekUi.PlotboekVergrendeld));
         }
 
         var nietKlarePaginas = GetNietKlarePlotboekPaginaNames();
         if (IsAdmin && EditablePlotboekIsVolledigKlaar && nietKlarePaginas.Count > 0)
         {
             PlotboekNietKlaarWarnings = [.. nietKlarePaginas];
-            return Result.WithMessages(ValidationMessage.Error($"Dit plotboek kan nog niet volledig klaar worden gezet. Nog niet klaar: {string.Join(", ", nietKlarePaginas)}."));
+            return Result.WithMessages(ValidationMessage.Error(string.Format(CultureInfo.CurrentCulture, PlotboekUi.PlotboekNogNietKlaarMet, string.Join(", ", nietKlarePaginas))));
         }
 
         if (PlotboekVersion > 0 && PlotboekSettings?.EventVersion > 0 && PlotboekSettings.EventVersion != PlotboekVersion)
         {
             logger.LogWarning("Version mismatch for plotboek {PlotboekId}: form submitted version {SubmittedVersion}, ExportData projection version {ProjectionVersion}, aggregate stream version {AggregateVersion}",
                 PlotboekId, PlotboekVersion, PlotboekSettings.EventVersion, plotboek.Value.Version);
-            return Result.WithMessages(ValidationMessage.Error("Iemand anders heeft al een aanpassing gedaan. Je wijzigingen zijn niet opgeslagen."));
+            return Result.WithMessages(ValidationMessage.Error(PlotboekUi.IemandAndersAangepast));
         }
 
         // Apply basis data changes (titel, start/eind dag)
@@ -530,10 +554,10 @@ public sealed partial class PlotboekModel
             return Result.OK;
         }
 
-        var opsomming = JoinDutch(naamloos);
-        var melding = naamloos.Count == 1
-            ? $"Bijlage {opsomming} heeft wel inhoud maar geen naam. Geef de bijlage een naam en sla opnieuw op, anders gaat de inhoud verloren."
-            : $"Bijlagen {opsomming} hebben wel inhoud maar geen naam. Geef ze een naam en sla opnieuw op, anders gaat de inhoud verloren.";
+        var melding = string.Format(
+            CultureInfo.CurrentCulture,
+            naamloos.Count == 1 ? PlotboekUi.BijlageZonderNaamOne : PlotboekUi.BijlageZonderNaamMany,
+            Opsomming(naamloos));
 
         return Result.WithMessages(ValidationMessage.Error(melding));
     }
@@ -566,11 +590,11 @@ public sealed partial class PlotboekModel
         return !string.IsNullOrWhiteSpace(tekst);
     }
 
-    /// <summary>Joins row numbers the way a Dutch sentence does: "2, 3 en 5".</summary>
-    private static string JoinDutch(IReadOnlyList<string> onderdelen)
+    /// <summary>Joins row numbers the way a sentence does: "2, 3 en 5", "2, 3 and 5".</summary>
+    private static string Opsomming(IReadOnlyList<string> onderdelen)
         => onderdelen.Count == 1
             ? onderdelen[0]
-            : $"{string.Join(", ", onderdelen.Take(onderdelen.Count - 1))} en {onderdelen[^1]}";
+            : string.Format(CultureInfo.CurrentCulture, PlotboekUi.OpsommingLaatste, string.Join(", ", onderdelen.Take(onderdelen.Count - 1)), onderdelen[^1]);
 
     [GeneratedRegex("<[^>]+>", RegexOptions.None, "nl-NL")]
     private static partial Regex BijlageHtmlTagRegex();

@@ -1,0 +1,243 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="AccountBeheren" xml:space="preserve">
+    <value>Je account beheren</value>
+  </data>
+  <data name="DemoBannerLabel" xml:space="preserve">
+    <value>Demo</value>
+    <comment>aria-label of the demo banner</comment>
+  </data>
+  <data name="DemoBannerPrivacyLink" xml:space="preserve">
+    <value>Wat er met je gegevens gebeurt</value>
+  </data>
+  <data name="DemoBannerSchrijfrechtenLink" xml:space="preserve">
+    <value>Vraag schrijfrechten aan</value>
+  </data>
+  <data name="DemoBannerSchrijfrechtenVraag" xml:space="preserve">
+    <value>Wil je zelf plots schrijven?</value>
+  </data>
+  <data name="DemoBannerTekst" xml:space="preserve">
+    <value>Elke nacht gaat alles terug naar het voorbeeld, dus wat hier verandert, blijft niet bewaard. Wie inlogt, kan meelezen.</value>
+  </data>
+  <data name="DemoBannerTitel" xml:space="preserve">
+    <value>Dit is een demo.</value>
+  </data>
+  <data name="ErrorKop" xml:space="preserve">
+    <value>Er ging iets mis.</value>
+  </data>
+  <data name="ErrorRequestId" xml:space="preserve">
+    <value>Verzoek-ID:</value>
+  </data>
+  <data name="ErrorTitel" xml:space="preserve">
+    <value>Fout</value>
+  </data>
+  <data name="ErrorUitleg" xml:space="preserve">
+    <value>Je verzoek kon niet worden verwerkt. Probeer het opnieuw, of neem contact op met de beheerder als het blijft gebeuren.</value>
+  </data>
+  <data name="FooterPrivacy" xml:space="preserve">
+    <value>Privacy</value>
+  </data>
+  <data name="Gebruikersnaam" xml:space="preserve">
+    <value>Gebruikersnaam</value>
+  </data>
+  <data name="GebruikersnaamBezet" xml:space="preserve">
+    <value>Deze gebruikersnaam is al in gebruik.</value>
+  </data>
+  <data name="GebruikersnaamLengte" xml:space="preserve">
+    <value>Een gebruikersnaam is 3 tot 100 tekens lang.</value>
+  </data>
+  <data name="GebruikersnaamPlaceholder" xml:space="preserve">
+    <value>Vul je gebruikersnaam in</value>
+  </data>
+  <data name="GebruikersnaamVerplicht" xml:space="preserve">
+    <value>Een gebruikersnaam is verplicht.</value>
+  </data>
+  <data name="GebruikerZonderNaam" xml:space="preserve">
+    <value>Gebruiker</value>
+    <comment>Shown for a signed-in user without a name</comment>
+  </data>
+  <data name="Hoofdmenu" xml:space="preserve">
+    <value>Hoofdmenu</value>
+  </data>
+  <data name="IndexWelkomZonderRechten" xml:space="preserve">
+    <value>Welkom! Dit is de {0}. Je hebt nog geen rechten. Neem contact op met {1}, {1} kan je rechten geven.</value>
+    <comment>{0} the deployment's name, {1} Terminologie.Organisatie</comment>
+  </data>
+  <data name="Inloggen" xml:space="preserve">
+    <value>Inloggen</value>
+  </data>
+  <data name="LoginAccountMakenMislukt" xml:space="preserve">
+    <value>Je account kon niet worden aangemaakt.</value>
+  </data>
+  <data name="LoginFoutVanDienst" xml:space="preserve">
+    <value>Fout van de inlogdienst: {0}</value>
+  </data>
+  <data name="LoginGeblokkeerd" xml:space="preserve">
+    <value>Dit account is geblokkeerd.</value>
+  </data>
+  <data name="LoginGeenEmail" xml:space="preserve">
+    <value>De inlogdienst gaf geen e-mailadres door.</value>
+  </data>
+  <data name="LoginGeenInlogdiensten" xml:space="preserve">
+    <value>Er is geen inlogdienst ingesteld. Neem contact op met de beheerder.</value>
+  </data>
+  <data name="LoginGegevensNietGeladen" xml:space="preserve">
+    <value>De gegevens van de inlogdienst konden niet worden geladen.</value>
+  </data>
+  <data name="LoginKoppelenMislukt" xml:space="preserve">
+    <value>Je inlog kon niet aan je bestaande account worden gekoppeld.</value>
+  </data>
+  <data name="LoginMetDienst" xml:space="preserve">
+    <value>Inloggen met {0}</value>
+    <comment>{0} the provider's display name</comment>
+  </data>
+  <data name="LoginMetDienstTitel" xml:space="preserve">
+    <value>Log in met je {0}-account</value>
+    <comment>{0} the provider's display name</comment>
+  </data>
+  <data name="LoginMethodeVerdwenen" xml:space="preserve">
+    <value>Deze inlogmethode is niet meer beschikbaar. Kies een van de onderstaande opties.</value>
+  </data>
+  <data name="LoginTitel" xml:space="preserve">
+    <value>Inloggen</value>
+  </data>
+  <data name="LoginUitleg" xml:space="preserve">
+    <value>Log in met je account</value>
+  </data>
+  <data name="LoginWelkom" xml:space="preserve">
+    <value>Welkom</value>
+  </data>
+  <data name="LogoutGelukt" xml:space="preserve">
+    <value>Je bent uitgelogd.</value>
+  </data>
+  <data name="LogoutKlikHier" xml:space="preserve">
+    <value>Klik hier om uit te loggen</value>
+  </data>
+  <data name="LogoutTitel" xml:space="preserve">
+    <value>Uitloggen</value>
+  </data>
+  <data name="MenuTonen" xml:space="preserve">
+    <value>Menu tonen</value>
+  </data>
+  <data name="NaarDeInhoud" xml:space="preserve">
+    <value>Naar de inhoud</value>
+  </data>
+  <data name="NavAdmin" xml:space="preserve">
+    <value>Admin</value>
+  </data>
+  <data name="NavHome" xml:space="preserve">
+    <value>Home</value>
+  </data>
+  <data name="NavPlotboek" xml:space="preserve">
+    <value>Plotboek</value>
+  </data>
+  <data name="PrivacyAccountKop" xml:space="preserve">
+    <value>Je account</value>
+  </data>
+  <data name="PrivacyAccountTekst" xml:space="preserve">
+    <value>Je logt in bij een inlogdienst die je kiest, niet met een wachtwoord van deze site. Die dienst geeft je naam en e-mailadres door; die bewaren we, samen met je rol en de koppeling met die dienst, zodat we je de volgende keer herkennen. De inlogdienst weet op zijn beurt dat je hier inlogt.</value>
+  </data>
+  <data name="PrivacyContactBeheerder" xml:space="preserve">
+    <value>Neem contact op met de beheerder van deze site.</value>
+  </data>
+  <data name="PrivacyContactLink" xml:space="preserve">
+    <value>Neem contact op met de beheerder</value>
+  </data>
+  <data name="PrivacyCookieFormulieren" xml:space="preserve">
+    <value>een cookie die formulieren beschermt tegen vervalsing</value>
+  </data>
+  <data name="PrivacyCookieInloggen" xml:space="preserve">
+    <value>een cookie die je ingelogd houdt zolang je browser open is</value>
+  </data>
+  <data name="PrivacyCookiesKop" xml:space="preserve">
+    <value>Cookies</value>
+  </data>
+  <data name="PrivacyCookieTaal" xml:space="preserve">
+    <value>een cookie die onthoudt in welke taal je de site wilt, als je er een kiest</value>
+  </data>
+  <data name="PrivacyCookieThema" xml:space="preserve">
+    <value>een cookie die onthoudt of je het lichte of het donkere thema wilt</value>
+  </data>
+  <data name="PrivacyDemoTekst" xml:space="preserve">
+    <value>Elke nacht gaan alle plots terug naar het voorbeeld en verdwijnen de accounts van iedereen die geen schrijfrechten heeft gekregen. Wat je hier achterlaat, blijft dus hooguit een dag bewaard.</value>
+  </data>
+  <data name="PrivacyDienstenKop" xml:space="preserve">
+    <value>Diensten van anderen</value>
+  </data>
+  <data name="PrivacyGeenVolgcookies" xml:space="preserve">
+    <value>Er zijn geen advertentie- of volgcookies, en we houden geen bezoekersstatistieken bij.</value>
+  </data>
+  <data name="PrivacyGemini" xml:space="preserve">
+    <value>Wie bij een plot om een korte samenvatting vraagt, stuurt de tekst van dat plot naar Google Gemini.</value>
+  </data>
+  <data name="PrivacyGoogleDrive" xml:space="preserve">
+    <value>Een geëxporteerd plotboek kan naar een map op Google Drive worden gezet.</value>
+  </data>
+  <data name="PrivacyIntro" xml:space="preserve">
+    <value>Wat {0} bewaart over de mensen die het gebruiken, en waarom.</value>
+  </data>
+  <data name="PrivacyInzienKop" xml:space="preserve">
+    <value>Inzien of verwijderen</value>
+  </data>
+  <data name="PrivacyInzienVraag" xml:space="preserve">
+    <value>Wil je weten wat er over je bewaard is, of wil je dat je account verdwijnt?</value>
+  </data>
+  <data name="PrivacySchrijvenKop" xml:space="preserve">
+    <value>Wat je schrijft</value>
+  </data>
+  <data name="PrivacySchrijvenTekst" xml:space="preserve">
+    <value>Plots, opmerkingen en feedback worden bewaard met bij elke wijziging wie die deed en wanneer. Zo kan de spelleiding zien hoe een plot tot stand kwam en een eerdere versie terugzetten.</value>
+  </data>
+  <data name="PrivacyTitel" xml:space="preserve">
+    <value>Privacy</value>
+  </data>
+  <data name="ProfielGebruikersnaamBijgewerkt" xml:space="preserve">
+    <value>Je gebruikersnaam is bijgewerkt.</value>
+  </data>
+  <data name="ProfielGeenWijzigingen" xml:space="preserve">
+    <value>Er is niets gewijzigd.</value>
+  </data>
+  <data name="ProfielTitel" xml:space="preserve">
+    <value>Profiel</value>
+  </data>
+  <data name="ProfielUitleg" xml:space="preserve">
+    <value>Je accountinstellingen beheren</value>
+  </data>
+  <data name="Sluiten" xml:space="preserve">
+    <value>Sluiten</value>
+  </data>
+  <data name="Taal" xml:space="preserve">
+    <value>Taal</value>
+    <comment>aria-label of the language switcher</comment>
+  </data>
+  <data name="TerugNaarHome" xml:space="preserve">
+    <value>Terug naar Home</value>
+  </data>
+  <data name="ThemaDonker" xml:space="preserve">
+    <value>Donker thema. Klik om het systeem te volgen.</value>
+  </data>
+  <data name="ThemaLicht" xml:space="preserve">
+    <value>Licht thema. Klik voor donker.</value>
+  </data>
+  <data name="ThemaVolgtSysteem" xml:space="preserve">
+    <value>Thema volgt het systeem. Klik voor licht.</value>
+  </data>
+  <data name="Uitloggen" xml:space="preserve">
+    <value>Uitloggen</value>
+  </data>
+  <data name="WijzigingenOpslaan" xml:space="preserve">
+    <value>Wijzigingen opslaan</value>
+  </data>
+</root>

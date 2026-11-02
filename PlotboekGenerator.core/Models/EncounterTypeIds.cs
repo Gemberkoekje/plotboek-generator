@@ -1,3 +1,6 @@
+using System.Globalization;
+using PlotboekGenerator.core.Resources;
+
 namespace PlotboekGenerator.core.Models;
 
 /// <summary>
@@ -59,7 +62,7 @@ public readonly record struct EncounterTypeIds : IEquatable<EncounterTypeIds>
         var display = string.Join(" / ", Major);
         if (Minor?.Count > 0)
         {
-            display += $" (mogelijk {string.Join(", ", Minor)})";
+            display = string.Format(CultureInfo.CurrentCulture, CoreTekst.EncounterTypesMetMogelijk, display, string.Join(", ", Minor));
         }
         return display;
     }

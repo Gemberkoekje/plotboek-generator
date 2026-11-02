@@ -4,14 +4,24 @@ namespace PlotboekGenerator.test.TestHelpers;
 
 /// <summary>
 /// In-memory event store for integration tests.
-/// Supports optimistic concurrency and event loading.
+/// Supports optimistic concurrency and event loading, and a demo's wipe.
 /// </summary>
-internal sealed class InMemoryEventStore : IEventStore<Uuid>
+internal sealed class InMemoryEventStore : IEventStore<Uuid>, IEventStoreWiper
 {
     private readonly Dictionary<Uuid, List<object>> _streams = [];
 
+    /// <summary>The number of streams that hold events.</summary>
+    public int StreamCount => _streams.Count;
+
     /// <summary>Removes all event streams. Used to isolate integration tests.</summary>
     public void Clear() => _streams.Clear();
+
+    /// <inheritdoc />
+    public Task WipeAllAsync(CancellationToken cancellationToken = default)
+    {
+        Clear();
+        return Task.CompletedTask;
+    }
 
     public Task<Result> SaveEventsAsync(Uuid aggregateId, long expectedVersion, IEnumerable<object> events, CancellationToken cancellationToken = default)
     {
@@ -50,4 +60,3 @@ internal sealed class InMemoryEventStore : IEventStore<Uuid>
         return Task.FromResult<IReadOnlyList<VersionedEvent>>([]);
     }
 }
-

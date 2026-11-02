@@ -1,3 +1,6 @@
+using System.Globalization;
+using PlotboekGenerator.core.Resources;
+
 namespace PlotboekGenerator.core.Events;
 
 /// <summary>
@@ -19,10 +22,10 @@ public sealed record PlotboekPaginaAantalNpcsAangepastV2 : AuditTrailEvent
             var aantalNpcs = AantalNpcsData.Create(Rollen, AlleNpcs, GeenNpcsNodig);
             if (!aantalNpcs.HasValue)
             {
-                return "<strong>Aantal NPCs aangepast:</strong> (leeg)";
+                return $"<strong>{CoreTekst.AantalNpcsAangepastLabel}</strong> {CoreTekst.Leeg}";
             }
 
-            return "<strong>Aantal NPCs aangepast</strong>";
+            return $"<strong>{CoreTekst.AantalNpcsAangepast}</strong>";
         }
     }
 
@@ -40,12 +43,12 @@ public sealed record PlotboekPaginaAantalNpcsAangepastV2 : AuditTrailEvent
 
             if (GeenNpcsNodig)
             {
-                parts.Add("<strong>Geen NPC's nodig</strong>");
+                parts.Add($"<strong>{CoreTekst.AantalNpcsGeenNodig}</strong>");
             }
 
             if (AlleNpcs)
             {
-                parts.Add("<strong style=\"color: #dc3545;\">ALLE NPCs</strong>");
+                parts.Add($"<strong style=\"color: #dc3545;\">{CoreTekst.NpcsAlle}</strong>");
             }
 
             var rollenHtml = Rollen.Where(r => r.HasValue).Select(FormatRol).ToList();
@@ -84,18 +87,18 @@ public sealed record PlotboekPaginaAantalNpcsAangepastV2 : AuditTrailEvent
         parts.Add($"• {countPart}");
 
         var annotations = new List<string>();
-        if (rol.IsTerukerend) annotations.Add("terugkerend");
+        if (rol.IsTerukerend) annotations.Add(CoreTekst.NpcRolTerugkerend);
         if (rol.IsEerderGespeeld)
         {
             annotations.Add(string.IsNullOrWhiteSpace(rol.GespeeldDoor)
-                ? "eerder gespeeld"
-                : $"eerder gespeeld door {PlainTextInline(rol.GespeeldDoor)}");
+                ? CoreTekst.NpcRolEerderGespeeld
+                : string.Format(CultureInfo.CurrentCulture, CoreTekst.NpcRolEerderGespeeldDoor, PlainTextInline(rol.GespeeldDoor)));
         }
         if (rol.IsAlGekozen)
         {
             annotations.Add(string.IsNullOrWhiteSpace(rol.GekozenPersoon)
-                ? "al gekozen"
-                : $"gekozen: {PlainTextInline(rol.GekozenPersoon)}");
+                ? CoreTekst.NpcRolAlGekozen
+                : string.Format(CultureInfo.CurrentCulture, CoreTekst.NpcRolGekozen, PlainTextInline(rol.GekozenPersoon)));
         }
 
         if (annotations.Count > 0)
@@ -105,22 +108,22 @@ public sealed record PlotboekPaginaAantalNpcsAangepastV2 : AuditTrailEvent
 
         if (!string.IsNullOrWhiteSpace(rol.KledingEnSchmink))
         {
-            parts.Add($"<br/>&nbsp;&nbsp;<i class=\"fas fa-tshirt\"></i> <em>Kleding: {PlainTextInline(rol.KledingEnSchmink)}</em>");
+            parts.Add($"<br/>&nbsp;&nbsp;<i class=\"fas fa-tshirt\"></i> <em>{string.Format(CultureInfo.CurrentCulture, CoreTekst.NpcRolKleding, PlainTextInline(rol.KledingEnSchmink))}</em>");
         }
 
         if (!string.IsNullOrWhiteSpace(rol.CastingInstructie))
         {
-            parts.Add($"<br/>&nbsp;&nbsp;<i class=\"fas fa-user-check\"></i> <em>Casting: {PlainTextInline(rol.CastingInstructie)}</em>");
+            parts.Add($"<br/>&nbsp;&nbsp;<i class=\"fas fa-user-check\"></i> <em>{string.Format(CultureInfo.CurrentCulture, CoreTekst.NpcRolCasting, PlainTextInline(rol.CastingInstructie))}</em>");
         }
 
         if (rol.VereistAfstemming)
         {
             // Set apart from the other lines: this is the one requirement that has to be discussed with a
             // human before the plot runs.
-            var toelichting = string.IsNullOrWhiteSpace(rol.AfstemmingToelichting)
-                ? string.Empty
-                : $": {PlainTextInline(rol.AfstemmingToelichting)}";
-            parts.Add($"<br/>&nbsp;&nbsp;<i class=\"fas fa-handshake\"></i> <strong><em>Vereist afstemming{toelichting}</em></strong>");
+            var afstemming = string.IsNullOrWhiteSpace(rol.AfstemmingToelichting)
+                ? CoreTekst.NpcRolVereistAfstemming
+                : string.Format(CultureInfo.CurrentCulture, CoreTekst.NpcRolVereistAfstemmingMetToelichting, PlainTextInline(rol.AfstemmingToelichting));
+            parts.Add($"<br/>&nbsp;&nbsp;<i class=\"fas fa-handshake\"></i> <strong><em>{afstemming}</em></strong>");
         }
 
         return string.Join(" ", parts);

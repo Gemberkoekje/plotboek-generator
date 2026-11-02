@@ -1,4 +1,6 @@
 @model PlotboekModel
+@using System.Globalization
+@using System.Text.Encodings.Web
 
 @functions {
     // Space-separated token lists read back by the client-side filter at the bottom of this file.
@@ -33,13 +35,13 @@
         if (pagina.HeeftOpenstaandeFeedback)
         {
             var aantal = pagina.Feedback.Count(f => f.Status == FeedbackStatus.Open);
-            var tekst = aantal == 1 ? "1 open feedbackpunt" : $"{aantal} open feedbackpunten";
-            return $"<i class=\"fas fa-comment-dots text-danger me-1\" title=\"{tekst}\"></i>";
+            var tekst = string.Format(CultureInfo.CurrentCulture, aantal == 1 ? PlotboekUi.FeedbackOpenOne : PlotboekUi.FeedbackOpenMany, aantal);
+            return IconHtml("fas fa-comment-dots text-danger me-1", tekst);
         }
 
         if (pagina.WachtOpAfhandeling)
         {
-            return "<i class=\"fas fa-comment-dots text-info me-1\" title=\"Wacht op afhandeling door de HSL\"></i>";
+            return IconHtml("fas fa-comment-dots text-info me-1", PlotboekUi.FeedbackWachtOpAfhandeling);
         }
 
         return string.Empty;
@@ -53,22 +55,27 @@
     {
         if (pagina.IsGedraaid)
         {
-            return "<i class=\"fas fa-flag-checkered text-warning me-1\" title=\"Gedraaid (Ran)\"></i>";
+            return IconHtml("fas fa-flag-checkered text-warning me-1", PlotboekUi.StatusGedraaid);
         }
 
         if (pagina.IsVolledigKlaar)
         {
-            return "<i class=\"fas fa-check-circle text-success me-1\" title=\"Plot is volledig klaar\"></i>";
+            return IconHtml("fas fa-check-circle text-success me-1", PlotboekUi.StatusVolledigKlaar);
         }
 
         // NPCs only ever see finished plotboeken, but keep the reminder to the people who can act on it.
         if (!model.IsNpc && PlotboekModel.IsAlleenVinkjeNog(pagina, model.IsEvergreen))
         {
-            return "<i class=\"fas fa-bell text-primary me-1\" title=\"Alles ingevuld: alleen 'Plot volledig klaar' nog aanvinken\"></i>";
+            return IconHtml("fas fa-bell text-primary me-1", PlotboekUi.StatusAlleenVinkjeNog);
         }
 
-        return "<i class=\"fas fa-exclamation-triangle text-warning me-1\" title=\"Plot is nog niet volledig klaar\"></i>";
+        return IconHtml("fas fa-exclamation-triangle text-warning me-1", PlotboekUi.StatusNietKlaar);
     }
+
+    // An icon with a tooltip, as markup the callers render raw: the title is a translated text, so it
+    // is encoded here.
+    private static string IconHtml(string cssClass, string title)
+        => $"<i class=\"{cssClass}\" title=\"{HtmlEncoder.Default.Encode(title)}\"></i>";
 
     // True when the techniek instruction field holds actual content. The stored value is Quill HTML
     // that is normalised on save, but older rows can still carry leftover empty-editor markup.
@@ -156,55 +163,55 @@
     <div class="card" id="plotboek-paginas-card">
         <div class="card-header d-flex justify-content-between align-items-center">
             <div class="d-flex align-items-center gap-3">
-                <h5 class="mb-0">Plotboek Paginas</h5>
+                <h5 class="mb-0">@PlotboekUi.PaginaLijstTitel</h5>
                 <div class="dropdown" id="view-options">
                     <button type="button" class="btn btn-outline-secondary btn-sm" id="view-options-toggle"
                             data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false"
-                            aria-label="Weergave-opties"
-                            title="Weergave: kies welke onderdelen zichtbaar zijn en in welke volgorde">
+                            aria-label="@PlotboekUi.WeergaveOptiesAriaLabel"
+                            title="@PlotboekUi.WeergaveOptiesTitel">
                         <i class="fas fa-sliders-h"></i>
                     </button>
                     <div class="dropdown-menu p-2 shadow-sm" style="min-width: 15rem;" aria-labelledby="view-options-toggle">
-                        <h6 class="dropdown-header px-1 pt-0 pb-1">Weergave onderdelen</h6>
-                        <p class="text-muted small px-1 mb-2">Sleep of gebruik Alt+pijltjes om te ordenen; vink aan om te tonen.</p>
+                        <h6 class="dropdown-header px-1 pt-0 pb-1">@PlotboekUi.WeergaveOnderdelen</h6>
+                        <p class="text-muted small px-1 mb-2">@PlotboekUi.WeergaveUitleg</p>
                         <ul class="list-unstyled mb-2" id="view-options-list">
                             <li class="view-option-item" draggable="true" data-part="name" tabindex="0"
-                                title="Sleep om te verplaatsen (of Alt+pijltjes)" aria-keyshortcuts="Alt+ArrowUp Alt+ArrowDown">
+                                title="@PlotboekUi.WeergaveSleep" aria-keyshortcuts="Alt+ArrowUp Alt+ArrowDown">
                                 <i class="fas fa-grip-vertical text-muted view-option-grip" aria-hidden="true"></i>
                                 <div class="form-check flex-grow-1">
                                     <input class="form-check-input" type="checkbox" id="view-opt-name" checked>
-                                    <label class="form-check-label" for="view-opt-name">SL-naam</label>
+                                    <label class="form-check-label" for="view-opt-name">@PlotboekUi.WeergaveSlNaam</label>
                                 </div>
                             </li>
                             <li class="view-option-item" draggable="true" data-part="icons" tabindex="0"
-                                title="Sleep om te verplaatsen (of Alt+pijltjes)" aria-keyshortcuts="Alt+ArrowUp Alt+ArrowDown">
+                                title="@PlotboekUi.WeergaveSleep" aria-keyshortcuts="Alt+ArrowUp Alt+ArrowDown">
                                 <i class="fas fa-grip-vertical text-muted view-option-grip" aria-hidden="true"></i>
                                 <div class="form-check flex-grow-1">
                                     <input class="form-check-input" type="checkbox" id="view-opt-icons" checked>
-                                    <label class="form-check-label" for="view-opt-icons">Iconen</label>
+                                    <label class="form-check-label" for="view-opt-icons">@PlotboekUi.WeergaveIconen</label>
                                 </div>
                             </li>
                             <li class="view-option-item" draggable="true" data-part="npc" tabindex="0"
-                                title="Sleep om te verplaatsen (of Alt+pijltjes)" aria-keyshortcuts="Alt+ArrowUp Alt+ArrowDown">
+                                title="@PlotboekUi.WeergaveSleep" aria-keyshortcuts="Alt+ArrowUp Alt+ArrowDown">
                                 <i class="fas fa-grip-vertical text-muted view-option-grip" aria-hidden="true"></i>
                                 <div class="form-check flex-grow-1">
                                     <input class="form-check-input" type="checkbox" id="view-opt-npc" checked>
-                                    <label class="form-check-label" for="view-opt-npc">NPC-aantal</label>
+                                    <label class="form-check-label" for="view-opt-npc">@PlotboekUi.WeergaveNpcAantal</label>
                                 </div>
                             </li>
                         </ul>
                         <div class="dropdown-divider"></div>
                         <button type="button" class="btn btn-link btn-sm text-decoration-none px-1" id="view-options-reset">
-                            <i class="fas fa-rotate-left me-1"></i>Standaard herstellen
+                            <i class="fas fa-rotate-left me-1"></i>@PlotboekUi.WeergaveStandaardHerstellen
                         </button>
                     </div>
                 </div>
                 @if (showFilters)
                 {
-                    <button type="button" class="btn btn-outline-secondary btn-sm position-relative" id="filter-toggle" title="Filters tonen/verbergen" aria-expanded="false" aria-controls="plotboek-filters">
+                    <button type="button" class="btn btn-outline-secondary btn-sm position-relative" id="filter-toggle" title="@PlotboekUi.FiltersTonen" aria-expanded="false" aria-controls="plotboek-filters">
                         <i class="fas fa-filter"></i>
                         <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-primary d-none" id="filter-active-dot" style="padding: 0.3em;">
-                            <span class="visually-hidden">Filters actief</span>
+                            <span class="visually-hidden">@PlotboekUi.FiltersActief</span>
                         </span>
                     </button>
                 }
@@ -215,7 +222,7 @@
                 <input type="hidden" name="Jaar" value="@Model.Jaar" />
                 <input type="hidden" name="Event" value="@Model.EventId" />
                 <button type="button" class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#newPaginaModal">
-                    <i class="fas fa-plus me-1"></i> Nieuwe Pagina
+                    <i class="fas fa-plus me-1"></i> @PlotboekUi.NieuwePagina
                 </button>
             </form>
             }
@@ -227,8 +234,8 @@
                     @if (slFilterOptions.Count > 0)
                     {
                         <div class="col-12 col-xl">
-                            <select class="form-select form-select-sm" id="filter-sl" aria-label="Filter op SL">
-                                <option value="">Alle SL's</option>
+                            <select class="form-select form-select-sm" id="filter-sl" aria-label="@PlotboekUi.FilterOpSl">
+                                <option value="">@PlotboekUi.FilterAlleSls</option>
                                 @foreach (var sl in slFilterOptions)
                                 {
                                     <option value="@sl.Id">@sl.DisplayName</option>
@@ -239,8 +246,8 @@
                     @if (domainFilterOptions.Count > 0)
                     {
                         <div class="col-12 col-xl">
-                            <select class="form-select form-select-sm" id="filter-domain" aria-label="Filter op domein">
-                                <option value="">Alle domeinen</option>
+                            <select class="form-select form-select-sm" id="filter-domain" aria-label="@PlotboekUi.FilterOpDomein">
+                                <option value="">@PlotboekUi.FilterAlleDomeinen</option>
                                 @foreach (var domain in domainFilterOptions)
                                 {
                                     <option value="@domain.Id">@domain.DisplayName</option>
@@ -251,8 +258,8 @@
                     @if (soortFilterOptions.Count > 0)
                     {
                         <div class="col-12 col-xl">
-                            <select class="form-select form-select-sm" id="filter-soort" aria-label="Filter op soort encounter">
-                                <option value="">Alle soorten</option>
+                            <select class="form-select form-select-sm" id="filter-soort" aria-label="@PlotboekUi.FilterOpSoort">
+                                <option value="">@PlotboekUi.FilterAlleSoorten</option>
                                 @foreach (var soort in soortFilterOptions)
                                 {
                                     <option value="@soort.Id">@soort.DisplayName</option>
@@ -263,22 +270,22 @@
                     @if (showTechniekFilter)
                     {
                         <div class="col-12 col-xl">
-                            <select class="form-select form-select-sm" id="filter-techniek" aria-label="Filter op @Terminologie.TechniekInzet">
-                                <option value="">Alle @Terminologie.TechniekInzet</option>
-                                <option value="techniek">Met @Terminologie.TechniekInzet</option>
+                            <select class="form-select form-select-sm" id="filter-techniek" aria-label="@string.Format(CultureInfo.CurrentCulture, PlotboekUi.FilterOpTechniek, Terminologie.TechniekInzet)">
+                                <option value="">@string.Format(CultureInfo.CurrentCulture, PlotboekUi.FilterAlleTechniek, Terminologie.TechniekInzet)</option>
+                                <option value="techniek">@string.Format(CultureInfo.CurrentCulture, PlotboekUi.FilterMet, Terminologie.TechniekInzet)</option>
                                 @if (hasInstructiePentagon)
                                 {
-                                    <option value="instructie">Met @Terminologie.TechniekInstructie</option>
+                                    <option value="instructie">@string.Format(CultureInfo.CurrentCulture, PlotboekUi.FilterMet, Terminologie.TechniekInstructie)</option>
                                 }
                                 @if (hasMuziekOfLichtTechniek)
                                 {
-                                    <option value="muzieklicht">Met muziek/licht/rook</option>
+                                    <option value="muzieklicht">@PlotboekUi.FilterMetMuziekLichtRook</option>
                                 }
                             </select>
                         </div>
                     }
                     <div class="col-auto">
-                        <button type="button" class="btn btn-outline-secondary btn-sm" id="filter-reset" title="Filters wissen" disabled>
+                        <button type="button" class="btn btn-outline-secondary btn-sm" id="filter-reset" title="@PlotboekUi.FiltersWissen" disabled>
                             <i class="fas fa-times"></i>
                         </button>
                     </div>
@@ -350,7 +357,7 @@
                     var unassignedStarttijdPaginas = paginasForDay.Where(p => p.StarttijdId == "None").OrderBy(p => p.Order).ToList();
 
                     <div class="pagina-group">
-                        <h6 class="mt-3 mb-2 text-secondary">@dag</h6>
+                        <h6 class="mt-3 mb-2 text-secondary">@dag.Naam()</h6>
                         @foreach (var starttijdCfg in starttijdConfigs)
                         {
                             var starttijdId = starttijdCfg.Id;
@@ -394,7 +401,7 @@
                                                 }
                                             }
                                             <span class="badge @badgeCss small text-nowrap"
-                                                  title="@npcTotaal.ToDisplayString()@(verwacht > 0 ? $" (verwacht: {verwacht})" : "")">
+                                                  title="@(verwacht > 0 ? string.Format(CultureInfo.CurrentCulture, PlotboekUi.BlokNpcTotaalVerwacht, npcTotaal.ToDisplayString(), verwacht) : npcTotaal.ToDisplayString())">
                                                 @if (!string.IsNullOrEmpty(npcArrow))
                                                 {
                                                     <span>@npcArrow</span>
@@ -407,7 +414,7 @@
                                         @if (npcTotaal != null && npcTotaal.HasOverflow)
                                         {
                                             <span class="badge text-bg-info small ms-1 text-nowrap"
-                                                  title="Doorlopende encounters van vorige blokken">
+                                                  title="@PlotboekUi.DoorlopendeEncounters">
                                                 <i class="fas fa-clock"></i> @npcTotaal.GetOverflowString()
                                             </span>
                                         }
@@ -463,12 +470,12 @@
                                         if (hasOverflowOnly && npcTotaal != null)
                                         {
                                             <small class="d-block px-2 py-1 text-muted fst-italic">
-                                                <i class="fas fa-clock me-1"></i>Doorlopend: @npcTotaal.ToDisplayString()
+                                                <i class="fas fa-clock me-1"></i>@string.Format(CultureInfo.CurrentCulture, PlotboekUi.Doorlopend, npcTotaal.ToDisplayString())
                                             </small>
                                         }
                                         else
                                         {
-                                            <small class="d-block px-2 py-1 text-muted fst-italic">Geen plots ingedeeld</small>
+                                            <small class="d-block px-2 py-1 text-muted fst-italic">@PlotboekUi.GeenPlotsIngedeeld</small>
                                         }
                                     }
                                 </div>
@@ -477,7 +484,7 @@
                         @if (unassignedStarttijdPaginas.Any())
                         {
                             <div class="ms-2 mb-2 pagina-subgroup">
-                                <small class="text-muted fw-semibold">Starttijd niet ingedeeld</small>
+                                <small class="text-muted fw-semibold">@PlotboekUi.StarttijdNietIngedeeld</small>
                                 <div class="list-group mt-1">
                                     @foreach (var pagina in unassignedStarttijdPaginas)
                                     {
@@ -525,7 +532,7 @@
                 if (unassignedPaginas.Any())
                 {
                     <div class="pagina-group">
-                        <h6 class="mt-3 mb-2 text-secondary">Nog niet ingedeeld</h6>
+                        <h6 class="mt-3 mb-2 text-secondary">@PlotboekUi.NogNietIngedeeld</h6>
                         <div class="list-group mb-2">
                             @foreach (var pagina in unassignedPaginas)
                             {
@@ -571,7 +578,7 @@
                 if (spelerGedrevenPaginas.Any())
                 {
                     <div class="pagina-group">
-                        <h6 class="mt-3 mb-2 text-secondary"><i class="fas fa-users me-1"></i>Speler Gedreven</h6>
+                        <h6 class="mt-3 mb-2 text-secondary"><i class="fas fa-users me-1"></i>@PlotboekUi.SpelerGedreven</h6>
                         <div class="list-group mb-2">
                             @foreach (var pagina in spelerGedrevenPaginas)
                             {
@@ -605,11 +612,11 @@
                     </div>
                 }
                 } @* end else (non-Evergreen day-based list) *@
-                <p class="text-muted d-none" id="filter-no-results">Geen encounters gevonden met dit filter.</p>
+                <p class="text-muted d-none" id="filter-no-results">@PlotboekUi.FilterGeenResultaten</p>
             }
             else
             {
-                <p class="text-muted">No paginas available for this plotboek.</p>
+                <p class="text-muted">@PlotboekUi.GeenPaginas</p>
             }
         </div>
     </div>
@@ -819,6 +826,7 @@
         var noResults = document.getElementById('filter-no-results');
         var toggleButton = document.getElementById('filter-toggle');
         var activeDot = document.getElementById('filter-active-dot');
+        var statusFormat = @Json.Serialize(PlotboekUi.FilterStatus);
 
         // Keys match the data-filter-* attribute suffix on each list item.
         var selects = {
@@ -872,7 +880,7 @@
             if (noResults) { noResults.classList.toggle('d-none', visible > 0); }
             if (status) {
                 status.classList.toggle('d-none', active === 0);
-                status.textContent = visible + ' van ' + items.length + ' encounters';
+                status.textContent = statusFormat.replace('{0}', visible).replace('{1}', items.length);
             }
         }
 

@@ -8,7 +8,8 @@ namespace PlotboekGenerator.test.TestHelpers;
 
 /// <summary>
 /// Authentication handler that always succeeds and produces claims
-/// matching the seeded test user: an SL who is also an admin.
+/// matching the seeded test user: an SL who is also an admin, unless the request's
+/// <see cref="RolesHeader"/> names other roles.
 /// </summary>
 internal sealed class TestAuthHandler(
     IOptionsMonitor<AuthenticationSchemeOptions> options,
@@ -25,15 +26,20 @@ internal sealed class TestAuthHandler(
     /// <summary>The name of the signed-in test user.</summary>
     public const string UserName = "TestSL";
 
+    /// <summary>A request header that replaces the user's roles, comma-separated, for specs about another role.</summary>
+    public const string RolesHeader = "X-Test-Roles";
+
     protected override Task<AuthenticateResult> HandleAuthenticateAsync()
     {
+        var roles = Request.Headers.TryGetValue(RolesHeader, out var header) && !string.IsNullOrWhiteSpace(header)
+            ? header.ToString().Split(',', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries)
+            : [UserRoles.User, UserRoles.Admin];
         var claims = new[]
         {
             new Claim(ClaimTypes.NameIdentifier, UserId),
             new Claim(ClaimTypes.Name, UserName),
-            new Claim(ClaimTypes.Role, UserRoles.User),
-            new Claim(ClaimTypes.Role, UserRoles.Admin),
-        };
+        }
+        .Concat(roles.Select(role => new Claim(ClaimTypes.Role, role)));
         var identity = new ClaimsIdentity(claims, SchemeName);
         var principal = new ClaimsPrincipal(identity);
         var ticket = new AuthenticationTicket(principal, SchemeName);

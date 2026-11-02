@@ -1,3 +1,9 @@
+// What the reader sees for an encounter type: its checkbox's label, not its stored id.
+function encounterTypeNaam(checkbox) {
+    const label = checkbox.id ? document.querySelector(`label[for="${CSS.escape(checkbox.id)}"]`) : null;
+    return label?.textContent.trim() || checkbox.value;
+}
+
 function updateEncounterPreview() {
     const majorCheckboxes = document.querySelectorAll('input[name="EditableEncounterTypesMajor"]:checked');
     const minorCheckboxes = document.querySelectorAll('input[name="EditableEncounterTypesMinor"]:checked');
@@ -6,8 +12,8 @@ function updateEncounterPreview() {
 
     if (!preview || !previewText) return;
 
-    const majorValues = Array.from(majorCheckboxes).map(cb => cb.value);
-    const minorValues = Array.from(minorCheckboxes).map(cb => cb.value);
+    const majorValues = Array.from(majorCheckboxes).map(encounterTypeNaam);
+    const minorValues = Array.from(minorCheckboxes).map(encounterTypeNaam);
 
     if (majorValues.length === 0) {
         preview.style.display = 'none';
@@ -16,7 +22,7 @@ function updateEncounterPreview() {
 
     let formatted = majorValues.join(' / ');
     if (minorValues.length > 0) {
-        formatted += ' (mogelijk ' + minorValues.join(', ') + ')';
+        formatted += ' ' + pbT('EncounterMogelijk', minorValues.join(', '));
     }
 
     previewText.textContent = formatted;
@@ -113,7 +119,8 @@ function updateLocatieEncounterPreview() {
         return;
     }
 
-    let formatted = selectedValue;
+    // The option's text, not its value: the value is the stored (Dutch) name of the location.
+    let formatted = locatieSelect.selectedOptions[0]?.textContent.trim() || selectedValue;
     const questOption = selectedValue === 'Questveld' ? getSelectedQuestLocatieOption() : null;
     if (questOption) {
         formatted += ' (' + questOption.textContent.trim() + ')';

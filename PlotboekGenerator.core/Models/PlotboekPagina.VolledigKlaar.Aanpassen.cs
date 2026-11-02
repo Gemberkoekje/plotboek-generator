@@ -1,3 +1,5 @@
+using PlotboekGenerator.core.Resources;
+
 namespace PlotboekGenerator.core.Models;
 
 public partial class PlotboekPagina
@@ -21,7 +23,7 @@ public partial class PlotboekPagina
         if (isVolledigKlaar && HeeftOpenstaandeFeedback)
         {
             return Result.WithMessages<PlotboekPagina>(
-                ValidationMessage.Error("Dit plot heeft nog openstaande feedback; reageer daar eerst op."));
+                ValidationMessage.Error(CoreTekst.VolledigKlaarOpenstaandeFeedback));
         }
 
         return ApplyEvent(new PlotboekPaginaVolledigKlaarAangepast

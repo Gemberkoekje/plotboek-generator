@@ -4,6 +4,8 @@ using Microsoft.Extensions.Logging;
 using System.Collections.Immutable;
 using PlotboekGenerator.Application.Ports;
 using PlotboekGenerator.core.Generator.Templates;
+using System.Globalization;
+using PlotboekGenerator.infrastructure.Resources;
 
 namespace PlotboekGenerator.infrastructure.Services;
 
@@ -136,7 +138,7 @@ public sealed class PlotboekGoogleDriveSyncService(
     {
         if (!googleDriveService.IsConfigured)
         {
-            return Result.WithMessages<string>(ValidationMessage.Error("Google Drive is not configured."));
+            return Result.WithMessages<string>(ValidationMessage.Error(InfraTekst.GoogleDriveNietGeconfigureerd));
         }
 
         using var session = documentStore.OpenSession();
@@ -145,12 +147,12 @@ public sealed class PlotboekGoogleDriveSyncService(
         var plotboek = await session.FirstOrDefaultAsync<Plotboek.ExportData>(p => p.Id == plotboekId.ToString(), cancellationToken);
         if (plotboek is null)
         {
-            return Result.WithMessages<string>(ValidationMessage.Error($"Plotboek {plotboekId} not found."));
+            return Result.WithMessages<string>(ValidationMessage.Error(string.Format(CultureInfo.CurrentCulture, InfraTekst.PlotboekNietGevonden, plotboekId)));
         }
 
         if (string.IsNullOrWhiteSpace(plotboek.GoogleDriveFolderUrl))
         {
-            return Result.WithMessages<string>(ValidationMessage.Error("No Google Drive folder URL configured for this plotboek."));
+            return Result.WithMessages<string>(ValidationMessage.Error(InfraTekst.GoogleDriveGeenFolderUrl));
         }
 
         var correctionEnabled = configuration.GetValue("GoogleDrive:EnablePageNumberCorrection", true);

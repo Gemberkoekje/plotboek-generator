@@ -13,16 +13,16 @@
     var isGoogleDrive = string.Equals(Model.Section, "googledrive", StringComparison.OrdinalIgnoreCase);
     ViewData["Title"] = Model.Section?.ToLowerInvariant() switch
     {
-        "googledrive" => "Admin - Google Drive",
-        "verwijderd" => "Admin - Verwijderde Paginas",
-        "werelden" => "Admin - Werelden Management",
-        "standaardnpcs" => "Admin - Standaard-NPC's",
-        "questlocaties" => "Admin - Questlocaties",
-        "starttijden" => "Admin - Starttijden & blokken",
-        "namen" => "Admin - Namen Management",
-        "meetings" => "Admin - Meeting Management",
-        "domains" => "Admin - Domain Management",
-        _ => "Admin - User Management",
+        "googledrive" => AdminUi.TitelGoogleDrive,
+        "verwijderd" => AdminUi.TitelVerwijderd,
+        "werelden" => AdminUi.TitelWerelden,
+        "standaardnpcs" => AdminUi.TitelStandaardNpcs,
+        "questlocaties" => AdminUi.TitelQuestLocaties,
+        "starttijden" => AdminUi.TitelStarttijden,
+        "namen" => AdminUi.TitelNamen,
+        "meetings" => AdminUi.TitelMeetings,
+        "domains" => AdminUi.TitelDomains,
+        _ => AdminUi.TitelUsers,
     };
 }
 
@@ -30,7 +30,7 @@
     <div class="row">
         <div class="col-12">
             <h1 class="display-4 text-center mb-4">
-                <i class="fas fa-cogs"></i> Admin
+                <i class="fas fa-cogs"></i> @AdminUi.AdminKop
             </h1>
         </div>
     </div>
@@ -39,7 +39,7 @@
     {
         <div class="alert alert-success alert-dismissible fade show" role="alert">
             @Model.SuccessMessage
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="@AdminUi.SluitenLabel"></button>
         </div>
     }
 
@@ -47,7 +47,7 @@
     {
         <div class="alert alert-danger alert-dismissible fade show" role="alert">
             @Model.ErrorMessage
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="@AdminUi.SluitenLabel"></button>
         </div>
     }
 
@@ -57,39 +57,39 @@
             <div class="list-group">
                 <a href="@Url.Page("/Admin", new { Section = "users" })"
                    class="list-group-item list-group-item-action @(isUsers ? "active" : "")">
-                    <i class="fas fa-users-cog me-2"></i>User Management
+                    <i class="fas fa-users-cog me-2"></i>@AdminUi.SectieUsers
                 </a>
                 <a href="@Url.Page("/Admin", new { Section = "domains" })"
                    class="list-group-item list-group-item-action @(isDomains ? "active" : "")">
-                    <i class="fas fa-globe me-2"></i>Domain Management
+                    <i class="fas fa-globe me-2"></i>@AdminUi.SectieDomains
                 </a>
                 <a href="@Url.Page("/Admin", new { Section = "meetings" })"
                    class="list-group-item list-group-item-action @(isMeetings ? "active" : "")">
-                    <i class="fas fa-calendar-alt me-2"></i>Meeting Management
+                    <i class="fas fa-calendar-alt me-2"></i>@AdminUi.SectieMeetings
                 </a>
                 <a href="@Url.Page("/Admin", new { Section = "namen" })"
                    class="list-group-item list-group-item-action @(isNamen ? "active" : "")">
-                    <i class="fas fa-user-tag me-2"></i>Namen Management
+                    <i class="fas fa-user-tag me-2"></i>@AdminUi.SectieNamen
                 </a>
                 <a href="@Url.Page("/Admin", new { Section = "werelden" })"
                    class="list-group-item list-group-item-action @(isWerelden ? "active" : "")">
-                    <i class="fas fa-globe-americas me-2"></i>Werelden Management
+                    <i class="fas fa-globe-americas me-2"></i>@AdminUi.SectieWerelden
                 </a>
                 <a href="@Url.Page("/Admin", new { Section = "standaardnpcs" })"
                    class="list-group-item list-group-item-action @(isStandaardNpcs ? "active" : "")">
-                    <i class="fas fa-bookmark me-2"></i>Standaard-NPC's
+                    <i class="fas fa-bookmark me-2"></i>@AdminUi.SectieStandaardNpcs
                 </a>
                 <a href="@Url.Page("/Admin", new { Section = "questlocaties" })"
                    class="list-group-item list-group-item-action @(isQuestLocaties ? "active" : "")">
-                    <i class="fas fa-map-location-dot me-2"></i>Questlocaties
+                    <i class="fas fa-map-location-dot me-2"></i>@AdminUi.SectieQuestLocaties
                 </a>
                 <a href="@Url.Page("/Admin", new { Section = "starttijden" })"
                    class="list-group-item list-group-item-action @(isStarttijden ? "active" : "")">
-                    <i class="fas fa-clock me-2"></i>Starttijden &amp; blokken
+                    <i class="fas fa-clock me-2"></i>@AdminUi.SectieStarttijden
                 </a>
                 <a href="@Url.Page("/Admin", new { Section = "verwijderd" })"
                    class="list-group-item list-group-item-action @(isVerwijderd ? "active" : "")">
-                    <i class="fas fa-trash-restore me-2"></i>Verwijderde Paginas
+                    <i class="fas fa-trash-restore me-2"></i>@AdminUi.SectieVerwijderd
                 </a>
                 <a href="@Url.Page("/Admin", new { Section = "googledrive" })"
                    class="list-group-item list-group-item-action @(isGoogleDrive ? "active" : "")">
@@ -146,6 +146,41 @@
 
 @section Scripts {
     <script>
+        // The texts this script shows, in the reader's language.
+        const adminTekst = {
+            geenRol: @Json.Serialize(AdminUi.GeenRol),
+            unlink: @Json.Serialize(AdminUi.UnlinkButton),
+            primaryLogin: @Json.Serialize(AdminUi.PrimaryLogin),
+            unlinkConfirm: @Json.Serialize(AdminUi.UnlinkConfirm),
+            wijzigingenOpslaan: @Json.Serialize(AdminUi.WijzigingenOpslaanButton),
+            domeinToevoegen: @Json.Serialize(AdminUi.DomeinToevoegenButton),
+            meetingToevoegen: @Json.Serialize(AdminUi.MeetingToevoegenButton),
+            naamToevoegen: @Json.Serialize(AdminUi.NaamToevoegenButton),
+            wereldToevoegen: @Json.Serialize(AdminUi.WereldToevoegenButton),
+            categorieToevoegen: @Json.Serialize(AdminUi.CategorieToevoegenButton),
+            questLocatieToevoegen: @Json.Serialize(AdminUi.QuestLocatieToevoegenButton),
+            standaardNpcToevoegen: @Json.Serialize(AdminUi.StandaardNpcToevoegenButton),
+            starttijdToevoegen: @Json.Serialize(AdminUi.StarttijdToevoegenButton),
+            sleutelHint: @Json.Serialize(AdminUi.SleutelHint),
+        };
+
+        // Puts an icon and a label on a button; the label goes in as text, never as markup.
+        function setButtonLabel(buttonId, iconClass, label) {
+            const icon = document.createElement('i');
+            icon.className = iconClass;
+            document.getElementById(buttonId).replaceChildren(icon, ' ' + label);
+        }
+
+        function sleutelHint(id) {
+            return adminTekst.sleutelHint.replace('{0}', () => id);
+        }
+
+        function escapeHtml(text) {
+            const span = document.createElement('span');
+            span.textContent = text;
+            return span.innerHTML;
+        }
+
         function getProviderBadgeClass(provider) {
             if (provider === 'Google') {
                 return 'text-bg-danger';
@@ -170,7 +205,7 @@
 
             const providerRoleField = document.getElementById('editUserProviderRole');
             if (providerRoleField) {
-                providerRoleField.value = providerRole || '— none —';
+                providerRoleField.value = providerRole || adminTekst.geenRol;
             }
 
             openEditModal(userId, userName, currentRole, currentDomainId, externalLogins);
@@ -204,9 +239,9 @@
                         ${externalLogins.length > 1 ? `
                             <button type="button" class="btn btn-sm btn-outline-danger"
                                     onclick="unlinkLogin('${login.Id}')">
-                                Unlink
+                                ${escapeHtml(adminTekst.unlink)}
                             </button>
-                        ` : '<span class="text-muted small">(Primary login)</span>'}
+                        ` : `<span class="text-muted small">${escapeHtml(adminTekst.primaryLogin)}</span>`}
                     `;
                     loginsList.appendChild(row);
                 });
@@ -216,7 +251,7 @@
         }
 
         function unlinkLogin(loginId) {
-            if (confirm('Are you sure you want to unlink this external login?')) {
+            if (confirm(adminTekst.unlinkConfirm)) {
                 document.getElementById('editFormAction').value = 'unlinkLogin';
                 document.getElementById('loginIdToUnlink').value = loginId;
                 document.getElementById('editUserForm').submit();
@@ -228,7 +263,7 @@
             document.getElementById('editDomainId').value = id;
             document.getElementById('editDomainShorthand').value = shorthand;
             document.getElementById('editDomainDescription').value = description;
-            document.getElementById('saveDomainBtn').innerHTML = '<i class="fas fa-save"></i> Wijzigingen Opslaan';
+            setButtonLabel('saveDomainBtn', 'fas fa-save', adminTekst.wijzigingenOpslaan);
             document.getElementById('cancelEditDomainBtn').style.display = 'inline-block';
         }
 
@@ -236,7 +271,7 @@
             document.getElementById('editDomainId').value = '';
             document.getElementById('editDomainShorthand').value = '';
             document.getElementById('editDomainDescription').value = '';
-            document.getElementById('saveDomainBtn').innerHTML = '<i class="fas fa-plus"></i> Domein Toevoegen';
+            setButtonLabel('saveDomainBtn', 'fas fa-plus', adminTekst.domeinToevoegen);
             document.getElementById('cancelEditDomainBtn').style.display = 'none';
         }
 
@@ -246,7 +281,7 @@
             document.getElementById('editMeetingTijd').value = tijd;
             document.getElementById('editMeetingNaam').value = naam;
             document.getElementById('editMeetingDagType').value = dagType;
-            document.getElementById('saveMeetingBtn').innerHTML = '<i class="fas fa-save"></i> Wijzigingen Opslaan';
+            setButtonLabel('saveMeetingBtn', 'fas fa-save', adminTekst.wijzigingenOpslaan);
             document.getElementById('cancelEditMeetingBtn').style.display = 'inline-block';
         }
 
@@ -255,7 +290,7 @@
             document.getElementById('editMeetingTijd').value = '';
             document.getElementById('editMeetingNaam').value = '';
             document.getElementById('editMeetingDagType').value = '0';
-            document.getElementById('saveMeetingBtn').innerHTML = '<i class="fas fa-plus"></i> Meeting Toevoegen';
+            setButtonLabel('saveMeetingBtn', 'fas fa-plus', adminTekst.meetingToevoegen);
             document.getElementById('cancelEditMeetingBtn').style.display = 'none';
         }
 
@@ -263,14 +298,14 @@
         function editCharacterName(id, naam) {
             document.getElementById('editCharacterNameId').value = id;
             document.getElementById('editCharacterNameNaam').value = naam;
-            document.getElementById('saveCharacterNameBtn').innerHTML = '<i class="fas fa-save"></i> Wijzigingen Opslaan';
+            setButtonLabel('saveCharacterNameBtn', 'fas fa-save', adminTekst.wijzigingenOpslaan);
             document.getElementById('cancelEditCharacterNameBtn').style.display = 'inline-block';
         }
 
         function cancelEditCharacterName() {
             document.getElementById('editCharacterNameId').value = '';
             document.getElementById('editCharacterNameNaam').value = '';
-            document.getElementById('saveCharacterNameBtn').innerHTML = '<i class="fas fa-plus"></i> Naam Toevoegen';
+            setButtonLabel('saveCharacterNameBtn', 'fas fa-plus', adminTekst.naamToevoegen);
             document.getElementById('cancelEditCharacterNameBtn').style.display = 'none';
         }
 
@@ -278,14 +313,14 @@
         function editWorldName(id, naam) {
             document.getElementById('editWorldNameId').value = id;
             document.getElementById('editWorldNameNaam').value = naam;
-            document.getElementById('saveWorldNameBtn').innerHTML = '<i class="fas fa-save"></i> Wijzigingen Opslaan';
+            setButtonLabel('saveWorldNameBtn', 'fas fa-save', adminTekst.wijzigingenOpslaan);
             document.getElementById('cancelEditWorldNameBtn').style.display = 'inline-block';
         }
 
         function cancelEditWorldName() {
             document.getElementById('editWorldNameId').value = '';
             document.getElementById('editWorldNameNaam').value = '';
-            document.getElementById('saveWorldNameBtn').innerHTML = '<i class="fas fa-plus"></i> Wereld Toevoegen';
+            setButtonLabel('saveWorldNameBtn', 'fas fa-plus', adminTekst.wereldToevoegen);
             document.getElementById('cancelEditWorldNameBtn').style.display = 'none';
         }
 
@@ -298,9 +333,9 @@
             document.getElementById('editQuestLocatieCategorieNotitie').value = button.dataset.categorieNotitie || '';
             document.getElementById('editQuestLocatieCategorieErnst').value = button.dataset.categorieErnst;
             document.getElementById('editQuestLocatieCategorieOrder').value = button.dataset.categorieOrder;
-            document.getElementById('saveQuestLocatieCategorieBtn').innerHTML = '<i class="fas fa-save"></i> Wijzigingen Opslaan';
+            setButtonLabel('saveQuestLocatieCategorieBtn', 'fas fa-save', adminTekst.wijzigingenOpslaan);
             document.getElementById('cancelEditQuestLocatieCategorieBtn').style.display = 'inline-block';
-            document.getElementById('questLocatieCategorieIdHint').textContent = 'Sleutel: ' + button.dataset.categorieId + ' (wijzigt niet)';
+            document.getElementById('questLocatieCategorieIdHint').textContent = sleutelHint(button.dataset.categorieId);
         }
 
         function cancelEditQuestLocatieCategorie() {
@@ -308,7 +343,7 @@
             document.getElementById('editQuestLocatieCategorieNaam').value = '';
             document.getElementById('editQuestLocatieCategorieNotitie').value = '';
             document.getElementById('editQuestLocatieCategorieOrder').value = '0';
-            document.getElementById('saveQuestLocatieCategorieBtn').innerHTML = '<i class="fas fa-plus"></i> Categorie Toevoegen';
+            setButtonLabel('saveQuestLocatieCategorieBtn', 'fas fa-plus', adminTekst.categorieToevoegen);
             document.getElementById('cancelEditQuestLocatieCategorieBtn').style.display = 'none';
             document.getElementById('questLocatieCategorieIdHint').textContent = '';
         }
@@ -329,9 +364,9 @@
                 option.disabled = option.value === button.dataset.locatieId;
             });
 
-            document.getElementById('saveQuestLocatieBtn').innerHTML = '<i class="fas fa-save"></i> Wijzigingen Opslaan';
+            setButtonLabel('saveQuestLocatieBtn', 'fas fa-save', adminTekst.wijzigingenOpslaan);
             document.getElementById('cancelEditQuestLocatieBtn').style.display = 'inline-block';
-            document.getElementById('questLocatieIdHint').textContent = 'Sleutel: ' + button.dataset.locatieId + ' (wijzigt niet)';
+            document.getElementById('questLocatieIdHint').textContent = sleutelHint(button.dataset.locatieId);
         }
 
         function cancelEditQuestLocatie() {
@@ -348,7 +383,7 @@
                 option.disabled = false;
             });
 
-            document.getElementById('saveQuestLocatieBtn').innerHTML = '<i class="fas fa-plus"></i> Questlocatie Toevoegen';
+            setButtonLabel('saveQuestLocatieBtn', 'fas fa-plus', adminTekst.questLocatieToevoegen);
             document.getElementById('cancelEditQuestLocatieBtn').style.display = 'none';
             document.getElementById('questLocatieIdHint').textContent = '';
         }
@@ -360,7 +395,7 @@
             document.getElementById('editStandaardNpcRol').value = button.dataset.npcRol;
             document.getElementById('editStandaardNpcKledingEnSchmink').value = button.dataset.npcKleding || '';
             document.getElementById('editStandaardNpcCastingInstructie').value = button.dataset.npcCasting || '';
-            document.getElementById('saveStandaardNpcBtn').innerHTML = '<i class="fas fa-save"></i> Wijzigingen Opslaan';
+            setButtonLabel('saveStandaardNpcBtn', 'fas fa-save', adminTekst.wijzigingenOpslaan);
             document.getElementById('cancelEditStandaardNpcBtn').style.display = 'inline-block';
             document.getElementById('editStandaardNpcRol').focus();
         }
@@ -370,7 +405,7 @@
             document.getElementById('editStandaardNpcRol').value = '';
             document.getElementById('editStandaardNpcKledingEnSchmink').value = '';
             document.getElementById('editStandaardNpcCastingInstructie').value = '';
-            document.getElementById('saveStandaardNpcBtn').innerHTML = '<i class="fas fa-plus"></i> Standaard-NPC Toevoegen';
+            setButtonLabel('saveStandaardNpcBtn', 'fas fa-plus', adminTekst.standaardNpcToevoegen);
             document.getElementById('cancelEditStandaardNpcBtn').style.display = 'none';
         }
 
@@ -386,9 +421,9 @@
             document.getElementById('editStarttijdBlokVensterEersteDag').value = button.dataset.starttijdVensterEersteDag || '';
             document.getElementById('editStarttijdBlokVensterMiddelDagen').value = button.dataset.starttijdVensterMiddelDagen || '';
             document.getElementById('editStarttijdBlokVensterLaatsteDag').value = button.dataset.starttijdVensterLaatsteDag || '';
-            document.getElementById('saveStarttijdBtn').innerHTML = '<i class="fas fa-save"></i> Wijzigingen Opslaan';
+            setButtonLabel('saveStarttijdBtn', 'fas fa-save', adminTekst.wijzigingenOpslaan);
             document.getElementById('cancelEditStarttijdBtn').style.display = 'inline-block';
-            document.getElementById('starttijdIdHint').textContent = 'Sleutel: ' + button.dataset.starttijdId + ' (wijzigt niet)';
+            document.getElementById('starttijdIdHint').textContent = sleutelHint(button.dataset.starttijdId);
         }
 
         function cancelEditStarttijd() {
@@ -400,7 +435,7 @@
             document.getElementById('editStarttijdBlokVensterEersteDag').value = '';
             document.getElementById('editStarttijdBlokVensterMiddelDagen').value = '';
             document.getElementById('editStarttijdBlokVensterLaatsteDag').value = '';
-            document.getElementById('saveStarttijdBtn').innerHTML = '<i class="fas fa-plus"></i> Starttijd Toevoegen';
+            setButtonLabel('saveStarttijdBtn', 'fas fa-plus', adminTekst.starttijdToevoegen);
             document.getElementById('cancelEditStarttijdBtn').style.display = 'none';
             document.getElementById('starttijdIdHint').textContent = '';
         }

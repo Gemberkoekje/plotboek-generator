@@ -1,3 +1,6 @@
+using System.Globalization;
+using PlotboekGenerator.core.Resources;
+
 namespace PlotboekGenerator.core.Models;
 
 /// <summary>
@@ -153,20 +156,20 @@ public sealed record NpcRolData
         var annotations = new List<string>();
 
         if (IsTerukerend)
-            annotations.Add("TERUGKEREND");
+            annotations.Add(CoreTekst.NpcRolTerugkerendNadruk);
 
         if (IsEerderGespeeld)
         {
             annotations.Add(string.IsNullOrWhiteSpace(GespeeldDoor)
-                ? "eerder gespeeld"
-                : $"eerder gespeeld door {GespeeldDoor}");
+                ? CoreTekst.NpcRolEerderGespeeld
+                : string.Format(CultureInfo.CurrentCulture, CoreTekst.NpcRolEerderGespeeldDoor, GespeeldDoor));
         }
 
         if (IsAlGekozen)
         {
             annotations.Add(string.IsNullOrWhiteSpace(GekozenPersoon)
-                ? "al gekozen"
-                : $"gekozen: {GekozenPersoon}");
+                ? CoreTekst.NpcRolAlGekozen
+                : string.Format(CultureInfo.CurrentCulture, CoreTekst.NpcRolGekozen, GekozenPersoon));
         }
 
         if (annotations.Count > 0)

@@ -16,7 +16,7 @@ service.
   notes, props and loot, location (with a curated list of quest locations and warnings when two
   encounters clash), start time and length, encounter types, icons, instructions for the crew that
   runs music, light and smoke, debrief questions, and attachments shared between encounters.
-- **Working together**: roles (Admin, storyteller, read-only NPC, guest), a full change history
+- **Working together**: roles (Admin, storyteller, Reader, read-only NPC, guest), a full change history
   with restore, protection against overwriting each other's changes, feedback points from the head
   storyteller, and a "volledig klaar" (completely ready) workflow.
 - **Word export** into a template you can replace, with a generated table of contents and page
@@ -24,6 +24,8 @@ service.
 - **Optional** elevator-pitch suggestions from Google Gemini.
 - **Sign-in** through any OpenID Connect provider (Google, Microsoft Entra, Keycloak, Auth0, …).
   There are no local accounts.
+- **Dutch and English**, picked by the browser or a switcher in the menu; the Word export uses the
+  deployment's default language. See [docs/i18n.md](docs/i18n.md) to add or improve a translation.
 - Light and dark theme.
 
 ## Quick start
@@ -59,19 +61,41 @@ Settings use the usual ASP.NET Core sources: `appsettings.json`, environment var
 | `…:DisplayName`, `…:Authority`, `…:ClientId`, `…:ClientSecret` | The provider. `Authority` is the issuer URL; leave `ClientSecret` empty for a public (PKCE) client |
 | `…:Scopes`, `…:CallbackPath`, `…:SignedOutCallbackPath` | Optional. Defaults: `openid profile email`, `/signin-oidc-<scheme>`, `/signout-callback-oidc-<scheme>` |
 | `…:RoleClaim` | Optional: the claim that carries the user's roles at this provider |
-| `Authentication:Roles:Admin`, `:User`, `:NPC` | The values of that claim that grant each role (comma separated) |
+| `Authentication:Roles:Admin`, `:User`, `:Reader`, `:NPC` | The values of that claim that grant each role (comma separated) |
 | `Authentication:Admins` | E-mail addresses that are always Admin (comma separated) |
+| `Authentication:DefaultRole` | Optional: the role of a sign-in nothing else grants one (`Guest`, `NPC`, `Reader` or `User`). Empty: a provider without a role claim leaves the role alone, and one whose claim grants nothing makes the user a Guest |
 | `Hosting:PathBase` | Serve below a path, e.g. `/plotboek` |
+| `Localization:DefaultCulture` | `nl` (the default) or `en`: the language a visitor gets when their browser asks for none of the supported ones, the language of the Word export, and of the example data on a first start |
+| `Localization:SupportedCultures` | The languages a visitor may read, by their browser or the switcher in the menu (comma separated; default: only the default culture) |
 | `Branding:Name`, `:LogoUrl`, `:FaviconUrl`, `:ThemeColor`, `:FooterText` | How the app presents your LARP |
+| `Branding:ContactUrl` | Optional: where people reach you (`mailto:` or `https:`); the privacy page links to it |
 | `Theme:CookieName`, `Theme:SharedDomain` | Where the light/dark choice is kept; with a shared domain, sibling sites share it |
 | `Terminology:*` | Your LARP's words for a few things: `Techniek`, `InstructieTechniek`, `EventBreed`, `Organisatie`, … (see `Terminologie.cs`) |
 | `QuestLocaties:Kaart:Url`, `:Titel`, `:Bijschrift`, `:AltTekst` | A map of your terrain, shown next to the location field |
 | `Gemini:ApiKey` | Optional: elevator-pitch suggestions |
 | `Authentication:Google:ClientId`, `:ClientSecret`, `GoogleDrive:RefreshToken`, `GoogleDrive:SyncApiKey` | Optional: Google Drive upload (an OAuth client with Drive access, an Admin connects it on the Admin page) and the key that protects `POST /api/sync-google-drive` |
 | `DataProtection:KeyPath`, `:CertificatePath`, `:CertificatePassword` | Keep sign-ins valid across restarts, encrypted at rest |
+| `Demo:Enabled`, `Demo:ResetApiKey` | Run as a public demo: see below |
 
 Users without a role see a welcome page until an Admin gives them one, or until the provider's role
-claim does.
+claim does. The roles, from the most to the least a user may do:
+
+| Role | May |
+|---|---|
+| Admin | everything, the Admin page included |
+| User | write plots: a storyteller |
+| Reader | read every plotboek, finished or not, with its feedback; change nothing |
+| NPC | read the plotboeken marked *volledig klaar*, without their feedback |
+| Guest | nothing yet |
+
+### Running a public demo
+
+`Demo:Enabled=true` turns a deployment into a demo: every page says so, an empty database gets the
+host's example plotboek (`IDemoContent`) on the first start, and `POST /api/demo/reset` (header
+`X-Api-Key: <Demo:ResetApiKey>`) puts that example back. A reset deletes every plot and every
+visitor's account; admins and everyone an Admin gave a role by hand keep theirs. Call it nightly
+from a cron job, and set `Authentication:DefaultRole=Reader` so visitors can look around without
+changing anything. `Branding:ContactUrl` puts a "ask for write access" link in the banner.
 
 ## Making it your own
 
@@ -87,8 +111,9 @@ A profile supplies:
 
 - the **Word template** (`IDocumentTemplateProvider`): a .docx whose content controls are tagged
   with the property names of `PlotboekTemplateData`. Start from
-  `PlotboekGenerator.Host/Templates/PlotboekTemplate.docx`;
+  `PlotboekGenerator.Host/Templates/PlotboekTemplate.docx` (Dutch) or `PlotboekTemplate.en.docx` (English);
 - the **reference data** a fresh database starts with (`IReferenceDataSeed`);
+- optionally an **example** to show when it runs as a demo (`IDemoContent`);
 - optionally a different **role resolver** (`IRoleResolver`), extra sign-in handlers, Marten
   settings, or a one-off migration.
 

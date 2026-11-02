@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="ConcurrencyConflict" xml:space="preserve">
+    <value>Iemand anders heeft al een aanpassing gedaan. Je wijzigingen zijn niet opgeslagen.</value>
+  </data>
+  <data name="ExportFlexibel" xml:space="preserve">
+    <value>{0} (Flexibel)</value>
+    <comment>{0} is the start time of a flexible plot.</comment>
+  </data>
+  <data name="ExportNogNietIngepland" xml:space="preserve">
+    <value>Nog niet ingepland</value>
+    <comment>Heading in the export for the plots without a day.</comment>
+  </data>
+  <data name="ExportSpelerGedreven" xml:space="preserve">
+    <value>Speler gedreven</value>
+    <comment>Time slot of a player-driven plot in the export.</comment>
+  </data>
+  <data name="ExportSpelerGedrevenKop" xml:space="preserve">
+    <value>Speler Gedreven</value>
+    <comment>Heading in the export for the player-driven plots.</comment>
+  </data>
+  <data name="ExportZieExtraInformatie" xml:space="preserve">
+    <value>Zie extra informatie op pagina </value>
+    <comment>Followed by a page number; keep the space at the end.</comment>
+  </data>
+  <data name="GeminiPromptBron" xml:space="preserve">
+    <value>Gebruik de SAMENVATTING als de HOOFDbron en gebruik de overige velden alleen als extra context. Formuleer slechts ÉÉN zin als antwoord.</value>
+  </data>
+  <data name="GeminiPromptDebrief" xml:space="preserve">
+    <value>Debrief: {0}</value>
+  </data>
+  <data name="GeminiPromptDoel" xml:space="preserve">
+    <value>Doel: 1 zin die MSL gebruikt om het plot te verkopen richting de figuranten tijdens het verdelen van de rollen.</value>
+  </data>
+  <data name="GeminiPromptEncounter" xml:space="preserve">
+    <value>Encounter: {0}</value>
+  </data>
+  <data name="GeminiPromptExtraInformatie" xml:space="preserve">
+    <value>Extra informatie: {0}</value>
+  </data>
+  <data name="GeminiPromptNpcs" xml:space="preserve">
+    <value>NPCs: {0}</value>
+  </data>
+  <data name="GeminiPromptOpdracht" xml:space="preserve">
+    <value>Geef één korte elevator pitch in één zin (geen opsommingen of meerdere opties).</value>
+  </data>
+  <data name="GeminiPromptPropsEnLoot" xml:space="preserve">
+    <value>Props &amp; Loot: {0}</value>
+  </data>
+  <data name="GeminiPromptSamenvatting" xml:space="preserve">
+    <value>Samenvatting:</value>
+  </data>
+  <data name="GeminiPromptTaal" xml:space="preserve">
+    <value>Schrijf het antwoord in deze taal: {0}.</value>
+    <comment>{0} is the reader's language, e.g. "Nederlands" or "English".</comment>
+  </data>
+  <data name="GeminiPromptTitel" xml:space="preserve">
+    <value>Titel: {0}</value>
+  </data>
+  <data name="GoogleDriveBijwerkenMislukt" xml:space="preserve">
+    <value>Het bestand kon in Google Drive niet worden bijgewerkt: {0}</value>
+    <comment>{0} is Google's own error message.</comment>
+  </data>
+  <data name="GoogleDriveFolderUrlOnleesbaar" xml:space="preserve">
+    <value>Uit de URL {0} is geen Google Drive folder te halen.</value>
+  </data>
+  <data name="GoogleDriveGeenFolderUrl" xml:space="preserve">
+    <value>Er is voor dit plotboek geen Google Drive folder URL ingesteld.</value>
+  </data>
+  <data name="GoogleDriveNietGeconfigureerd" xml:space="preserve">
+    <value>Google Drive is niet geconfigureerd.</value>
+  </data>
+  <data name="GoogleDriveUploadenMislukt" xml:space="preserve">
+    <value>Het bestand kon niet naar Google Drive worden geüpload: {0}</value>
+    <comment>{0} is Google's own error message.</comment>
+  </data>
+  <data name="PaginaIdLeeg" xml:space="preserve">
+    <value>Er is geen pagina opgegeven.</value>
+  </data>
+  <data name="PaginaNietGevonden" xml:space="preserve">
+    <value>Pagina {0} is niet gevonden.</value>
+    <comment>{0} is the page's id.</comment>
+  </data>
+  <data name="PlotboekIdLeeg" xml:space="preserve">
+    <value>Er is geen plotboek opgegeven.</value>
+  </data>
+  <data name="PlotboekNietGevonden" xml:space="preserve">
+    <value>Plotboek {0} is niet gevonden.</value>
+    <comment>{0} is the plot book's id.</comment>
+  </data>
+</root>

@@ -1,16 +1,16 @@
 @model AdminModel
+@using System.Globalization
 
 <!-- Character Name Management Section -->
 <div class="card mb-4">
     <div class="card-header text-bg-info">
         <h5 class="mb-0">
-            <i class="fas fa-user-tag"></i> Namen Management
+            <i class="fas fa-user-tag"></i> @AdminUi.SectieNamen
         </h5>
     </div>
     <div class="card-body">
         <p class="text-muted mb-3">
-            Beheer de karakternamen die worden afgedrukt in de plotboek export.
-            Namen worden altijd op alfabetische volgorde weergegeven.
+            @AdminUi.NamenUitleg
         </p>
 
         <!-- Add/Edit Character Name Form -->
@@ -20,7 +20,7 @@
             <input type="hidden" name="EditCharacterNameId" id="editCharacterNameId" value="" />
             <div class="row g-3 align-items-end">
                 <div class="col-md-6">
-                    <label for="editCharacterNameNaam" class="form-label">Naam</label>
+                    <label for="editCharacterNameNaam" class="form-label">@AdminUi.NaamLabel</label>
                     <input type="text"
                            class="form-control"
                            id="editCharacterNameNaam"
@@ -29,10 +29,10 @@
                 </div>
                 <div class="col-md-6">
                     <button type="submit" class="btn btn-info" id="saveCharacterNameBtn">
-                        <i class="fas fa-plus"></i> Naam Toevoegen
+                        <i class="fas fa-plus"></i> @AdminUi.NaamToevoegenButton
                     </button>
                     <button type="button" class="btn btn-outline-secondary" id="cancelEditCharacterNameBtn" style="display: none;" onclick="cancelEditCharacterName()">
-                        <i class="fas fa-times"></i> Annuleren
+                        <i class="fas fa-times"></i> @AdminUi.AnnulerenButton
                     </button>
                 </div>
             </div>
@@ -41,13 +41,13 @@
         <!-- Character Names List -->
         @if (Model.CharacterNames.Count > 0)
         {
-            <p class="text-muted small mb-2">@Model.CharacterNames.Count namen</p>
+            <p class="text-muted small mb-2">@string.Format(CultureInfo.CurrentCulture, Model.CharacterNames.Count == 1 ? AdminUi.NamenAantalOne : AdminUi.NamenAantalMany, Model.CharacterNames.Count)</p>
             <div class="table-responsive" style="max-height: 500px; overflow-y: auto;">
                 <table class="table table-hover table-sm">
                     <thead class="sticky-top bg-body-tertiary">
                         <tr>
-                            <th>Naam</th>
-                            <th style="width: 150px;">Acties</th>
+                            <th>@AdminUi.NaamLabel</th>
+                            <th style="width: 150px;">@AdminUi.KolomActies</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -67,7 +67,8 @@
                                         <input type="hidden" name="DeleteCharacterNameId" value="@name.Id" />
                                         <button type="submit"
                                                 class="btn btn-sm btn-outline-danger"
-                                                onclick="return confirm('Weet je zeker dat je naam \'@name.Naam\' wilt verwijderen?');">
+                                                data-confirm="@string.Format(CultureInfo.CurrentCulture, AdminUi.NaamVerwijderenConfirm, name.Naam)"
+                                                onclick="return confirm(this.dataset.confirm);">
                                             <i class="fas fa-trash"></i>
                                         </button>
                                     </form>
@@ -81,7 +82,7 @@
         else
         {
             <div class="alert alert-info">
-                <i class="fas fa-info-circle"></i> Geen namen gevonden. Voeg een naam toe om te beginnen.
+                <i class="fas fa-info-circle"></i> @AdminUi.GeenNamen
             </div>
         }
     </div>

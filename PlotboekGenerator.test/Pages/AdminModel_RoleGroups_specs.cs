@@ -233,10 +233,10 @@ public sealed class AdminModel_RoleGroups_specs
     }
 
     [Test]
-    public void AvailableRoles_are_deterministic_with_NPC_between_User_and_Guest()
+    public void AvailableRoles_are_deterministic_from_the_most_to_the_least_a_user_may_do()
     {
         var model = CreateModel();
 
-        model.AvailableRoles.Should().Equal("Admin", "User", "NPC", "Guest");
+        model.AvailableRoles.Should().Equal("Admin", "User", "Reader", "NPC", "Guest");
     }
 }

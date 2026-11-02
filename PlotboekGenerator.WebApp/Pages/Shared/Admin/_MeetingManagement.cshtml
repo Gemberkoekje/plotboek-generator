@@ -5,12 +5,12 @@
 <div class="card mb-4">
     <div class="card-header text-bg-info">
         <h5 class="mb-0">
-            <i class="fas fa-calendar-alt"></i> Meeting Management
+            <i class="fas fa-calendar-alt"></i> @AdminUi.SectieMeetings
         </h5>
     </div>
     <div class="card-body">
         <p class="text-muted mb-3">
-            Beheer de standaard meetings per dagtype. Deze worden gebruikt als basis voor de tijdschema's.
+            @AdminUi.MeetingsUitleg
         </p>
 
         <!-- Add/Edit Meeting Form -->
@@ -20,25 +20,25 @@
             <input type="hidden" name="EditMeetingId" id="editMeetingId" value="" />
             <div class="row g-3 align-items-end">
                 <div class="col-md-2">
-                    <label for="editMeetingDagType" class="form-label">Dagtype</label>
+                    <label for="editMeetingDagType" class="form-label">@AdminUi.DagtypeLabel</label>
                     <select class="form-select" id="editMeetingDagType" name="EditMeetingDagType" required>
-                        <option value="0">Eerste dag</option>
-                        <option value="1">Tussendag</option>
-                        <option value="2">Laatste dag</option>
+                        <option value="0">@MeetingDagType.EersteDag.Naam()</option>
+                        <option value="1">@MeetingDagType.Tussendag.Naam()</option>
+                        <option value="2">@MeetingDagType.LaatseDag.Naam()</option>
                     </select>
                 </div>
                 <div class="col-md-2">
-                    <label for="editMeetingTijd" class="form-label">Tijd</label>
+                    <label for="editMeetingTijd" class="form-label">@AdminUi.TijdLabel</label>
                     <input type="text"
                            class="form-control"
                            id="editMeetingTijd"
                            name="EditMeetingTijd"
-                           placeholder="bijv. 14:00"
+                           placeholder="@AdminUi.TijdPlaceholder"
                            maxlength="10"
                            required />
                 </div>
                 <div class="col-md-5">
-                    <label for="editMeetingNaam" class="form-label">Naam</label>
+                    <label for="editMeetingNaam" class="form-label">@AdminUi.NaamLabel</label>
                     <input type="text"
                            class="form-control"
                            id="editMeetingNaam"
@@ -47,10 +47,10 @@
                 </div>
                 <div class="col-md-3">
                     <button type="submit" class="btn btn-info" id="saveMeetingBtn">
-                        <i class="fas fa-plus"></i> Meeting Toevoegen
+                        <i class="fas fa-plus"></i> @AdminUi.MeetingToevoegenButton
                     </button>
                     <button type="button" class="btn btn-outline-secondary" id="cancelEditMeetingBtn" style="display: none;" onclick="cancelEditMeeting()">
-                        <i class="fas fa-times"></i> Annuleren
+                        <i class="fas fa-times"></i> @AdminUi.AnnulerenButton
                     </button>
                 </div>
             </div>
@@ -59,9 +59,9 @@
         @{
             var sections = new[]
             {
-                (Title: "Eerste dag", DagType: MeetingDagType.EersteDag, Key: "EersteDag", Meetings: Model.EersteDagMeetings),
-                (Title: "Tussendag", DagType: MeetingDagType.Tussendag, Key: "Tussendag", Meetings: Model.TussendagMeetings),
-                (Title: "Laatste dag", DagType: MeetingDagType.LaatseDag, Key: "LaatseDag", Meetings: Model.LaatseDagMeetings),
+                (Title: MeetingDagType.EersteDag.Naam(), Leeg: AdminUi.GeenMeetingsEersteDag, Key: "EersteDag", Meetings: Model.EersteDagMeetings),
+                (Title: MeetingDagType.Tussendag.Naam(), Leeg: AdminUi.GeenMeetingsTussendag, Key: "Tussendag", Meetings: Model.TussendagMeetings),
+                (Title: MeetingDagType.LaatseDag.Naam(), Leeg: AdminUi.GeenMeetingsLaatsteDag, Key: "LaatseDag", Meetings: Model.LaatseDagMeetings),
             };
         }
 
@@ -75,10 +75,10 @@
                     <table class="table table-hover">
                         <thead>
                             <tr>
-                                <th style="width: 50px;">Volgorde</th>
-                                <th style="width: 120px;">Tijd</th>
-                                <th>Naam</th>
-                                <th style="width: 150px;">Acties</th>
+                                <th style="width: 50px;">@AdminUi.Volgorde</th>
+                                <th style="width: 120px;">@AdminUi.TijdLabel</th>
+                                <th>@AdminUi.NaamLabel</th>
+                                <th style="width: 150px;">@AdminUi.KolomActies</th>
                             </tr>
                         </thead>
                         <tbody id="meetingsTbody_@dagSection.Key">
@@ -103,7 +103,8 @@
                                             <input type="hidden" name="DeleteMeetingId" value="@meeting.Id" />
                                             <button type="submit"
                                                     class="btn btn-sm btn-outline-danger"
-                                                    onclick="return confirm('Weet je zeker dat je deze meeting wilt verwijderen?');">
+                                                    data-confirm="@AdminUi.MeetingVerwijderenConfirm"
+                                                    onclick="return confirm(this.dataset.confirm);">
                                                 <i class="fas fa-trash"></i>
                                             </button>
                                         </form>
@@ -120,17 +121,17 @@
                     <input type="hidden" name="Section" value="meetings" />
                     <input type="hidden" name="MeetingReorderData" id="meetingReorderData_@dagSection.Key" value="" />
                     <button type="submit" class="btn btn-primary">
-                        <i class="fas fa-save"></i> Volgorde Opslaan
+                        <i class="fas fa-save"></i> @AdminUi.VolgordeOpslaanButton
                     </button>
                     <button type="button" class="btn btn-outline-secondary" onclick="cancelMeetingReorder('@dagSection.Key')">
-                        <i class="fas fa-times"></i> Annuleren
+                        <i class="fas fa-times"></i> @AdminUi.AnnulerenButton
                     </button>
                 </form>
             }
             else
             {
                 <div class="alert alert-info">
-                    <i class="fas fa-info-circle"></i> Geen meetings gevonden voor @dagSection.Title.ToLowerInvariant().
+                    <i class="fas fa-info-circle"></i> @dagSection.Leeg
                 </div>
             }
         }

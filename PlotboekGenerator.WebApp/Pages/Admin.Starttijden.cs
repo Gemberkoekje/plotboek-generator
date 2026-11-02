@@ -1,5 +1,6 @@
 using System.Globalization;
 using System.Text.RegularExpressions;
+using PlotboekGenerator.WebApp.Resources;
 
 namespace PlotboekGenerator.WebApp.Pages;
 
@@ -53,7 +54,7 @@ public sealed partial class AdminModel
     {
         if (string.IsNullOrWhiteSpace(EditStarttijdNaam))
         {
-            ErrorMessage = "Naam is verplicht.";
+            ErrorMessage = AdminUi.NaamVerplicht;
             return;
         }
 
@@ -64,7 +65,7 @@ public sealed partial class AdminModel
         var afgeleideId = DeriveStarttijdId(naam);
         if (afgeleideId.Length == 0)
         {
-            ErrorMessage = "De naam moet met een tijd beginnen, bijvoorbeeld \"11:30\" of \"19:30: Introquest\".";
+            ErrorMessage = AdminUi.StarttijdZonderTijd;
             return;
         }
 
@@ -75,7 +76,7 @@ public sealed partial class AdminModel
 
         if (HasAnderSlotMetNaam(opgeslagen, naam))
         {
-            ErrorMessage = $"Er bestaat al een starttijd met de naam '{naam}'.";
+            ErrorMessage = string.Format(CultureInfo.CurrentCulture, AdminUi.StarttijdNaamBestaat, naam);
             return;
         }
 
@@ -86,13 +87,13 @@ public sealed partial class AdminModel
         {
             if (!opgeslagenById.TryGetValue(EditStarttijdId, out var existing))
             {
-                ErrorMessage = "Starttijd niet gevonden.";
+                ErrorMessage = AdminUi.StarttijdNietGevonden;
                 return;
             }
 
             if (existing.IsNone)
             {
-                ErrorMessage = "De lege waarde kan niet bewerkt worden.";
+                ErrorMessage = AdminUi.StarttijdLegeWaarde;
                 return;
             }
 
@@ -100,13 +101,13 @@ public sealed partial class AdminModel
             alle = [.. alle.Select(s => string.Equals(s.Id, existing.Id, StringComparison.Ordinal) ? gewijzigd : s)];
 
             logger.LogInformation("Admin {AdminUser} updated starttijd {StarttijdId}: {Naam}", User.Identity?.Name, existing.Id, naam);
-            SuccessMessage = $"Starttijd '{naam}' bijgewerkt.";
+            SuccessMessage = string.Format(CultureInfo.CurrentCulture, AdminUi.StarttijdBijgewerkt, naam);
         }
         else
         {
             if (opgeslagenById.ContainsKey(afgeleideId))
             {
-                ErrorMessage = $"Er bestaat al een starttijd met sleutel '{afgeleideId}'.";
+                ErrorMessage = string.Format(CultureInfo.CurrentCulture, AdminUi.StarttijdSleutelBestaat, afgeleideId);
                 return;
             }
 
@@ -131,7 +132,7 @@ public sealed partial class AdminModel
                 naam));
 
             logger.LogInformation("Admin {AdminUser} created starttijd {StarttijdId}: {Naam}", User.Identity?.Name, afgeleideId, naam);
-            SuccessMessage = $"Starttijd '{naam}' aangemaakt.";
+            SuccessMessage = string.Format(CultureInfo.CurrentCulture, AdminUi.StarttijdAangemaakt, naam);
         }
 
         StoreStarttijden(session, alle.ResequenceOrder(), opgeslagenById, nieuweId);
@@ -144,7 +145,7 @@ public sealed partial class AdminModel
         {
             logger.LogWarning(ex, "Admin {AdminUser} lost a create race for starttijd {StarttijdId}", User.Identity?.Name, afgeleideId);
             SuccessMessage = null;
-            ErrorMessage = $"Er bestaat al een starttijd met sleutel '{afgeleideId}'. Ververs de pagina en bewerk die.";
+            ErrorMessage = string.Format(CultureInfo.CurrentCulture, AdminUi.StarttijdSleutelBestaatVerversen, afgeleideId);
             return;
         }
 
@@ -223,7 +224,7 @@ public sealed partial class AdminModel
         var beschikbaar = Starttijden.GetAvailable(dagType);
         if (beschikbaar.Count == 0)
         {
-            return "geen slots beschikbaar";
+            return AdminUi.GeenSlotsBeschikbaar;
         }
 
         return string.Join(" · ", beschikbaar.Select(config =>
@@ -231,7 +232,7 @@ public sealed partial class AdminModel
             var nummer = Starttijden.GetBlokNummer(dagType, config.Id);
 
             return nummer == 0
-                ? $"{config.DisplayName} (geen blok)"
+                ? string.Format(CultureInfo.CurrentCulture, AdminUi.SlotZonderBlok, config.DisplayName)
                 : $"{nummer}. {config.DisplayName} ({config.GetBlokVenster(dagType)})";
         }));
     }

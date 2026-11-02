@@ -1,3 +1,6 @@
+using System.Net;
+using PlotboekGenerator.core.Resources;
+
 namespace PlotboekGenerator.core.Events;
 
 public sealed record PlotboekPaginaPropsEnLootAangepast : AuditTrailEvent
@@ -15,10 +18,10 @@ public sealed record PlotboekPaginaPropsEnLootAangepast : AuditTrailEvent
 
             if (validProps.Count == 0 && validLoot.Count == 0)
             {
-                return "<strong>Props &amp; Loot aangepast:</strong> (leeg)";
+                return $"<strong>{WebUtility.HtmlEncode(CoreTekst.PropsEnLootAangepastLabel)}</strong> {CoreTekst.Leeg}";
             }
 
-            return "<strong>Props &amp; Loot aangepast</strong>";
+            return $"<strong>{WebUtility.HtmlEncode(CoreTekst.PropsEnLootAangepast)}</strong>";
         }
     }
 
@@ -31,7 +34,7 @@ public sealed record PlotboekPaginaPropsEnLootAangepast : AuditTrailEvent
             var validProps = Props?.Where(p => p.HasValue).ToList() ?? [];
             if (validProps.Count > 0)
             {
-                parts.Add("<strong>Props:</strong>");
+                parts.Add($"<strong>{CoreTekst.PropsLabel}</strong>");
                 parts.AddRange(validProps.Select(p =>
                     !string.IsNullOrWhiteSpace(p.VerantwoordelijkeSlName)
                         ? $"• {p.Omschrijving} ({p.VerantwoordelijkeSlName})"
@@ -41,7 +44,7 @@ public sealed record PlotboekPaginaPropsEnLootAangepast : AuditTrailEvent
             var validLoot = Loot?.Where(l => l.HasValue).ToList() ?? [];
             if (validLoot.Count > 0)
             {
-                parts.Add("<strong>Loot:</strong>");
+                parts.Add($"<strong>{CoreTekst.LootLabel}</strong>");
                 parts.AddRange(validLoot.Select(l =>
                     !string.IsNullOrWhiteSpace(l.VerantwoordelijkeSlName)
                         ? $"• {l.Omschrijving} ({l.VerantwoordelijkeSlName})"

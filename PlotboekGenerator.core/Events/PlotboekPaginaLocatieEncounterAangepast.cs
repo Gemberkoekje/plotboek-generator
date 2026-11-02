@@ -1,3 +1,5 @@
+using PlotboekGenerator.core.Resources;
+
 namespace PlotboekGenerator.core.Events;
 
 public sealed record PlotboekPaginaLocatieEncounterAangepast : AuditTrailEvent
@@ -13,7 +15,7 @@ public sealed record PlotboekPaginaLocatieEncounterAangepast : AuditTrailEvent
             // Specificatie is free text and the audit modal writes What with Html.Raw, so it has to
             // arrive encoded — including for streams written before the V2 event existed.
             var locatieData = LocatieEncounterData.Create(Locatie, Specificatie);
-            return $"<strong>Locatie encounter aangepast:</strong> {(locatieData.HasValue ? PlainTextInline(locatieData.ToString()) : "(leeg)")}";
+            return $"<strong>{CoreTekst.LocatieEncounterAangepast}</strong> {(locatieData.HasValue ? PlainTextInline(locatieData.ToString()) : CoreTekst.Leeg)}";
         }
     }
 }

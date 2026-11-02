@@ -50,7 +50,7 @@ public sealed class AdminModel_UserInfo_specs
     public void DisplayLogins_shows_none_when_empty()
     {
         var info = CreateUserInfo(logins: []);
-        info.DisplayLogins.Should().Be("None");
+        info.DisplayLogins.Should().Be("Geen");
     }
 
     [Test]
@@ -81,4 +81,3 @@ public sealed class AdminModel_UserInfo_specs
         IsDummy = false,
     };
 }
-

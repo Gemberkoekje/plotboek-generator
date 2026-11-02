@@ -18,6 +18,7 @@ public sealed class ClaimRoleResolver_specs
         ["Authentication:Oidc:Providers:0:RoleClaim"] = "roles",
         ["Authentication:Roles:Admin"] = "plot-admin",
         ["Authentication:Roles:User"] = "plot-sl",
+        ["Authentication:Roles:Reader"] = "plot-reader",
         ["Authentication:Roles:NPC"] = "plot-npc",
     };
 
@@ -44,6 +45,7 @@ public sealed class ClaimRoleResolver_specs
 
     [TestCase("plot-admin", UserRoles.Admin)]
     [TestCase("plot-sl", UserRoles.User)]
+    [TestCase("plot-reader", UserRoles.Reader)]
     [TestCase("plot-npc", UserRoles.NPC)]
     [TestCase("something-else", UserRoles.Guest)]
     public void A_role_claim_maps_to_a_role(string value, string role)
@@ -77,6 +79,46 @@ public sealed class ClaimRoleResolver_specs
         var login = Login("Club", tokens: [new AuthenticationToken { Name = "id_token", Value = "not-a-jwt" }]);
 
         Resolver(Provider).ResolveRole(login).Should().Be(UserRoles.Guest);
+    }
+
+    [Test]
+    public void A_reader_outranks_an_npc()
+        => Resolver(Provider).ResolveRole(Login("Club", claims: [new Claim("roles", "plot-npc"), new Claim("roles", "plot-reader")]))
+            .Should().Be(UserRoles.Reader, "a reader sees everything an NPC sees and more");
+
+    [Test]
+    public void The_default_role_goes_to_a_provider_without_a_role_claim()
+        => Resolver(new() { [ClaimRoleResolver.DefaultRoleKey] = "reader" }).ResolveRole(Login("Google", email: "visitor@example.test"))
+            .Should().Be(UserRoles.Reader, "the setting is read without case");
+
+    [Test]
+    public void The_default_role_goes_to_a_role_claim_that_grants_nothing()
+    {
+        var settings = new Dictionary<string, string?>(Provider) { [ClaimRoleResolver.DefaultRoleKey] = UserRoles.NPC };
+
+        Resolver(settings).ResolveRole(Login("Club", claims: [new Claim("roles", "something-else")])).Should().Be(UserRoles.NPC);
+    }
+
+    [Test]
+    public void The_default_role_never_outranks_what_is_granted()
+    {
+        var settings = new Dictionary<string, string?>(Provider) { [ClaimRoleResolver.DefaultRoleKey] = UserRoles.Reader };
+
+        Resolver(settings).ResolveRole(Login("Club", claims: [new Claim("roles", "plot-sl")])).Should().Be(UserRoles.User);
+    }
+
+    [TestCase("Moderator")]
+    [TestCase("Admin")]
+    public void A_default_role_that_cannot_be_given_stops_the_resolver(string value)
+    {
+        var configuration = new ConfigurationBuilder()
+            .AddInMemoryCollection(new Dictionary<string, string?> { [ClaimRoleResolver.DefaultRoleKey] = value })
+            .Build();
+
+        var read = () => ClaimRoleResolver.ReadDefaultRole(configuration);
+
+        read.Should().Throw<InvalidOperationException>("everyone who signs in an admin is never meant, and a typo must not pass")
+            .WithMessage($"*{ClaimRoleResolver.DefaultRoleKey}*");
     }
 
     private static ClaimRoleResolver Resolver(Dictionary<string, string?> settings)
