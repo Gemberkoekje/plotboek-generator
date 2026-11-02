@@ -1,5 +1,4 @@
 using System.IO;
-using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 using DocumentFormat.OpenXml.Packaging;
 
@@ -41,14 +40,13 @@ public sealed class ProductGenericity_specs
     public void No_product_file_names_the_first_deployment()
     {
         var root = RepositoryRoot();
-        var self = ThisFile();
 
         var offenders = ProductProjects
             .Select(project => Path.Combine(root, project))
             .Where(Directory.Exists)
             .SelectMany(project => Directory.EnumerateFiles(project, "*", SearchOption.AllDirectories))
             .Where(file => TextExtensions.Contains(Path.GetExtension(file), StringComparer.OrdinalIgnoreCase))
-            .Where(file => !IsGeneratedOrVendored(file) && !string.Equals(Path.GetFullPath(file), self, StringComparison.OrdinalIgnoreCase))
+            .Where(file => !IsGeneratedOrVendored(file) && !IsThisSpec(root, file))
             .SelectMany(file => File.ReadLines(file).Select((line, index) => (file, line, index)))
             .Where(x => DeploymentWords.IsMatch(WithoutFrozenNames(x.line)))
             .Select(x => $"{Path.GetRelativePath(root, x.file)}:{x.index + 1}: {x.line.Trim()}")
@@ -99,5 +97,14 @@ public sealed class ProductGenericity_specs
         return directory?.FullName ?? throw new InvalidOperationException("The product's projects were not found above the test directory.");
     }
 
-    private static string ThisFile([CallerFilePath] string path = "") => Path.GetFullPath(path);
+    /// <summary>
+    /// Whether <paramref name="file"/> is this spec, which has to name the words it looks for. Compared by its
+    /// place in the repository: a CI build maps the compile-time paths (<c>/_/…</c>), so a caller-file path would
+    /// not match the file on disk there.
+    /// </summary>
+    private static bool IsThisSpec(string root, string file)
+        => string.Equals(
+            Path.GetRelativePath(root, file).Replace('\\', '/'),
+            "PlotboekGenerator.test/Guards/ProductGenericity_specs.cs",
+            StringComparison.OrdinalIgnoreCase);
 }

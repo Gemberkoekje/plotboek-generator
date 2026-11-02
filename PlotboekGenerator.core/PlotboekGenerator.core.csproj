@@ -21,8 +21,5 @@
     <PackageReference Include="Qowaiv.CodeGeneration.SingleValueObjects" PrivateAssets="All" />
     <PackageReference Include="Qowaiv.DomainModel" />
     <PackageReference Include="Qowaiv.Validation.Fluent" />
-    <PackageReference Include="Remora.Discord" />
-    <PackageReference Include="Remora.Discord.Commands" />
-    <PackageReference Include="Remora.Discord.Hosting" />
   </ItemGroup>
 </Project>
