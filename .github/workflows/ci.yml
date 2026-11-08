@@ -14,9 +14,12 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # cache: the NuGet global-packages folder, keyed on the lock files, which name every package.
       - uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '10.0.x'
+          cache: true
+          cache-dependency-path: '**/packages.lock.json'
 
       # Directory.Build.props switches to locked-mode restore under GitHub Actions: a lock file
       # that does not match the packages fails the build instead of silently resolving others.

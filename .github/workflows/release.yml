@@ -16,9 +16,13 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # cache: the NuGet packages, keyed on the lock files. A tag run sees only the default branch's
+      # caches, so this restores the one ci.yml keeps on main (same key).
       - uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '10.0.x'
+          cache: true
+          cache-dependency-path: '**/packages.lock.json'
 
       - name: Test
         run: dotnet test PlotboekGenerator.slnx --configuration Release
